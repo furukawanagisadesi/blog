@@ -2,7 +2,7 @@
 title: '博客建立'
 description: '第一次建立博客的感想'
 pubDate: '2026-08-07'
-heroImage: '../../assets/blog-placeholder-3.jpg'
+heroImage: '../../assets/blog-post-ai-setup.jpg'
 ---
 
 ## 开头

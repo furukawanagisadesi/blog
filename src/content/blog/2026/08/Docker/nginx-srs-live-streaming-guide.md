@@ -143,7 +143,7 @@ http {
 apt install apache2-utils -y
 
 # 创建用户和密码
-htpasswd -c /home/admin/nginx-srs/htpasswd admin
+htpasswd -c /home/admin/nginx-srs/htpasswd your_username
 ```
 
 按提示输入两次密码，后续访问直播页会要求输入此用户名和密码。
@@ -282,7 +282,7 @@ docker compose up -d
 
 ## 12. 推流和观看
 
-1. 使用 OBS 推流到 `rtmp://你的服务器IP:1935/live/流名称`
-2. 浏览器访问 `http://你的服务器IP` 观看直播（需要输入之前设置的密码）
-3. 直接播放地址（HTTP-FLV）：`http://你的服务器IP/live/流名称.flv`
-4. 直接播放地址（HLS）：`http://你的服务器IP/hls/流名称.m3u8`
+1. 使用 OBS 推流到 `rtmp://your_ip:1935/live/流名称`
+2. 浏览器访问 `http://your_ip` 观看直播（需要输入之前设置的密码）
+3. 直接播放地址（HTTP-FLV）：`http://your_ip/live/流名称.flv`
+4. 直接播放地址（HLS）：`http://your_ip/hls/流名称.m3u8`

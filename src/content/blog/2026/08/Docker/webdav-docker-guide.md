@@ -80,8 +80,8 @@ cors:
 
 # 用户认证配置
 users:
-  - username: admin
-    password: wby999
+  - username: your_username
+    password: your_password
 ```
 
 ## 5. 启动服务

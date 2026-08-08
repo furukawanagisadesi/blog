@@ -91,10 +91,10 @@ docker compose up -d
 
 ## 6. 测试推流
 
-使用 OBS 或 ffmpeg 推流到 `rtmp://你的服务器IP:1935/live/流名称`
+使用 OBS 或 ffmpeg 推流到 `rtmp://your_ip:1935/live/流名称`
 
-播放地址（HTTP-FLV）：`http://你的服务器IP:8080/live/流名称.flv`
+播放地址（HTTP-FLV）：`http://your_ip:8080/live/流名称.flv`
 
-播放地址（HLS）：`http://你的服务器IP:8080/hls/流名称.m3u8`
+播放地址（HLS）：`http://your_ip:8080/hls/流名称.m3u8`
 
-API 查看：`http://你的服务器IP:1985/api/v1/versions`
+API 查看：`http://your_ip:1985/api/v1/versions`

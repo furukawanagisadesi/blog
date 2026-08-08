@@ -44,7 +44,7 @@ services:
       - 21119:21119
     image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/lejianwen/rustdesk-server-s6:latest
     environment:
-      - "RELAY=公网服务器ip:21117"
+      - "RELAY=your_ip:21117"
       - "ENCRYPTED_ONLY=1"
     volumes:
       - ./data:/data

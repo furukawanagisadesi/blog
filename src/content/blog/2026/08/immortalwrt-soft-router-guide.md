@@ -2,10 +2,10 @@
 title: 'ImmortalWrt 软路由安装配置指南'
 description: '记录一下安装 ImmortalWrt 的过程'
 pubDate: '2026-08-08'
-heroImage: '../../assets/blog-router-network.jpg'
+# heroImage: '../../assets/blog-router-network.jpg'
 ---
 
-# ImmortalWrt 软路由安装配置指南
+<!-- # ImmortalWrt 软路由安装配置指南 -->
 
 > 本教程以 4 网口迷你主机为示例，使用镜像：
 > `immortalwrt-24.10.5-x86-64-generic-ext4-combined.img`

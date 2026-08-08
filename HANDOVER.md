@@ -1,0 +1,205 @@
+# 博客个性化 + 文章管理与发布 — 交接文档
+
+> 生成时间: 2026-08-08
+> 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
+> 本文档: 本次会话（文章发布、格式化、主页重构、敏感信息清理）总结，供后续 Agent 接力
+
+---
+
+## 一、本次会话完成的工作
+
+### 1. 发布第一篇博客文章
+- `src/content/blog/template.md`（用户已填内容）→ 重命名为 `blog-launch.md`（《博客建立》）
+- 提交 `9d13e3f`，线上验证 https://furukawanagisadesi.github.io/blog/blog-launch/ 正常
+- 顺带提交了工作区中已删除的 `CLAUDE.md` 符号链接
+
+### 2. 文章封面图
+- 第一篇博客封面：`src/assets/blog-post-ai-setup.jpg`（Pexels 免费图，写代码工作台主题）
+- ImmortalWrt 文章封面：`src/assets/blog-router-network.jpg`（Pexels 免费图，网络/路由主题）
+- 提交 `a1425c5`、`be06484`
+
+### 3. 主页改为纯文字文章列表
+- **问题**：新增文章后主页错位。原因：`index.astro` 原布局把第一篇设为通栏 featured 卡片（需 hero 图），无图则错位
+- **方案**：`src/pages/index.astro` 重写为纯文字列表（标题 + 描述 + 日期 + 分隔线），彻底移除首页图片，提交 `c70f961`
+- 排序逻辑：`index.astro` 按 `pubDate` 降序；同一天的文章按 `getCollection()` 原始顺序（文件名字典序），如需精确控制可在 pubDate 加时间
+
+### 4. 新增 8 篇文章并整理目录结构
+- 用户将文章按日期归档：`src/content/blog/2026/08/`
+- 新增文章（Docker 自部署系列 + RouterOS）：
+  | 文件 | 标题 |
+  |------|------|
+  | `routeros-setup-guide.md` | RouterOS 配置流程 |
+  | `Docker/easytier-docker-guide.md` | Easytier Docker 设置教程 |
+  | `Docker/nginx-srs-live-streaming-guide.md` | Nginx-SRS 直播推流设置教程 |
+  | `Docker/rustdesk-docker-guide.md` | RustDesk Docker 设置教程 |
+  | `Docker/srs-docker-guide.md` | SRS Docker 设置教程 |
+  | `Docker/syncclipboard-docker-guide.md` | SyncClipboard Docker 设置教程 |
+  | `Docker/syncthing-docker-guide.md` | Syncthing Docker 设置教程 |
+  | `Docker/webdav-docker-guide.md` | WebDAV Docker 设置教程 |
+- 中文文件名 → 英文 slug（避免 URL 乱码），提交 `cd5d61c`
+- **为 8 篇新文章补 frontmatter**（title/description/pubDate）——schema 强制要求，缺失会构建失败
+- 文章 URL 现带日期路径，如 `/blog/2026/08/docker/easytier-docker-guide/`
+
+### 5. 统一 markdown 格式（10 篇）
+提交 `4f56d7f`，统一规范：
+- 代码块带语言标记（`bash`/`yml`/`nginx`/`json`/`javascript`/`dockerfile`/`text`）
+- 路径/命令/端口/IP 用反引号行内代码
+- 中英文之间加空格；加粗内不留多余空格（`**xxx**`）
+- Docker 系列统一结构：1 创建文件夹 → 2 开放端口 → 3 创建文件 → 4 启动服务 → 5+ 后续配置
+- 清理模板注释、多余空行
+- 修正 bug：rustdesk 文章启动命令 `cd /home/admin/webdav` → `/home/admin/rustdesk`
+
+### 6. 单篇深排版：RouterOS 文章（提交 `5c0fbeb`、`2b4efac`）
+- 去掉正文重复 H1（页面布局已用 frontmatter title 渲染标题）
+- 菜单路径用引用块；配置值用「字段/值」表格；接口改名用表格；`ipconfig` 输出用代码块
+- 加目录（TOC 锚点）；标题 `①②③` → `1. 2. 3.` 并同步锚点
+- 已验证：H1 仅 1 个、6 个表格、目录锚点可用
+
+### 7. About 页面（提交 `a16a3cb`、`79ec6ad`）
+- 重写为个人简介版（定位：个人简介，无社交图标）
+- 内容含：你好我是 furukawanagisadesi / 我在写什么 / 为什么写博客
+- 加入邮箱链接 `mailto:furukawanagisadesi@protonmail.com`
+
+### 8. 敏感信息清理（提交 `e2ebd2d`）
+统一替换为占位符：
+| 文件 | 原内容 | 替换为 |
+|------|--------|--------|
+| webdav-docker-guide.md | `username: admin` / `password: wby999` | `your_username` / `your_password` |
+| rustdesk-docker-guide.md | `RELAY=公网服务器ip:21117` | `RELAY=your_ip:21117` |
+| srs-docker-guide.md | `你的服务器IP`（4处） | `your_ip` |
+| nginx-srs-live-streaming-guide.md | `你的服务器IP`（4处）、htpasswd 用户名 `admin` | `your_ip` / `your_username` |
+| syncthing-docker-guide.md | `你的服务器IP:8384` | `your_ip:8384` |
+
+---
+
+## 二、当前状态
+
+| 项 | 值 |
+|----|----|
+| 本地路径 | `D:\Syncthing\Self\GitHub\blog` |
+| 分支 | `main`，工作区干净 |
+| 远程 | `https://github.com/furukawanagisadesi/blog.git` |
+| 线上地址 | https://furukawanagisadesi.github.io/blog/ |
+| 文章数 | 10 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录） |
+| 主页 | 纯文字文章列表（标题+描述+日期） |
+| About 页 | 个人简介 + 邮箱 |
+| 最新提交 | `e2ebd2d` |
+
+### 文章目录结构
+```
+src/content/blog/2026/08/
+├── blog-launch.md                    # 《博客建立》
+├── immortalwrt-soft-router-guide.md  # ImmortalWrt 软路由安装配置指南
+├── routeros-setup-guide.md           # RouterOS 配置流程
+└── Docker/
+    ├── easytier-docker-guide.md
+    ├── nginx-srs-live-streaming-guide.md
+    ├── rustdesk-docker-guide.md
+    ├── srs-docker-guide.md
+    ├── syncclipboard-docker-guide.md
+    ├── syncthing-docker-guide.md
+    └── webdav-docker-guide.md
+```
+
+### 相关代码位置
+- 内容 schema：`src/content.config.ts`（强制 title/description/pubDate）
+- 文章路由：`src/pages/[...slug].astro`（用 `post.id` 作 slug，含日期/子目录路径）
+- 主页列表：`src/pages/index.astro`（按 pubDate 降序）
+- 文章布局：`src/layouts/BlogPost.astro`（frontmatter title 渲染为 H1）
+- 站点信息：`src/consts.ts`（SITE_TITLE=我的博客）
+- About 页：`src/pages/about.astro`
+
+---
+
+## 三、待办事项（供后续 Agent）
+
+1. **新增文章规范**：
+   - 放 `src/content/blog/YYYY/MM/` 对应日期目录（Docker 类放 `Docker/` 子目录）
+   - 文件名用英文 slug（如 `xxx-docker-guide.md`）
+   - **必须带 frontmatter**：`title` / `description` / `pubDate`
+   - 如需同日排序，pubDate 可加时间（`2026-08-08 14:30`）
+   - 构建验证 + git 提交推送
+
+2. **markdown 格式规范**（新文章遵循，参见上文第四节）：代码块语言标记、行内代码、中英文空格、结构顺序
+
+3. **可选清理**：`src/assets/` 下 `blog-placeholder-1/2/4/5.jpg` 已无引用，`blog-placeholder-about.jpg` 已无引用（About 页重构后不再用占位图）。**注意 BaseHead 默认 fallback 仍引用 `blog-placeholder-1.jpg`**，删除前需确认
+
+4. **未决项**：
+   - 首页若文章很多，可考虑分页
+   - `immortalwrt-soft-router-guide.md` 与 `blog-launch.md` 的 heroImage 已被注释掉（用户选择不用封面图）
+   - Header/Footer 暂无社交链接（用户暂不放）
+
+---
+
+## 四、约定：博客 markdown 统一规范（重要，新文章遵守）
+
+1. 代码块必须带语言标记：`bash` / `yml` / `nginx` / `json` / `javascript` / `dockerfile` / `text`
+2. 路径、命令、端口、IP、软件名用反引号包裹（行内代码）
+3. 中文与英文/数字之间加空格
+4. 加粗写法 `**文字**`（内部无空格）
+5. Docker 系列结构统一：
+   ```
+   ## 1. 创建文件夹
+   ## 2. 开放服务器端口
+   ## 3. 创建 docker-compose.yml 文件
+   ## 4. 创建配置文件（如需）
+   ## 5. 启动服务
+   ## 6+ 后续配置 / 测试 / 客户端设置
+   ```
+6. 菜单路径用引用块：`> **菜单路径**：IP → Addresses → Add (+)`
+7. 配置字段用「字段 / 值」两列表格
+8. 长命令输出用代码块（`bash` 或 `text`）
+9. 文章正文不要重复 H1（页面自动渲染标题）
+10. 敏感信息一律用占位符：服务器地址 `your_ip`、账号 `your_username`、密码 `your_password`
+
+---
+
+## 五、踩坑记录
+
+### 坑 1: Astro 内容缓存
+- Astro v7 内容层在 `node_modules/.astro/data-store.json` 持久化缓存已删除的文章
+- 删除示例文章后直接 build 仍渲染旧路由，引发 `UnknownContentCollectionError`
+- **修复**：`Remove-Item -Recurse node_modules/.astro` 后再构建
+
+### 坑 2: dev server 缓存
+- `npm run dev` 若显示旧版页面，重启 dev server 或浏览器强刷（Ctrl+Shift+R）即可，代码本身一致
+
+### 坑 3: 中文文件名 → URL 乱码
+- 中文文件名生成的 slug 会乱码（如 `immortalwrt-软路由安装配置指�?`）
+- **修复**：统一英文 slug 文件名
+
+### 坑 4: 缺 frontmatter 导致构建失败
+- content schema 强制 `title`/`description`/`pubDate`，新文章不加会 build 报错
+
+### 坑 5: 主页错位（已解决）
+- 原布局第一篇为通栏 featured 卡片需 hero 图；无图则错位
+- 已改为纯文字列表，彻底解决
+
+### 坑 6: 网络/代理
+- GitHub 推送依赖本地代理 `127.0.0.1:17897`，代理未启动时 push 失败
+- 直连也被墙；需先启动代理再 `git push`
+
+---
+
+## 六、日常操作速查
+
+```bash
+# 本地开发
+cd "D:\Syncthing\Self\GitHub\blog" && npm run dev   # 默认 http://localhost:4321/blog/
+
+# 构建验证
+npm run build
+
+# 发布（需代理在线）
+git add -A && git commit -m "..." && git push origin main
+
+# 新增文章后必做
+# 1. 放对日期目录 + 英文 slug + 完整 frontmatter
+# 2. npm run build 验证
+# 3. git add -A && git commit && git push
+# 4. 等待 1-2 分钟 Actions 部署后访问线上验证
+```
+
+---
+
+*本文档由 Agent 生成，供后续 Agent 接力使用。*

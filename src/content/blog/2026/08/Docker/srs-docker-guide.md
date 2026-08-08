@@ -4,24 +4,24 @@ description: '在 Linux 服务器上用 Docker 部署 SRS 流媒体服务器'
 pubDate: '2026-08-08'
 ---
 
-## 创建文件夹
+## 1. 创建文件夹
 
-先在 Linux 服务器中创建一个文件夹，用于存储 SRS 数据，比如 /home/admin/srs
+先在 Linux 服务器中创建一个文件夹，用于存储 SRS 数据，比如 `/home/admin/srs`：
 
 ```bash
 mkdir -p /home/admin/srs
 ```
 
-## 服务器开放端口
+## 2. 开放服务器端口
 
 ```
 TCP 1935   # RTMP 推流
 TCP 1985   # HTTP API（建议仅本机访问）
 ```
 
-## 创建 srs.conf 文件
+## 3. 创建 srs.conf 文件
 
-创建文件夹后在目录下新建 srs.conf 文件，并写入
+创建文件夹后在目录下新建 `srs.conf` 文件，并写入：
 
 ```
 listen              1935;
@@ -57,9 +57,9 @@ vhost __defaultVhost__ {
 }
 ```
 
-## 创建docker-compose.yml文件
+## 4. 创建 docker-compose.yml 文件
 
-创建文件夹后在目录下新建 docker-compose.yml 文件，并写入
+创建文件夹后在目录下新建 `docker-compose.yml` 文件，并写入：
 
 ```yml
 services:
@@ -78,19 +78,18 @@ services:
       - ./logs:/usr/local/srs/objs/logs
     environment:
       - TZ=Asia/Shanghai
-
 ```
 
 > 如果不需要 Nginx 反代，可以将 8080 也加入 ports 直接对外暴露 HTTP-FLV/HLS 播放地址
 
-## 执行终端命令
+## 5. 启动服务
 
 ```bash
 cd /home/admin/srs
 docker compose up -d
 ```
 
-## 测试推流
+## 6. 测试推流
 
 使用 OBS 或 ffmpeg 推流到 `rtmp://你的服务器IP:1935/live/流名称`
 

@@ -2,30 +2,17 @@
 title: '博客建立'
 description: '第一次建立博客的感想'
 pubDate: '2026-08-07'
-# heroImage: '../../assets/blog-post-ai-setup.jpg'
 ---
 
 ## 开头
 
-    2026-08-07，通过 AI Agent 在 Github 上部署了这个博客
+> 2026-08-07，通过 AI Agent 在 GitHub 上部署了这个博客
 
 ## 正文
 
 其实我也不知道该写啥，整个博客都是 AI 帮我搭建的，只感觉到 AI 是真的方便。
 
 你给它喂文档，它就能帮你把想要的实现出来，这一点在以前是闻所未闻的。
-
-
-<!-- - 无序列表
-- **加粗**、*斜体*、`行内代码`
-- [超链接](https://example.com)
-
-### 二级标题
-
-```js
-// 代码块
-console.log('hello world');
-``` -->
 
 ## 结尾
 

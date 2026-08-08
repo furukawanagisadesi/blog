@@ -4,11 +4,15 @@ description: '在 Linux 服务器上用 Docker 部署 RustDesk 远程桌面服�
 pubDate: '2026-08-08'
 ---
 
-## 创建文件夹
+## 1. 创建文件夹
 
-先在linux服务器中创建一个文件夹，用于存储rustdesk数据，比如/home/admin/rustdesk
+先在 Linux 服务器中创建一个文件夹，用于存储 RustDesk 数据，比如 `/home/admin/rustdesk`：
 
-## 服务器开放端口
+```bash
+mkdir -p /home/admin/rustdesk
+```
+
+## 2. 开放服务器端口
 
 ```
 TCP 21114
@@ -19,9 +23,11 @@ TCP 21117
 TCP 21118
 TCP 21119
 ```
-## 创建docker-compose.yml文件
 
-创建文件夹后在目录下新建docker-compose.yml文件，并写入
+## 3. 创建 docker-compose.yml 文件
+
+创建文件夹后在目录下新建 `docker-compose.yml` 文件，并写入：
+
 ```yml
 version: '3'
 
@@ -43,23 +49,28 @@ services:
     volumes:
       - ./data:/data
     restart: unless-stopped
-
 ```
 
-## 执行终端命令
+## 4. 启动服务
 
-```
-cd /home/admin/webdav
+```bash
+cd /home/admin/rustdesk
 docker compose up -d
 ```
 
-## 客户端设置
+## 5. 客户端设置
 
-执行终端命令后将在/home/admin/rustdesk生成data文件夹，文件夹内会生成id_ed25519.pub文件，此为rustdesk公钥
+启动后会在 `/home/admin/rustdesk/data` 生成 `id_ed25519.pub` 文件，此为 RustDesk 公钥：
 
-```
+```bash
 cat /home/admin/rustdesk/data/id_ed25519.pub
 ```
-查看并复制公钥，进入客户端操作，设置-网络-解锁网络设置-ID/中继服务器-填入ID服务器&中继服务器-填入Key-点击确认
 
-到此，客户端配置完成
+查看并复制公钥，进入客户端操作：
+
+1. 设置 → 网络 → 解锁网络设置
+2. ID / 中继服务器 → 填入 ID 服务器 & 中继服务器
+3. 填入 Key
+4. 点击确认
+
+到此，客户端配置完成。

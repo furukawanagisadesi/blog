@@ -4,22 +4,24 @@ description: '在 Linux 服务器上用 Docker 部署 SyncClipboard 剪贴板同
 pubDate: '2026-08-08'
 ---
 
-## 创建文件夹
+## 1. 创建文件夹
 
-先在 Linux 服务器中创建一个文件夹，用于存储 SyncClipboard 数据，比如：
+先在 Linux 服务器中创建一个文件夹，用于存储 SyncClipboard 数据，比如 `/home/admin/syncclipboard`：
+
 ```bash
 mkdir -p /home/admin/syncclipboard
 ```
 
-## 服务器开放端口
+## 2. 开放服务器端口
 
 ```
 TCP 5033
 ```
 
-## 创建docker-compose.yml文件
+## 3. 创建 docker-compose.yml 文件
 
-创建文件夹后在目录下新建docker-compose.yml文件，并写入，记得修改账号密码
+创建文件夹后在目录下新建 `docker-compose.yml` 文件，并写入，记得修改账号密码：
+
 ```yml
 services:
   syncclipboard:
@@ -35,7 +37,7 @@ services:
       - ./data:/app/data
 ```
 
-## 执行终端命令
+## 4. 启动服务
 
 ```bash
 cd /home/admin/syncclipboard

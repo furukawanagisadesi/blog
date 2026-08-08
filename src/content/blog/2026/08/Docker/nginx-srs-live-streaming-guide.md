@@ -4,15 +4,15 @@ description: '在 Linux 服务器上用 Docker 部署 Nginx + SRS 直播推流�
 pubDate: '2026-08-08'
 ---
 
-## 创建文件夹
+## 1. 创建文件夹
 
-先在 Linux 服务器中创建一个文件夹，用于存储直播推流数据，比如 /home/admin/nginx-srs
+先在 Linux 服务器中创建一个文件夹，用于存储直播推流数据，比如 `/home/admin/nginx-srs`：
 
 ```bash
 mkdir -p /home/admin/nginx-srs/{web,danmu}
 ```
 
-## 服务器开放端口
+## 2. 开放服务器端口
 
 ```
 TCP 80        # 直播播放页（Nginx 反代）
@@ -20,7 +20,7 @@ TCP 1935      # RTMP 推流
 TCP 1985      # SRS API（建议仅本机访问）
 ```
 
-## 创建目录结构
+## 3. 创建目录结构
 
 ```
 nginx-srs/
@@ -36,15 +36,9 @@ nginx-srs/
     └── server.js
 ```
 
-创建文件夹：
+## 4. 创建 srs.conf 文件
 
-```bash
-mkdir -p /home/admin/nginx-srs/{web,danmu}
-```
-
-## 创建 srs.conf 文件
-
-在 /home/admin/nginx-srs 下新建 srs.conf 文件，并写入
+在 `/home/admin/nginx-srs` 下新建 `srs.conf` 文件，并写入：
 
 ```
 listen              1935;
@@ -78,9 +72,9 @@ vhost __defaultVhost__ {
 }
 ```
 
-## 创建 nginx.conf 文件
+## 5. 创建 nginx.conf 文件
 
-在 /home/admin/nginx-srs 下新建 nginx.conf 文件，并写入
+在 `/home/admin/nginx-srs` 下新建 `nginx.conf` 文件，并写入：
 
 ```nginx
 worker_processes  1;
@@ -142,7 +136,7 @@ http {
 }
 ```
 
-## 设置访问密码
+## 6. 设置访问密码
 
 ```bash
 # 安装 apache2-utils（如果未安装）
@@ -152,15 +146,15 @@ apt install apache2-utils -y
 htpasswd -c /home/admin/nginx-srs/htpasswd admin
 ```
 
-按提示输入两次密码，后续访问直播页会要求输入此用户名和密码
+按提示输入两次密码，后续访问直播页会要求输入此用户名和密码。
 
-## 创建 web 播放页面
+## 7. 创建 web 播放页面
 
-在 /home/admin/nginx-srs/web/ 下新建 index.html 文件，使用 flv.js 播放 HTTP-FLV 流，内容略（需配合 danmu WebSocket 使用）
+在 `/home/admin/nginx-srs/web/` 下新建 `index.html` 文件，使用 flv.js 播放 HTTP-FLV 流，内容略（需配合 danmu WebSocket 使用）。
 
-## 创建 danmu 弹幕服务
+## 8. 创建 danmu 弹幕服务
 
-在 /home/admin/nginx-srs/danmu/ 下创建以下文件：
+在 `/home/admin/nginx-srs/danmu/` 下创建以下文件：
 
 **package.json**
 
@@ -231,9 +225,9 @@ EXPOSE 8888
 CMD ["node", "server.js"]
 ```
 
-## 创建 docker-compose.yml 文件
+## 9. 创建 docker-compose.yml 文件
 
-在 /home/admin/nginx-srs 下新建 docker-compose.yml 文件，并写入
+在 `/home/admin/nginx-srs` 下新建 `docker-compose.yml` 文件，并写入：
 
 ```yml
 services:
@@ -264,17 +258,17 @@ networks:
     external: true
 ```
 
-## 创建外部网络
+## 10. 创建外部网络
 
-SRS 和 Nginx 共享同一个网络，先创建网络
+SRS 和 Nginx 共享同一个网络，先创建网络：
 
 ```bash
 docker network create stream-net
 ```
 
-## 执行终端命令
+## 11. 启动服务
 
-先启动 SRS（单独的 compose 目录），再启动 nginx-srs
+先启动 SRS（单独的 compose 目录），再启动 nginx-srs：
 
 ```bash
 # 启动 SRS（在 srs 目录下）
@@ -286,7 +280,7 @@ cd /home/admin/nginx-srs
 docker compose up -d
 ```
 
-## 推流和观看
+## 12. 推流和观看
 
 1. 使用 OBS 推流到 `rtmp://你的服务器IP:1935/live/流名称`
 2. 浏览器访问 `http://你的服务器IP` 观看直播（需要输入之前设置的密码）

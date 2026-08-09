@@ -57,3 +57,23 @@ sudo reboot
 # 看版本号，能输出就说明已装
 vmware-toolbox-cmd --version
 ```
+
+有 SSH 需求的话还要安装 **openssh-server**
+
+执行此命令安装：
+```bash
+# 检查是否已安装
+sudo systemctl status ssh
+
+# 没装的话就装
+sudo apt install openssh-server
+sudo systemctl enable --now ssh
+```
+
+确认 IP 地址：
+
+```bash
+ip addr show
+# 或
+hostname -I
+```

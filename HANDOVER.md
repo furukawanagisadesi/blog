@@ -1,8 +1,8 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
-> 生成时间: 2026-08-08
+> 生成时间: 2026-08-09
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 本次会话（文章发布、格式化、主页重构、敏感信息清理）总结，供后续 Agent 接力
+> 本文档: 本次会话（文章发布、格式化、主页重构、敏感信息清理、VMware 文章）总结，供后续 Agent 接力
 
 ---
 
@@ -70,6 +70,11 @@
 | nginx-srs-live-streaming-guide.md | `你的服务器IP`（4处）、htpasswd 用户名 `admin` | `your_ip` / `your_username` |
 | syncthing-docker-guide.md | `你的服务器IP:8384` | `your_ip:8384` |
 
+### 9. 新增 VMware Ubuntu 安装流程文章
+- 文件 `src/content/blog/2026/08/vmware-ubuntu-setup-guide.md`（《VMware Ubuntu 安装流程》）
+- 内容：VMware 17 下载、Ubuntu 26.04 镜像下载、安装步骤、VMware Tools 安装、SSH 配置
+- 第一次提交 `7dfc657`，后续更新（新增 VMware Tools + SSH 章节）提交 `ffbf716`
+
 ---
 
 ## 二、当前状态
@@ -80,18 +85,19 @@
 | 分支 | `main`，工作区干净 |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 10 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录） |
+| 文章数 | 11 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录） |
 | 主页 | 纯文字文章列表（标题+描述+日期） |
 | About 页 | 个人简介 + 邮箱 |
-| 最新提交 | `e2ebd2d` |
+| 最新提交 | `ffbf716` |
 
 ### 文章目录结构
 ```
 src/content/blog/2026/08/
-├── blog-launch.md                    # 《博客建立》
-├── immortalwrt-soft-router-guide.md  # ImmortalWrt 软路由安装配置指南
-├── routeros-setup-guide.md           # RouterOS 配置流程
-└── Docker/
+	├── blog-launch.md                    # 《博客建立》
+	├── immortalwrt-soft-router-guide.md  # ImmortalWrt 软路由安装配置指南
+	├── routeros-setup-guide.md           # RouterOS 配置流程
+	├── vmware-ubuntu-setup-guide.md      # VMware Ubuntu 安装流程
+	└── Docker/
     ├── easytier-docker-guide.md
     ├── nginx-srs-live-streaming-guide.md
     ├── rustdesk-docker-guide.md

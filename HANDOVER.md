@@ -2,7 +2,7 @@
 
 > 生成时间: 2026-08-09
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 本次会话（文章发布、格式化、主页重构、敏感信息清理、VMware 文章）总结，供后续 Agent 接力
+> 本文档: 本次会话（文章发布、格式化、主页重构、敏感信息清理、VMware 系列文章）总结，供后续 Agent 接力
 
 ---
 
@@ -70,10 +70,16 @@
 | nginx-srs-live-streaming-guide.md | `你的服务器IP`（4处）、htpasswd 用户名 `admin` | `your_ip` / `your_username` |
 | syncthing-docker-guide.md | `你的服务器IP:8384` | `your_ip:8384` |
 
-### 9. 新增 VMware Ubuntu 安装流程文章
-- 文件 `src/content/blog/2026/08/vmware-ubuntu-setup-guide.md`（《VMware Ubuntu 安装流程》）
-- 内容：VMware 17 下载、Ubuntu 26.04 镜像下载、安装步骤、VMware Tools 安装、SSH 配置
-- 第一次提交 `7dfc657`，后续更新（新增 VMware Tools + SSH 章节）提交 `ffbf716`
+### 9. 新增 VMware 系列文章
+- `vmware-ubuntu-setup-guide.md`（《VMware Ubuntu 安装流程》）：VMware 17 下载、Ubuntu 26.04 镜像下载、安装步骤、VMware Tools 安装、SSH 配置
+  - 提交 `7dfc657`（新增）、`ffbf716`（新增 VMware Tools 章节）、`46aeb4f`（新增 SSH 章节 + 同步 HANDOVER）
+- `vmware-ubuntu-virtual-audio-bug-fix.md`（《VMware Ubuntu 虚拟音频设备离线解决方案》）：Voicemeeter 虚拟音频导致声卡离线的排查与解决（安装 pavucontrol、改配置），提交 `796c1f2`
+  - 中文文件名 → 英文 slug；文中两张截图从 `content/blog/2026/08/` 移到 `src/assets/` 并重命名
+    - `image.png` → `src/assets/vmware-virtual-audio-offline.png`
+    - `image-1.png` → `src/assets/vmware-virtual-audio-config.png`
+  - 图片用相对路径 `../../../../assets/...` 引用（从 `2026/08/` 到 `src/assets/` 需 4 层）
+- `vmware-fedora-mirror-update-guide.md`（《VMware Fedora 换源并更新教程》）：Fedora 换 USTC 中科大源 + dnf 更新，提交 `0d9b29c`
+  - 中文文件名 → 英文 slug
 
 ---
 
@@ -85,10 +91,10 @@
 | 分支 | `main`，工作区干净 |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 11 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录） |
+| 文章数 | 13 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录） |
 | 主页 | 纯文字文章列表（标题+描述+日期） |
 | About 页 | 个人简介 + 邮箱 |
-| 最新提交 | `ffbf716` |
+| 最新提交 | `0d9b29c` |
 
 ### 文章目录结构
 ```
@@ -97,6 +103,8 @@ src/content/blog/2026/08/
 	├── immortalwrt-soft-router-guide.md  # ImmortalWrt 软路由安装配置指南
 	├── routeros-setup-guide.md           # RouterOS 配置流程
 	├── vmware-ubuntu-setup-guide.md      # VMware Ubuntu 安装流程
+	├── vmware-ubuntu-virtual-audio-bug-fix.md   # VMware Ubuntu 虚拟音频设备离线解决方案
+	├── vmware-fedora-mirror-update-guide.md     # VMware Fedora 换源并更新教程
 	└── Docker/
     ├── easytier-docker-guide.md
     ├── nginx-srs-live-streaming-guide.md
@@ -130,7 +138,9 @@ src/content/blog/2026/08/
 
 3. **可选清理**：`src/assets/` 下 `blog-placeholder-1/2/4/5.jpg` 已无引用，`blog-placeholder-about.jpg` 已无引用（About 页重构后不再用占位图）。**注意 BaseHead 默认 fallback 仍引用 `blog-placeholder-1.jpg`**，删除前需确认
 
-4. **未决项**：
+4. **图片管理**：文章内截图请放到 `src/assets/` 并命名有意义（如 `vmware-virtual-audio-offline.png`），文章中用相对路径 `../../../../assets/图片名` 引用（从 `src/content/blog/2026/08/` 出发是 4 层 `../`）。**不要把图片直接放 `src/content/blog/` 下**，也不要放文件名无意义的 `image.png`/`image-1.png`
+
+5. **未决项**：
    - 首页若文章很多，可考虑分页
    - `immortalwrt-soft-router-guide.md` 与 `blog-launch.md` 的 heroImage 已被注释掉（用户选择不用封面图）
    - Header/Footer 暂无社交链接（用户暂不放）
@@ -157,6 +167,7 @@ src/content/blog/2026/08/
 8. 长命令输出用代码块（`bash` 或 `text`）
 9. 文章正文不要重复 H1（页面自动渲染标题）
 10. 敏感信息一律用占位符：服务器地址 `your_ip`、账号 `your_username`、密码 `your_password`
+11. 图片放 `src/assets/`（命名有意义），正文用相对路径 `![描述](../../../../assets/图片名)` 引用（从 `src/content/blog/2026/08/` 出发需 4 层 `../`）
 
 ---
 

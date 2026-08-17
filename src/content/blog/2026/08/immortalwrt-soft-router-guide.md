@@ -1,7 +1,7 @@
 ---
-title: 'ImmortalWrt 软路由安装配置指南'
-description: '记录一下安装 ImmortalWrt 的过程'
-pubDate: '2026-08-08'
+title: "ImmortalWrt 软路由安装配置指南"
+description: "记录一下安装 ImmortalWrt 的过程"
+pubDate: "2026-08-08"
 ---
 
 > 本教程以 4 网口迷你主机为示例，使用镜像：
@@ -11,11 +11,11 @@ pubDate: '2026-08-08'
 
 ### 准备工具
 
-| 工具 | 说明 |
-| --- | --- |
-| PE U 盘 | 装有 PE 系统的启动盘 |
+| 工具             | 说明                                                 |
+| ---------------- | ---------------------------------------------------- |
+| PE U 盘          | 装有 PE 系统的启动盘                                 |
 | ImmortalWrt 镜像 | immortalwrt-24.10.5-x86-64-generic-ext4-combined.img |
-| physdiskwrite | 镜像写入工具 |
+| physdiskwrite    | 镜像写入工具                                         |
 
 ### 安装步骤
 

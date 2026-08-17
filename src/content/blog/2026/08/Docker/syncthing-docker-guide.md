@@ -1,7 +1,7 @@
 ---
-title: 'Syncthing Docker 设置教程'
-description: '在 Linux 服务器上用 Docker 部署 Syncthing 文件同步服务'
-pubDate: '2026-08-08'
+title: "Syncthing Docker 设置教程"
+description: "在 Linux 服务器上用 Docker 部署 Syncthing 文件同步服务"
+pubDate: "2026-08-08"
 ---
 
 ## 1. 创建文件夹
@@ -32,7 +32,7 @@ services:
     container_name: syncthing
     restart: unless-stopped
     ports:
-      - "8384:8384"       # 网页管理界面
+      - "8384:8384" # 网页管理界面
       - "22000:22000/tcp" # 设备同步
       - "22000:22000/udp"
       - "21027:21027/udp" # 局域网发现

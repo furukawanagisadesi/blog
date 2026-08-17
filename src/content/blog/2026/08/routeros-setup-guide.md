@@ -1,7 +1,7 @@
 ---
-title: 'RouterOS 配置流程'
-description: 'RouterOS 软路由的完整配置流程：接口、IP、DHCP、NAT 与 DNS'
-pubDate: '2026-08-08'
+title: "RouterOS 配置流程"
+description: "RouterOS 软路由的完整配置流程：接口、IP、DHCP、NAT 与 DNS"
+pubDate: "2026-08-08"
 ---
 
 本文记录 RouterOS（MikroTik）软路由从零到能上网的完整配置步骤，配合 WinBox 图形界面操作。
@@ -28,10 +28,10 @@ pubDate: '2026-08-08'
 2. 左侧点击 **Interfaces**
 3. 找到对应接口并改名：
 
-| 接口 | 改名为 | 说明 |
-| --- | --- | --- |
-| 接光猫的接口 | `WAN` | 上联，接上级光猫 |
-| 接电脑 / 家用路由的接口 | `LAN` | 下联，接内网设备 |
+| 接口                    | 改名为 | 说明             |
+| ----------------------- | ------ | ---------------- |
+| 接光猫的接口            | `WAN`  | 上联，接上级光猫 |
+| 接电脑 / 家用路由的接口 | `LAN`  | 下联，接内网设备 |
 
 > 📌 **提示**：如果不确定哪个是哪个，可以拔插网线，看哪一个 interface 状态变灰 / 变绿。
 
@@ -41,11 +41,11 @@ pubDate: '2026-08-08'
 
 填写：
 
-| 字段 | 值 |
-| --- | --- |
-| Address | `192.168.88.1/24` |
-| Interface | `LAN` |
-| Comment | `LAN网关` |
+| 字段      | 值                |
+| --------- | ----------------- |
+| Address   | `192.168.88.1/24` |
+| Interface | `LAN`             |
+| Comment   | `LAN网关`         |
 
 确认列表中出现了 `192.168.88.1/24 → LAN`。
 
@@ -55,14 +55,14 @@ pubDate: '2026-08-08'
 
 按提示逐步选择：
 
-| 步骤 | 内容 | 示例 |
-| --- | --- | --- |
-| Step 1 | Interface | `LAN` |
-| Step 2 | DHCP Address Space | `192.168.88.0/24` |
-| Step 3 | Gateway | `192.168.88.1` |
-| Step 4 | Addresses to Give Out | `192.168.88.10 - 192.168.88.200` |
-| Step 5 | DNS Servers | `192.168.88.1` 或 `114.114.114.114` |
-| Step 6 | Lease Time | `12h` |
+| 步骤   | 内容                  | 示例                                |
+| ------ | --------------------- | ----------------------------------- |
+| Step 1 | Interface             | `LAN`                               |
+| Step 2 | DHCP Address Space    | `192.168.88.0/24`                   |
+| Step 3 | Gateway               | `192.168.88.1`                      |
+| Step 4 | Addresses to Give Out | `192.168.88.10 - 192.168.88.200`    |
+| Step 5 | DNS Servers           | `192.168.88.1` 或 `114.114.114.114` |
+| Step 6 | Lease Time            | `12h`                               |
 
 完成后，在 `IP → DHCP Server → Leases` 可以看到电脑获取的 IP。
 
@@ -72,11 +72,11 @@ pubDate: '2026-08-08'
 
 填写：
 
-| 字段 | 值 |
-| --- | --- |
-| Interface | `WAN` |
-| Use Peer DNS | `no` |
-| Use Peer NTP | `yes` |
+| 字段              | 值    |
+| ----------------- | ----- |
+| Interface         | `WAN` |
+| Use Peer DNS      | `no`  |
+| Use Peer NTP      | `yes` |
 | Add Default Route | `yes` |
 
 确认 WAN 接口能自动获取 IP（例如 `192.168.1.100`），说明 ROS 已与光猫通信正常。
@@ -87,12 +87,12 @@ pubDate: '2026-08-08'
 
 填写：
 
-| 字段 | 值 |
-| --- | --- |
-| Chain | `srcnat` |
-| Out. Interface | `WAN` |
-| Action | `masquerade` |
-| Comment | `NAT 出口` |
+| 字段           | 值           |
+| -------------- | ------------ |
+| Chain          | `srcnat`     |
+| Out. Interface | `WAN`        |
+| Action         | `masquerade` |
+| Comment        | `NAT 出口`   |
 
 > ⚠️ **这一步是关键**，否则电脑虽拿到 IP 但无法上网。
 
@@ -102,10 +102,10 @@ pubDate: '2026-08-08'
 
 设置：
 
-| 字段 | 值 |
-| --- | --- |
-| Servers | `114.114.114.114, 223.5.5.5` |
-| Allow Remote Requests | √（打勾） |
+| 字段                  | 值                           |
+| --------------------- | ---------------------------- |
+| Servers               | `114.114.114.114, 223.5.5.5` |
+| Allow Remote Requests | √（打勾）                    |
 
 这让内网设备以 RouterOS（`192.168.88.1`）为 DNS，ROS 会帮它转发。
 

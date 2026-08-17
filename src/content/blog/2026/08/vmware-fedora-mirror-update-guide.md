@@ -1,7 +1,7 @@
 ---
-title: 'VMware Fedora 换源并更新教程'
-description: 'VMware 17 下给 Fedora 换源以及更新'
-pubDate: '2026-08-09'
+title: "VMware Fedora 换源并更新教程"
+description: "VMware 17 下给 Fedora 换源以及更新"
+pubDate: "2026-08-09"
 ---
 
 本文记录 VMware 17 下给 Fedora 换源并执行更新的完整流程

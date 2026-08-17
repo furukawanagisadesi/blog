@@ -1,7 +1,7 @@
 ---
-title: 'SRS Docker 设置教程'
-description: '在 Linux 服务器上用 Docker 部署 SRS 流媒体服务器'
-pubDate: '2026-08-08'
+title: "SRS Docker 设置教程"
+description: "在 Linux 服务器上用 Docker 部署 SRS 流媒体服务器"
+pubDate: "2026-08-08"
 ---
 
 ## 1. 创建文件夹
@@ -68,8 +68,8 @@ services:
     container_name: srs
     restart: unless-stopped
     ports:
-      - "1935:1935"   # RTMP 推流（公网）
-      - "1985:1985"   # API 管理（建议安全组仅本机访问）
+      - "1935:1935" # RTMP 推流（公网）
+      - "1985:1985" # API 管理（建议安全组仅本机访问）
     # 8080 不对外暴露，只在内部网络给 Nginx 访问
     expose:
       - "8080"

@@ -1,7 +1,7 @@
 ---
-title: 'VMware Ubuntu 安装流程'
-description: 'VMware 17 下载 以及 Ubuntu 26.04 安装'
-pubDate: '2026-08-08'
+title: "VMware Ubuntu 安装流程"
+description: "VMware 17 下载 以及 Ubuntu 26.04 安装"
+pubDate: "2026-08-08"
 ---
 
 本文记录 VMware 17 下载以及 Ubuntu 26.04 安装的完整流程
@@ -14,6 +14,7 @@ VMware 原公司现已被博通收购，博通公司未提供公开的直链用�
 [VMwareWorkstation GitHub 链接](https://github.com/201853910/VMwareWorkstation)
 
 这里也提供一下官方的安装包获取方法：
+
 1. 打开[博通官网](https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Workstation%20Pro&freeDownloads=true)
 2. 注册或登录账号，下载 VMware。
 
@@ -61,6 +62,7 @@ vmware-toolbox-cmd --version
 有 SSH 需求的话还要安装 **openssh-server**
 
 执行此命令安装：
+
 ```bash
 # 检查是否已安装
 sudo systemctl status ssh

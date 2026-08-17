@@ -1,7 +1,7 @@
 ---
-title: 'Nginx-SRS 直播推流设置教程'
-description: '在 Linux 服务器上用 Docker 部署 Nginx + SRS 直播推流服务'
-pubDate: '2026-08-08'
+title: "Nginx-SRS 直播推流设置教程"
+description: "在 Linux 服务器上用 Docker 部署 Nginx + SRS 直播推流服务"
+pubDate: "2026-08-08"
 ---
 
 ## 1. 创建文件夹
@@ -171,32 +171,36 @@ htpasswd -c /home/admin/nginx-srs/htpasswd your_username
 **server.js**
 
 ```javascript
-const WebSocket = require('ws');
+const WebSocket = require("ws");
 
 const PORT = 8888;
 const wss = new WebSocket.Server({ port: PORT });
 const clients = new Set();
 
-wss.on('connection', (ws) => {
+wss.on("connection", (ws) => {
   clients.add(ws);
   console.log(`[+] Client connected. Total: ${clients.size}`);
 
-  ws.on('message', (data) => {
+  ws.on("message", (data) => {
     let msg;
-    try { msg = JSON.parse(data); } catch { return; }
-    if (msg.type !== 'danmu') return;
+    try {
+      msg = JSON.parse(data);
+    } catch {
+      return;
+    }
+    if (msg.type !== "danmu") return;
 
-    const text = (msg.text || '').trim().slice(0, 50);
+    const text = (msg.text || "").trim().slice(0, 50);
     if (!text) return;
 
-    const nick = (msg.nick || '').trim().slice(0, 16);
+    const nick = (msg.nick || "").trim().slice(0, 16);
     if (!nick) return;
 
     const payload = JSON.stringify({
-      type: 'danmu',
+      type: "danmu",
       text,
       nick,
-      color: msg.color || '#ffffff',
+      color: msg.color || "#ffffff",
       time: Date.now(),
     });
 
@@ -207,8 +211,11 @@ wss.on('connection', (ws) => {
     }
   });
 
-  ws.on('close', () => { clients.delete(ws); console.log(`[-] Client disconnected. Total: ${clients.size}`); });
-  ws.on('error', () => clients.delete(ws));
+  ws.on("close", () => {
+    clients.delete(ws);
+    console.log(`[-] Client disconnected. Total: ${clients.size}`);
+  });
+  ws.on("error", () => clients.delete(ws));
 });
 
 console.log(`Danmu WebSocket server running on ws://0.0.0.0:${PORT}`);

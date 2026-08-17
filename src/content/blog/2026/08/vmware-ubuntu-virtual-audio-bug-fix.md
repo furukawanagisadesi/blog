@@ -1,7 +1,7 @@
 ---
-title: 'VMware Ubuntu 虚拟音频设备离线解决方案'
-description: 'VMware Ubuntu 出现声卡设备离线如何去解决'
-pubDate: '2026-08-09'
+title: "VMware Ubuntu 虚拟音频设备离线解决方案"
+description: "VMware Ubuntu 出现声卡设备离线如何去解决"
+pubDate: "2026-08-09"
 ---
 
 本文记录 VMware 17 Ubuntu 26.04 在遇到打开**设置 → 声音**后 VMware 声卡必定离线这种情况应该如何解决。

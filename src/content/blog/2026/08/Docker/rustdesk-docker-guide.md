@@ -1,7 +1,7 @@
 ---
-title: 'RustDesk Docker 设置教程'
-description: '在 Linux 服务器上用 Docker 部署 RustDesk 远程桌面服务'
-pubDate: '2026-08-08'
+title: "RustDesk Docker 设置教程"
+description: "在 Linux 服务器上用 Docker 部署 RustDesk 远程桌面服务"
+pubDate: "2026-08-08"
 ---
 
 ## 1. 创建文件夹
@@ -29,7 +29,7 @@ TCP 21119
 创建文件夹后在目录下新建 `docker-compose.yml` 文件，并写入：
 
 ```yml
-version: '3'
+version: "3"
 
 services:
   rustdesk-server:

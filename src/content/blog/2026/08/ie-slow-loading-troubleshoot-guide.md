@@ -165,6 +165,8 @@ IE 页面加载非常慢
 
 IE 主要依赖 Windows 的证书验证体系：
 
+每次建立 HTTPS 连接时，默认会严格尝试连接证书中指定的吊销列表（CRL）或在线证书状态协议（OCSP）服务器。如果网络不通导致无法获取状态，可能会拖慢加载速度，甚至直接阻断访问。
+
 ```text
 IE → WinINet → Windows Schannel
 → Windows CryptoAPI → Windows 证书存储
@@ -175,10 +177,7 @@ IE → WinINet → Windows Schannel
 
 Chrome 使用自己的网络与证书验证体系：
 
-- 证书验证逻辑
-- 吊销状态处理
-- 缓存
-- 网络连接机制
+为了保证页面加载速度并保护用户隐私，Chrome 尽量避免频繁向第三方 CA 发送实时查询。它主要依赖浏览器自身的更新推送（如 CRLSet）或者采用“软失败（Soft-fail）”策略，即网络异常时默认不拦截。
 
 Chrome 没有走 Windows Schannel 这条导致 105 秒超时的路径。
 

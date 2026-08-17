@@ -45,6 +45,13 @@ h6 {
 	color: rgb(var(--black));
 	line-height: 1.2;
 }
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+	margin-top: 1.5em;
+}
 h1 {
 	font-size: 3.052em;
 }

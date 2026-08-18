@@ -1,8 +1,9 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
+> 最近更新: 2026-08-18
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 本次会话（文章发布、格式化、主页重构、敏感信息清理、VMware 系列文章）总结，供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整），供后续 Agent 接力
 
 ---
 
@@ -81,6 +82,14 @@
 - `vmware-fedora-mirror-update-guide.md`（《VMware Fedora 换源并更新教程》）：Fedora 换 USTC 中科大源 + dnf 更新，提交 `0d9b29c`
   - 中文文件名 → 英文 slug
 
+### 10. 新增 IE 慢加载排查文章 + 站点样式调整（2026-08-18 会话）
+- `ie-slow-loading-troubleshoot-guide.md`（《IE 网页加载缓慢异常查询与解决》）：记录 `ebaolife.net` 登录页在 IE 下加载约 2 分钟、Chrome 秒开的排查过程，中文文件名 → 英文 slug，提交 `3b2ee23`
+  - 根因：网络无法访问 DigiCert 的 OCSP 服务 `ocsp.digicert.com:80`，导致 Windows Schannel 证书吊销检查超时约 105 秒
+  - 按博客规范重排（去掉小数子标题 `2.1/3.1`、新增结论章节、引用块加 emoji 标注），提交 `8fce155`
+  - 补充 IE/Chrome 证书验证差异分析，并修正 CRL（证书吊销列表）/ OCSP（在线证书状态协议）表述，提交 `7ee9de2`、`eef973f`
+- **全量 markdown 统一**：用户自行格式化全部 14 篇文章（含 Docker 系列），提交 `9254390`
+- **站点样式调整**：`src/styles/global.css` 给 `.prose` 内 `h2~h6` 增加 `margin-top: 1.5em`，解决 `##` 紧贴 `###` 的问题，提交 `8fce155`
+
 ---
 
 ## 二、当前状态
@@ -91,10 +100,10 @@
 | 分支 | `main`，工作区干净 |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 13 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录） |
+| 文章数 | 14 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录） |
 | 主页 | 纯文字文章列表（标题+描述+日期） |
 | About 页 | 个人简介 + 邮箱 |
-| 最新提交 | `0d9b29c` |
+| 最新提交 | `eef973f` |
 
 ### 文章目录结构
 ```
@@ -102,6 +111,7 @@ src/content/blog/2026/08/
 	├── blog-launch.md                    # 《博客建立》
 	├── immortalwrt-soft-router-guide.md  # ImmortalWrt 软路由安装配置指南
 	├── routeros-setup-guide.md           # RouterOS 配置流程
+	├── ie-slow-loading-troubleshoot-guide.md  # IE 网页加载缓慢异常查询与解决
 	├── vmware-ubuntu-setup-guide.md      # VMware Ubuntu 安装流程
 	├── vmware-ubuntu-virtual-audio-bug-fix.md   # VMware Ubuntu 虚拟音频设备离线解决方案
 	├── vmware-fedora-mirror-update-guide.md     # VMware Fedora 换源并更新教程
@@ -120,6 +130,7 @@ src/content/blog/2026/08/
 - 文章路由：`src/pages/[...slug].astro`（用 `post.id` 作 slug，含日期/子目录路径）
 - 主页列表：`src/pages/index.astro`（按 pubDate 降序）
 - 文章布局：`src/layouts/BlogPost.astro`（frontmatter title 渲染为 H1）
+- 文章标题间距：`src/styles/global.css`（`.prose h2~h6` 有 `margin-top: 1.5em`，Header 的 `h2` 有独立样式不受影响）
 - 站点信息：`src/consts.ts`（SITE_TITLE=我的博客）
 - About 页：`src/pages/about.astro`
 

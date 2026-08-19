@@ -90,6 +90,11 @@
 - **全量 markdown 统一**：用户自行格式化全部 14 篇文章（含 Docker 系列），提交 `9254390`
 - **站点样式调整**：`src/styles/global.css` 给 `.prose` 内 `h2~h6` 增加 `margin-top: 1.5em`，解决 `##` 紧贴 `###` 的问题，提交 `8fce155`
 
+### 11. 新增 SQL 文章（2026-08-18 会话）
+- `SQL/sql-in-vs-exists-guide.md`（《SQL IN 与 EXISTS 的理解》）：记录对 SQL `IN` 与 `EXISTS` 子查询执行逻辑与复杂度的理解，中文文件名 → 英文 slug，提交 `f8a7d3d`
+  - 修正：`EXISTSS` 拼写错误（4 处）、EXISTS 查询列名不一致（`c.custkey = o.custkey` → `c.c_custkey = o.o_custkey`）、说明性代码块补 `text` 语言标记
+  - 文章放新增 `SQL/` 子目录；代码块语言标记规范新增 `sql`（见第四节）
+
 ---
 
 ## 二、当前状态
@@ -100,10 +105,10 @@
 | 分支 | `main`，工作区干净 |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 14 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录） |
+| 文章数 | 15 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录，SQL 文章在 `SQL/` 子目录） |
 | 主页 | 纯文字文章列表（标题+描述+日期） |
 | About 页 | 个人简介 + 邮箱 |
-| 最新提交 | `eef973f` |
+| 最新提交 | `f8a7d3d` |
 
 ### 文章目录结构
 ```
@@ -123,6 +128,8 @@ src/content/blog/2026/08/
     ├── syncclipboard-docker-guide.md
     ├── syncthing-docker-guide.md
     └── webdav-docker-guide.md
+	└── SQL/
+    	└── sql-in-vs-exists-guide.md   # SQL IN 与 EXISTS 的理解
 ```
 
 ### 相关代码位置

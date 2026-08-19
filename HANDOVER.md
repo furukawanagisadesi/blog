@@ -160,7 +160,7 @@ src/content/blog/2026/08/
 
 ## 四、约定：博客 markdown 统一规范（重要，新文章遵守）
 
-1. 代码块必须带语言标记：`bash` / `yml` / `nginx` / `json` / `javascript` / `dockerfile` / `text`
+1. 代码块必须带语言标记：`bash` / `yml` / `nginx` / `json` / `javascript` / `dockerfile` / `sql` / `text`
 2. 路径、命令、端口、IP、软件名用反引号包裹（行内代码）
 3. 中文与英文/数字之间加空格
 4. 加粗写法 `**文字**`（内部无空格）

@@ -95,6 +95,10 @@
   - 修正：`EXISTSS` 拼写错误（4 处）、EXISTS 查询列名不一致（`c.custkey = o.custkey` → `c.c_custkey = o.o_custkey`）、说明性代码块补 `text` 语言标记
   - 文章放新增 `SQL/` 子目录；代码块语言标记规范新增 `sql`（见第四节）
 
+### 12. 新增 VMware Debian 文章（2026-08-25）
+- `vmware-debian-setup-guide.md`（《VMware Debian 安装后设置教程》）：Debian 换源（USTC/官方）、安装 vmtools + openssh、terminal 代理配置、uv 安装
+  - sources.list 内容代码块语言标记 `bash` → `text`；段落补句号
+
 ---
 
 ## 二、当前状态
@@ -105,10 +109,10 @@
 | 分支 | `main`，工作区干净 |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 15 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录，SQL 文章在 `SQL/` 子目录） |
+| 文章数 | 16 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录，SQL 文章在 `SQL/` 子目录） |
 | 主页 | 纯文字文章列表（标题+描述+日期） |
 | About 页 | 个人简介 + 邮箱 |
-| 最新提交 | `f8a7d3d` |
+| 最新提交 | `d754c7d`（本次提交后更新） |
 
 ### 文章目录结构
 ```

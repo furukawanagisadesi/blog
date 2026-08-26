@@ -21,10 +21,11 @@ B 虚拟机网卡：
 
 ![B 虚拟机网卡配置](../../../../assets/vm-b-network-config.png)
 
-A 虚拟机代理软件以 Clash Verge 为例
+A 虚拟机代理软件以 `Clash Verge` 为例
 
-Clash Verge 显示问题修复：
+`Clash Verge` 显示问题修复：
 
+如果 `Clash Verge` 打开后主界面黑屏
 把 `/usr/share/applications/Clash Verge.desktop` 复制到 `~/.local/share/applications/Clash Verge.desktop`，并把其中一行改掉：
 
 ```bash
@@ -35,7 +36,7 @@ Exec=clash-verge %u
 Exec=env WEBKIT_DISABLE_COMPOSITING_MODE=1 WEBKIT_DISABLE_DMABUF_RENDERER=1 clash-verge %u
 ```
 
-> 原因：Clash Verge 是 Tauri 应用，界面用 WebKitGTK 渲染，它在 VMware 虚拟显卡上硬件合成有 bug，导致 WebView 黑屏。之前命令行测试正常、图标打开黑屏，就是因为图标启动没带这两个环境变量。
+> 原因：Clash Verge 是 Tauri 应用，界面用 WebKitGTK 渲染，它在 VMware 虚拟显卡上硬件合成有 bug，导致 WebView 黑屏。
 
 软件设置：
 

@@ -100,7 +100,7 @@
   - sources.list 内容代码块语言标记 `bash` → `text`；段落补句号
 
 ### 13. 新增 VMware 双虚拟机隔离上网教程（2026-08-26）
-- `vmware-dual-vm-isolation-guide.md`（《VMware 双虚拟机隔离上网教程》）：双虚拟机通过 HOST-ONLY 网络 + Clash Verge 代理实现隔离上网，中文文件名 → 英文 slug
+- `vmware-dual-vm-isolation-guide.md`（《VMware 双虚拟机隔离上网教程》）：双虚拟机通过 HOST-ONLY 网络 + Clash Verge 代理实现隔离上网，中文文件名 → 英文 slug，提交 `f72ad69`
   - 7 张截图从 `src/content/blog/2026/08/` 移至 `src/assets/` 并重命名（如 `vm-a-network-config.png`、`clash-verge-settings.png`）
   - 修正 typo（"上午"→"上网"、"B虚拟"→"B 虚拟机"）；中英文加空格；图片引用改相对路径
 
@@ -117,7 +117,7 @@
 | 文章数 | 17 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录，SQL 文章在 `SQL/` 子目录） |
 | 主页 | 纯文字文章列表（标题+描述+日期） |
 | About 页 | 个人简介 + 邮箱 |
-| 最新提交 | `92ca238` |
+| 最新提交 | `f72ad69` |
 
 ### 文章目录结构
 ```

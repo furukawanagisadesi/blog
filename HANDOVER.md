@@ -1,9 +1,9 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
-> 最近更新: 2026-08-26
+> 最近更新: 2026-08-27
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整），供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成），供后续 Agent 接力
 
 ---
 
@@ -104,6 +104,21 @@
   - 7 张截图从 `src/content/blog/2026/08/` 移至 `src/assets/` 并重命名（如 `vm-a-network-config.png`、`clash-verge-settings.png`）
   - 修正 typo（"上午"→"上网"、"B虚拟"→"B 虚拟机"）；中英文加空格；图片引用改相对路径
 
+### 14. 集成 Twikoo 评论系统（2026-08-27）
+- **方案**：采用 Twikoo 官方推荐的云函数部署（Vercel + MongoDB Atlas 免费库），免服务器、免证书。私有 Docker 部署（★）需自申请证书，未采用
+- **云端**：
+  - MongoDB Atlas 免费 M0 集群 + `mongodb+srv://` 连接串 + Network Access 放行 `0.0.0.0/0`
+  - Vercel 部署 Twikoo 云函数（模板 `src/server/vercel-min`），环境变量 `MONGODB_URI`，envId = `https://vercel-69q075mt0-furukawanagisadesi.vercel.app`
+  - ⚠️ **必须**在 Vercel Settings → Deployment Protection 把 Vercel Authentication 设为 Disabled，否则 preflight/cors 请求被重定向到 `vercel.com/login` 导致"评论失败：0"
+- **博客端**：`src/layouts/BlogPost.astro` 集成，提交 `8d27a54`（首次）、`9d3bdcb`（修复初始化逻辑）、`41f98be`（About 页隐藏评论）
+  - 用 `window.addEventListener('load')` 初始化（`astro:page-load` 首次加载不触发）
+  - 引入 `twikoo.css`；脚本主用 unpkg，失败回退 jsdelivr
+  - `showComments` prop 控制是否显示评论（默认 true），About 页传 `false`
+- **踩坑**：
+  - `评论失败：0` = HTTP 状态 0，原因就是 Vercel Deployment Protection 未关闭导致 preflight 重定向被 CORS 拦截
+  - 未绑定自定义域名，目前直接用 Vercel 的 `.vercel.app`（CORS 已放行 `*`，可正常跨域）
+- 验证：文章页评论区正常，无需登录即可留言
+
 ---
 
 ## 二、当前状态
@@ -117,7 +132,8 @@
 | 文章数 | 17 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录，SQL 文章在 `SQL/` 子目录） |
 | 主页 | 纯文字文章列表（标题+描述+日期） |
 | About 页 | 个人简介 + 邮箱 |
-| 最新提交 | `cffd84d` |
+| 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
+| 最新提交 | `41f98be` |
 
 ### 文章目录结构
 ```
@@ -145,7 +161,7 @@ src/content/blog/2026/08/
 - 内容 schema：`src/content.config.ts`（强制 title/description/pubDate）
 - 文章路由：`src/pages/[...slug].astro`（用 `post.id` 作 slug，含日期/子目录路径）
 - 主页列表：`src/pages/index.astro`（按 pubDate 降序）
-- 文章布局：`src/layouts/BlogPost.astro`（frontmatter title 渲染为 H1）
+- 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（渲染 frontmatter title 为 H1；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `window load` + CDN 回退）
 - 文章标题间距：`src/styles/global.css`（`.prose h2~h6` 有 `margin-top: 1.5em`，Header 的 `h2` 有独立样式不受影响）
 - 站点信息：`src/consts.ts`（SITE_TITLE=我的博客）
 - About 页：`src/pages/about.astro`
@@ -171,6 +187,11 @@ src/content/blog/2026/08/
    - 首页若文章很多，可考虑分页
    - `immortalwrt-soft-router-guide.md` 与 `blog-launch.md` 的 heroImage 已被注释掉（用户选择不用封面图）
    - Header/Footer 暂无社交链接（用户暂不放）
+
+6. **Twikoo 待办**：
+   - 可选：绑定自定义域名（Vercel → Domains 添加 → Cloudflare 加 CNAME 开代理），然后把 `BlogPost.astro` 里的 envId 换成新域名
+   - 进入 Twikoo 管理面板（评论框右上角 ⚙️ 齿轮 + 管理密码）可改评论设置（如评论每页条数 `COMMENT_PAGE_SIZE`、开启反垃圾、验证码等）
+   - 若改 Vercel 部署配置，务必保持 Vercel Authentication = Disabled
 
 ---
 
@@ -223,6 +244,12 @@ src/content/blog/2026/08/
 - GitHub 推送依赖本地代理 `127.0.0.1:17897`，代理未启动时 push 失败
 - 直连也被墙；需先启动代理再 `git push`
 
+### 坑 7: Twikoo「评论失败：0」（CORS preflight 被重定向）
+- 现象：提交评论报「评论失败：0」，Console 显示 `Redirect is not allowed for a preflight request`
+- 原因：Vercel 的 **Deployment Protection（Vercel Authentication）未关闭**，导致对 OPTIONS 预检请求重定向到 `vercel.com/login`，被浏览器 CORS 拦截；HTTP 状态 0 表示请求根本没到达业务函数
+- **修复**：Vercel → 项目 → Settings → Deployment Protection → **Vercel Authentication = Disabled** → Save → Redeploy
+- 注意：读取能通但提交失败，就是此原因（读走 GET、提交走 POST+新头触发 preflight）
+
 ---
 
 ## 六、日常操作速查
@@ -242,6 +269,11 @@ git add -A && git commit -m "..." && git push origin main
 # 2. npm run build 验证
 # 3. git add -A && git commit && git push
 # 4. 等待 1-2 分钟 Actions 部署后访问线上验证
+
+# Twikoo 管理后台
+# 1. 打开任一文章页底部评论区
+# 2. 点评论框右上角 ⚙️ 齿轮图标，输入管理密码
+# 3. 可改评论每页条数 / 反垃圾 / 验证码等设置
 ```
 
 ---

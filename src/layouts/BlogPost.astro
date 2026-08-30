@@ -82,12 +82,31 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				</div>
 			</article>
 		</main>
-		<script src="https://unpkg.com/twikoo@1.7.20/dist/twikoo.min.js"></script>
+		<link rel="stylesheet" href="https://unpkg.com/twikoo@1.7.20/dist/twikoo.css" />
 		<script>
-			document.addEventListener('astro:page-load', () => {
-				twikoo.init({
-					envId: 'https://vercel-69q075mt0-furukawanagisadesi.vercel.app',
-				});
+			// 避免 @astrojs/rss 全局污染与重复加载，用 (window,twikoo) 判断
+			window.addEventListener('load', function () {
+				var loaded = false;
+				var init = function () {
+					if (loaded) return;
+					loaded = true;
+					if (window.twikoo && window.twikoo.init) {
+						window.twikoo.init({
+							envId: 'https://vercel-69q075mt0-furukawanagisadesi.vercel.app',
+						});
+					}
+				};
+				// 引入主脚本（unpkg 失败则回退 jsdelivr）
+				var s = document.createElement('script');
+				s.src = 'https://unpkg.com/twikoo@1.7.20/dist/twikoo.min.js';
+				s.onload = init;
+				s.onerror = function () {
+					var s2 = document.createElement('script');
+					s2.src = 'https://cdn.jsdelivr.net/npm/twikoo@1.7.20/dist/twikoo.min.js';
+					s2.onload = init;
+					document.body.appendChild(s2);
+				};
+				document.body.appendChild(s);
 			});
 		</script>
 		<Footer />

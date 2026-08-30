@@ -78,9 +78,18 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 						<hr />
 					</div>
 					<slot />
+					<div id="twikoo" style="margin-top: 3em;"></div>
 				</div>
 			</article>
 		</main>
+		<script src="https://unpkg.com/twikoo@1.7.20/dist/twikoo.min.js"></script>
+		<script>
+			document.addEventListener('astro:page-load', () => {
+				twikoo.init({
+					envId: 'https://vercel-69q075mt0-furukawanagisadesi.vercel.app',
+				});
+			});
+		</script>
 		<Footer />
 	</body>
 </html>

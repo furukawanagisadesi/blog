@@ -104,6 +104,7 @@
 - `vmware-dual-vm-isolation-guide.md`（《VMware 双虚拟机隔离上网教程》）：双虚拟机通过 HOST-ONLY 网络 + Clash Verge 代理实现隔离上网，中文文件名 → 英文 slug，提交 `f72ad69`
   - 7 张截图从 `src/content/blog/2026/08/` 移至 `src/assets/` 并重命名（如 `vm-a-network-config.png`、`clash-verge-settings.png`）
   - 修正 typo（"上午"→"上网"、"B虚拟"→"B 虚拟机"）；中英文加空格；图片引用改相对路径
+  - 补充「修改 DNS 覆写配置」小节（Google DOH `https://dns.google/dns-query` 防 DNS 泄露）；新增截图重命名 `dns覆写-域名服务器.png` → `vm-b-dns-overwrite.png`；`clash-verge-settings.png` 更新过
 
 ### 14. 集成 Twikoo 评论系统（2026-08-27）
 - **方案**：采用 Twikoo 官方推荐的云函数部署（Vercel + MongoDB Atlas 免费库），免服务器、免证书。私有 Docker 部署（★）需自申请证书，未采用

@@ -13,11 +13,11 @@ pubDate: "2026-08-26"
 
 ## 2. 虚拟机设置
 
-A 虚拟机网卡：
+**A 虚拟机网卡**：
 
 ![A 虚拟机网卡配置](../../../../assets/vm-a-network-config.png)
 
-B 虚拟机网卡：
+**B 虚拟机网卡**：
 
 ![B 虚拟机网卡配置](../../../../assets/vm-b-network-config.png)
 
@@ -38,11 +38,11 @@ Exec=env WEBKIT_DISABLE_COMPOSITING_MODE=1 WEBKIT_DISABLE_DMABUF_RENDERER=1 clas
 
 > 原因：Clash Verge 是 Tauri 应用，界面用 WebKitGTK 渲染，它在 VMware 虚拟显卡上硬件合成有 bug，导致 WebView 黑屏。
 
-软件设置：
+**软件设置**：
 
 ![Clash Verge 设置](../../../../assets/clash-verge-settings.png)
 
-B 虚拟机代理设置：
+**B 虚拟机代理设置**：
 
 先查看 A 虚拟机网卡信息：
 
@@ -59,3 +59,9 @@ ip a
 ![B 虚拟机代理配置](../../../../assets/vm-b-proxy-config.png)
 
 B 虚拟机开启网络代理后，即可通过 A 虚拟机代理转发上网。
+
+**修改 DNS 覆写配置**：
+
+建议修改为 Google 公共 DNS DOH `https://dns.google/dns-query`，可以有效防止 DNS 泄露。
+
+![DNS 覆写-域名服务器](../../../../assets/vm-b-dns-overwrite.png)

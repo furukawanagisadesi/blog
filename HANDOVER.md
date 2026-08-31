@@ -135,7 +135,7 @@
 | 主页 | 纯文字文章列表（标题+描述+日期） |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | `c6c12e7` |
+| 最新提交 | `cff8e3d` |
 
 ### 文章目录结构
 ```
@@ -165,7 +165,7 @@ src/content/blog/2026/08/
 - 主页列表：`src/pages/index.astro`（按 pubDate 降序）
 - 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（渲染 frontmatter title 为 H1；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `window load` + CDN 回退）
 - 文章标题间距：`src/styles/global.css`（`.prose h2~h6` 有 `margin-top: 1.5em`，Header 的 `h2` 有独立样式不受影响）
-- 站点信息：`src/consts.ts`（SITE_TITLE=我的博客）
+- 站点信息：`src/consts.ts`（SITE_TITLE=furukawanagisadesi 的博客）
 - About 页：`src/pages/about.astro`
 
 ---

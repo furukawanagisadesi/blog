@@ -98,6 +98,7 @@
 ### 12. 新增 VMware Debian 文章（2026-08-25）
 - `vmware-debian-setup-guide.md`（《VMware Debian 安装后设置教程》）：Debian 换源（USTC/官方）、安装 vmtools + openssh、terminal 代理配置、uv 安装，提交 `92ca238`
   - sources.list 内容代码块语言标记 `bash` → `text`；段落补句号
+  - 后续集成 `debian设置.md` 内容（2026-08-31）：新增「为 root 用户增加补全功能」「将用户添加至 sudo」「将用户从 sudo 删除」三节（apt 全局代理原已有，合并去重），并删除源文件 `debian设置.md`
 
 ### 13. 新增 VMware 双虚拟机隔离上网教程（2026-08-26）
 - `vmware-dual-vm-isolation-guide.md`（《VMware 双虚拟机隔离上网教程》）：双虚拟机通过 HOST-ONLY 网络 + Clash Verge 代理实现隔离上网，中文文件名 → 英文 slug，提交 `f72ad69`

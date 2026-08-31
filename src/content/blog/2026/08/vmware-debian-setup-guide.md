@@ -4,7 +4,7 @@ description: "VMware 17 下给 Debian 换源以及其它设置"
 pubDate: "2026-08-25"
 ---
 
-本文记录 VMware 17 下给 Debian 换源以及其它设置的流程。
+本文记录 VMware 17 下给 Debian 13 换源以及其它设置的流程。
 
 ## 1. 换源
 
@@ -22,19 +22,29 @@ sudo nano /etc/apt/sources.list
 
 USTC 中科大：
 
-```text
-deb https://mirrors.ustc.edu.cn/debian trixie main contrib non-free non-free-firmware
-deb https://mirrors.ustc.edu.cn/debian trixie-updates main contrib non-free non-free-firmware
-deb https://mirrors.ustc.edu.cn/debian-security trixie-security main contrib non-free non-free-firmware
+```bash
+deb https://mirrors.ustc.edu.cn/debian/ trixie main contrib non-free non-free-firmware
+deb-src https://mirrors.ustc.edu.cn/debian/ trixie main contrib non-free non-free-firmware
+
+deb https://mirrors.ustc.edu.cn/debian/ trixie-updates main contrib non-free non-free-firmware
+deb-src https://mirrors.ustc.edu.cn/debian/ trixie-updates main contrib non-free non-free-firmware
+
+deb https://mirrors.ustc.edu.cn/debian/ trixie-backports main contrib non-free non-free-firmware
+deb-src https://mirrors.ustc.edu.cn/debian/ trixie-backports main contrib non-free non-free-firmware
+
+deb https://mirrors.ustc.edu.cn/debian-security/ trixie-security main contrib non-free non-free-firmware
+deb-src https://mirrors.ustc.edu.cn/debian-security/ trixie-security main contrib non-free non-free-firmware
 ```
 
 官方：
 
-```text
+```bash
 deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
 deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
 deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware
 ```
+
+> trixie 为 Debian 13 的代号
 
 ## 2. 安装 vmtools、openssh
 
@@ -44,13 +54,13 @@ sudo apt install openssh-server
 sudo systemctl enable --now ssh
 ```
 
-## 3. terminal 使用代理
+## 3. apt 全局代理
 
 ```bash
-nano ~/.bashrc
-
-export http_proxy="http://192.168.211.130:17897"
-export https_proxy="http://192.168.211.130:17897"
+nano /etc/apt/apt.conf.d/proxy.conf
+# 文件底部添加
+Acquire::http::Proxy "http://IP地址:端口号";
+Acquire::https::Proxy "http://IP地址:端口号";
 ```
 
 ## 4. 安装 uv 并配置 path
@@ -60,4 +70,31 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 source $HOME/.local/bin/env (sh, bash, zsh)
 source $HOME/.local/bin/env.fish (fish)
+```
+
+## 5. 为 root 用户增加补全功能
+
+```bash
+su -
+nano ~/.bashrc
+# 文件底部添加
+if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+fi
+```
+
+## 6. 将用户添加至 sudo
+
+```bash
+su -
+# nano ~/.bashrc
+# export PATH=$PATH:/usr/sbin
+usermod -aG sudo debian2
+```
+
+## 7. 将用户从 sudo 删除
+
+```bash
+su -
+gpasswd -d debian2 sudo
 ```

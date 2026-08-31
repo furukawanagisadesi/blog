@@ -62,6 +62,6 @@ B 虚拟机开启网络代理后，即可通过 A 虚拟机代理转发上网。
 
 **修改 DNS 覆写配置**：
 
-建议修改为 Google 公共 DNS DOH `https://dns.google/dns-query`，可以有效防止 DNS 泄露。
+建议修改为 Google 公共 DNS `8.8.8.8`，DOH `https://dns.google/dns-query`，可以有效防止 DNS 泄露。
 
 ![DNS 覆写-域名服务器](../../../../assets/vm-b-dns-overwrite.png)

@@ -87,14 +87,12 @@ fi
 
 ```bash
 su -
-# nano ~/.bashrc
-# export PATH=$PATH:/usr/sbin
-usermod -aG sudo debian2
+adduser 用户名 sudo
 ```
 
 ## 7. 将用户从 sudo 删除
 
 ```bash
 su -
-gpasswd -d debian2 sudo
+gpasswd -d 用户名 sudo
 ```

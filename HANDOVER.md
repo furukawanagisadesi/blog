@@ -1,7 +1,7 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
-> 最近更新: 2026-08-27
+> 最近更新: 2026-09-17
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
 > 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成），供后续 Agent 接力
 
@@ -93,7 +93,7 @@
 ### 11. 新增 SQL 文章（2026-08-18 会话）
 - `SQL/sql-in-vs-exists-guide.md`（《SQL IN 与 EXISTS 的理解》）：记录对 SQL `IN` 与 `EXISTS` 子查询执行逻辑与复杂度的理解，中文文件名 → 英文 slug，提交 `f8a7d3d`
   - 修正：`EXISTSS` 拼写错误（4 处）、EXISTS 查询列名不一致（`c.custkey = o.custkey` → `c.c_custkey = o.o_custkey`）、说明性代码块补 `text` 语言标记
-  - 文章放新增 `SQL/` 子目录；代码块语言标记规范新增 `sql`（见第四节）
+   - 文章放新增 `SQL/` 子目录；代码块语言标记规范新增 `sql`（见第五节）
 
 ### 12. 新增 VMware Debian 文章（2026-08-25）
 - `vmware-debian-setup-guide.md`（《VMware Debian 安装后设置教程》）：Debian 换源（USTC/官方）、安装 vmtools + openssh、terminal 代理配置、uv 安装，提交 `92ca238`
@@ -121,6 +121,15 @@
   - 未绑定自定义域名，目前直接用 Vercel 的 `.vercel.app`（CORS 已放行 `*`，可正常跨域）
 - 验证：文章页评论区正常，无需登录即可留言
 
+### 15. 拆分下载章节 + 新增音频卡顿文章（2026-09-17）
+- 从 `vmware-ubuntu-setup-guide.md` 拆出「VMware 17 下载」章节，新建 `2026/09/vmware-download-guide.md`（《VMware 下载流程》），Ubuntu 文章的章节重新编号 1~3
+- 新增 `2026/09/vmware-pipewire-audio-stutter-fix.md`（《VMware Linux PipeWire 音频卡顿解决方案》）：改 WirePlumber 配置扩大 ALSA 缓冲区，再关闭 Firefox 阅读模式与网页语音合成
+  - 中文文件名 `vmware pipewire音频卡顿解决方案.md` → 英文 slug
+- `vmware-debian-setup-guide.md`：把「将用户添加至 sudo」提前到第 1 节，代理设置改为写 `/etc/environment`（原为 apt 专用代理），新增 fcitx5-rime 输入法章节
+- 格式检查：补代码块语言标记（配置与 GUI 步骤用 `text`）、行内代码（`pw-top`、`speech-dispatcher-*`、`about:config`）、缺失句号、末尾换行；修正 `linux`→`Linux`、`pipewire`→`PipeWire`，并改写 Firefox Reader 与语音合成混淆的表述
+- `vmware-downloadguide.md` → `vmware-download-guide.md`（文件名统一为 `xxx-guide.md`）
+- 构建通过（21 页）；改动尚未提交，工作区另有未跟踪的 `CLAUDE.md`
+
 ---
 
 ## 二、当前状态
@@ -128,14 +137,14 @@
 | 项 | 值 |
 |----|----|
 | 本地路径 | `D:\Syncthing\Self\GitHub\blog` |
-| 分支 | `main`，工作区干净 |
+| 分支 | `main`，有未提交改动（见上节第 15 条） |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 17 篇（`src/content/blog/2026/08/`，Docker 系列在 `Docker/` 子目录，SQL 文章在 `SQL/` 子目录） |
+| 文章数 | 19 篇（2026/08 共 17 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 新增 2 篇） |
 | 主页 | 纯文字文章列表（标题+描述+日期） |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | `cff8e3d` |
+| 最新提交 | `9d58fbf`（另有上述未提交改动） |
 
 ### 文章目录结构
 ```
@@ -147,16 +156,22 @@ src/content/blog/2026/08/
 	├── vmware-ubuntu-setup-guide.md      # VMware Ubuntu 安装流程
 	├── vmware-ubuntu-virtual-audio-bug-fix.md   # VMware Ubuntu 虚拟音频设备离线解决方案
 	├── vmware-fedora-mirror-update-guide.md     # VMware Fedora 换源并更新教程
-	└── Docker/
-    ├── easytier-docker-guide.md
-    ├── nginx-srs-live-streaming-guide.md
-    ├── rustdesk-docker-guide.md
-    ├── srs-docker-guide.md
-    ├── syncclipboard-docker-guide.md
-    ├── syncthing-docker-guide.md
-    └── webdav-docker-guide.md
+	├── vmware-debian-setup-guide.md      # VMware Debian 安装后设置教程
+	├── vmware-dual-vm-isolation-guide.md # VMware 双虚拟机隔离上网教程
+	├── Docker/
+	│   ├── easytier-docker-guide.md
+	│   ├── nginx-srs-live-streaming-guide.md
+	│   ├── rustdesk-docker-guide.md
+	│   ├── srs-docker-guide.md
+	│   ├── syncclipboard-docker-guide.md
+	│   ├── syncthing-docker-guide.md
+	│   └── webdav-docker-guide.md
 	└── SQL/
-    	└── sql-in-vs-exists-guide.md   # SQL IN 与 EXISTS 的理解
+	    └── sql-in-vs-exists-guide.md    # SQL IN 与 EXISTS 的理解
+
+src/content/blog/2026/09/
+	├── vmware-download-guide.md              # VMware 下载流程
+	└── vmware-pipewire-audio-stutter-fix.md  # VMware Linux PipeWire 音频卡顿解决方案
 ```
 
 ### 相关代码位置
@@ -172,14 +187,14 @@ src/content/blog/2026/08/
 
 ## 三、待办事项（供后续 Agent）
 
-1. **新增文章规范**：
+1. **新增文章规范**（完整步骤见第四节「文章检查流程」）：
    - 放 `src/content/blog/YYYY/MM/` 对应日期目录（Docker 类放 `Docker/` 子目录）
    - 文件名用英文 slug（如 `xxx-docker-guide.md`）
    - **必须带 frontmatter**：`title` / `description` / `pubDate`
    - 如需同日排序，pubDate 可加时间（`2026-08-08 14:30`）
    - 构建验证 + git 提交推送
 
-2. **markdown 格式规范**（新文章遵循，参见上文第四节）：代码块语言标记、行内代码、中英文空格、结构顺序
+2. **markdown 格式规范**（新文章遵循，参见第五节）：代码块语言标记、行内代码、中英文空格、结构顺序；完整检查步骤见第四节
 
 3. **可选清理**：`src/assets/` 下 `blog-placeholder-1/2/4/5.jpg` 已无引用，`blog-placeholder-about.jpg` 已无引用（About 页重构后不再用占位图）。**注意 BaseHead 默认 fallback 仍引用 `blog-placeholder-1.jpg`**，删除前需确认
 
@@ -197,7 +212,26 @@ src/content/blog/2026/08/
 
 ---
 
-## 四、约定：博客 markdown 统一规范（重要，新文章遵守）
+## 四、文章检查流程（新增/修改文章照此执行）
+
+> 逐条过一遍；markdown 格式细节见第五节。
+
+1. **文件名**：中文、空格一律改成英文 slug（如 `vmware-pipewire-audio-stutter-fix.md`）；同类文章前缀统一（如 VMware 系列 `vmware-*-guide.md`、`vmware-*-fix.md`）
+2. **目录**：放 `src/content/blog/YYYY/MM/` 对应日期目录，Docker 类放 `Docker/` 子目录
+3. **frontmatter**：`title` / `description` / `pubDate` 三项齐全；`description` 不要照抄 `title`
+4. **正文**：不要重复 H1（页面自动渲染标题）；标题层级连续不错乱
+5. **代码块**：全部带语言标记；命令用 `bash`，配置内容与 GUI 步骤用 `text`
+6. **行内代码**：路径、命令、端口、IP、软件名、配置项全部加反引号
+7. **排版**：中英文之间加空格；`**加粗**` 内部无空格；补全句号；文件末尾留一个换行
+8. **图片**：截图放 `src/assets/` 并取有意义的名字，正文用相对路径 `![描述](../../../../assets/图片名)` 引用；不要放 `image.png` 这类无意义名
+9. **敏感信息**：服务器地址 `your_ip`、账号 `your_username`、密码 `your_password`
+10. **构建验证**：`npm run build` 通过，确认新路由已生成（Astro 缓存问题见第六节坑 1）
+11. **提交推送**：`git add -A && git commit && git push origin main`（需代理在线）
+12. **线上核对 + 更新本文档**：部署后访问线上页面；回填「当前状态」的文章数、目录结构、最新提交
+
+---
+
+## 五、约定：博客 markdown 统一规范（重要，新文章遵守）
 
 1. 代码块必须带语言标记：`bash` / `yml` / `nginx` / `json` / `javascript` / `dockerfile` / `sql` / `text`
 2. 路径、命令、端口、IP、软件名用反引号包裹（行内代码）
@@ -221,7 +255,7 @@ src/content/blog/2026/08/
 
 ---
 
-## 五、踩坑记录
+## 六、踩坑记录
 
 ### 坑 1: Astro 内容缓存
 - Astro v7 内容层在 `node_modules/.astro/data-store.json` 持久化缓存已删除的文章
@@ -254,7 +288,7 @@ src/content/blog/2026/08/
 
 ---
 
-## 六、日常操作速查
+## 七、日常操作速查
 
 ```bash
 # 本地开发

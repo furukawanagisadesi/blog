@@ -128,7 +128,7 @@
 - `vmware-debian-setup-guide.md`：把「将用户添加至 sudo」提前到第 1 节，代理设置改为写 `/etc/environment`（原为 apt 专用代理），新增 fcitx5-rime 输入法章节
 - 格式检查：补代码块语言标记（配置与 GUI 步骤用 `text`）、行内代码（`pw-top`、`speech-dispatcher-*`、`about:config`）、缺失句号、末尾换行；修正 `linux`→`Linux`、`pipewire`→`PipeWire`，并改写 Firefox Reader 与语音合成混淆的表述
 - `vmware-downloadguide.md` → `vmware-download-guide.md`（文件名统一为 `xxx-guide.md`）
-- 构建通过（21 页）；改动尚未提交，工作区另有未跟踪的 `CLAUDE.md`
+- 构建通过（21 页）；已提交并推送（`9665f11`），工作区另有未跟踪的 `CLAUDE.md`（指向 `AGENTS.md` 的符号链接，未纳入版本控制）
 
 ---
 
@@ -137,14 +137,14 @@
 | 项 | 值 |
 |----|----|
 | 本地路径 | `D:\Syncthing\Self\GitHub\blog` |
-| 分支 | `main`，有未提交改动（见上节第 15 条） |
+| 分支 | `main`，工作区干净 |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
 | 文章数 | 19 篇（2026/08 共 17 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 新增 2 篇） |
 | 主页 | 纯文字文章列表（标题+描述+日期） |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | `9d58fbf`（另有上述未提交改动） |
+| 最新提交 | `9665f11` |
 
 ### 文章目录结构
 ```

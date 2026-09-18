@@ -31,7 +31,7 @@ sudo nano /etc/apt/sources.list
 
 USTC 中科大：
 
-```bash
+```text
 deb https://mirrors.ustc.edu.cn/debian/ trixie main contrib non-free non-free-firmware
 deb-src https://mirrors.ustc.edu.cn/debian/ trixie main contrib non-free non-free-firmware
 
@@ -47,7 +47,7 @@ deb-src https://mirrors.ustc.edu.cn/debian-security/ trixie-security main contri
 
 官方：
 
-```bash
+```text
 deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
 deb http://deb.debian.org/debian trixie-updates main contrib non-free non-free-firmware
 deb http://security.debian.org/debian-security trixie-security main contrib non-free non-free-firmware

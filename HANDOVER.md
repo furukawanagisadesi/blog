@@ -128,7 +128,7 @@
 - `vmware-debian-setup-guide.md`：把「将用户添加至 sudo」提前到第 1 节，代理设置改为写 `/etc/environment`（原为 apt 专用代理），新增 fcitx5-rime 输入法章节
 - 格式检查：补代码块语言标记（配置与 GUI 步骤用 `text`）、行内代码（`pw-top`、`speech-dispatcher-*`、`about:config`）、缺失句号、末尾换行；修正 `linux`→`Linux`、`pipewire`→`PipeWire`，并改写 Firefox Reader 与语音合成混淆的表述
 - `vmware-downloadguide.md` → `vmware-download-guide.md`（文件名统一为 `xxx-guide.md`）
-- `vmware-debian-setup-guide.md` 追加 fcitx5 配置：安装 `fcitx5-module-cloudpinyin`，新增 `default.custom.yaml`（默认 `luna_pinyin_simp`、候选词 9 个），步骤 5 的连字符分隔改为完整句子
+- `vmware-debian-setup-guide.md` 追加 fcitx5 配置：安装 `fcitx5-module-cloudpinyin`，新增 `default.custom.yaml`（默认 `luna_pinyin_simp`、候选词 9 个），步骤 5 的连字符分隔改为完整句子；`sources.list` 两个代码块语言标记 `bash` → `text`
 - 构建通过（21 页）；已提交并推送（`9665f11`），工作区另有未跟踪的 `CLAUDE.md`（指向 `AGENTS.md` 的符号链接，未纳入版本控制）
 
 ---

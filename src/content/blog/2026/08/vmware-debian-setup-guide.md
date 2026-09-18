@@ -79,6 +79,7 @@ sudo systemctl enable --now ssh
 
 ```bash
 sudo apt install fcitx5 fcitx5-rime fcitx5-chinese-addons fcitx5-config-qt
+sudo apt install fcitx5-module-cloudpinyin
 sudo apt install gnome-shell-extensions
 ```
 
@@ -87,4 +88,20 @@ sudo apt install gnome-shell-extensions
 1. 打开 `https://extensions.gnome.org/`，搜索并安装 input method panel
 2. 打开 gnome-shell-extensions，启用 input method panel
 3. 在**优化 → 开机启动程序**里添加 fcitx5，然后重启虚拟机
-4. 重启后在托盘图标里切换到「朙月拼音·简化字」，重新部署即可输入简体中文
+4. 重启后控制台输入命令：
+
+```bash
+cd ~/.local/share/fcitx5/rime/
+nano default.custom.yaml
+```
+
+在文件内填写：
+
+```yml
+patch:
+  schema_list:
+    - schema: luna_pinyin_simp # 朙月拼音·简化字（简体）
+  menu/page_size: 9 # 候选词数量
+```
+
+5. 最后随便找个输入框点一下，再点输入法托盘图标，选择「朙月拼音」，然后点「重新部署」。

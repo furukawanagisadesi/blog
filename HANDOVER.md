@@ -1,9 +1,9 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
-> 最近更新: 2026-09-17
+> 最近更新: 2026-10-13
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成），供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构），供后续 Agent 接力
 
 ---
 
@@ -131,6 +131,22 @@
 - `vmware-debian-setup-guide.md` 追加 fcitx5 配置：安装 `fcitx5-module-cloudpinyin`，新增 `default.custom.yaml`（默认 `luna_pinyin_simp`、候选词 9 个），步骤 5 的连字符分隔改为完整句子；`sources.list` 两个代码块语言标记 `bash` → `text`
 - 构建通过（21 页）；已提交并推送（`9665f11`），工作区另有未跟踪的 `CLAUDE.md`（指向 `AGENTS.md` 的符号链接，未纳入版本控制）
 
+### 16. 站点设计优化：中文一致化 + 抽公共布局（2026-10-13）
+- **问题**：文章页/About 页 `lang="en"`（首页却是 `zh-CN`）；日期显示英文 `Sep 17, 2026`；导航 `Home/About`、页脚 `All rights reserved.`、`Last updated on` 均为英文；About 页顶部出现「发布日期」和空封面块；首页文章标题用 `h4`（层级从 `h2` 直接跳 `h4`）；`a:hover` 与 `a` 同色（无 hover 反馈）；`index.astro` 重复声明 `main { width: 720px }`。
+- **改动**：
+  - 新增 `src/layouts/BaseLayout.astro`（公共外壳：`<html lang="zh-CN">` + `BaseHead` + `Header` + `<slot />` + `Footer`；接收 `title / description / image / ogType`）
+  - `index.astro`、`BlogPost.astro` 改走 `BaseLayout`，删除各自重复的 `html/head/body`
+  - `BlogPost.astro`：Props 改为显式接口（`pubDate / updatedDate / heroImage` 可选，补 `showComments?: boolean`）；无 `pubDate` 不渲染日期区；无 `heroImage` 不渲染空 `.hero-image`；`Last updated on` → `最后更新于`
+  - `about.astro`：去掉 `pubDate`，About 页不再显示日期和空封面
+  - `index.astro`：删掉重复的 `main` 宽度；文章标题 `h4` → `h3`
+  - `BaseHead.astro`：新增 `ogType` 参数（文章页传 `article`）；补 `twitter:title / description / image`；文章页用 `heroImage` 作 `og:image`（无则回退占位图）
+  - `Header.astro`：`Home` → `首页`、`About` → `关于`
+  - `Footer.astro`：`All rights reserved.` → `保留所有权利。`
+  - `FormattedDate.astro`：`en-us` → `zh-CN`（显示如 `2026年9月17日`）
+  - `global.css`：`a:hover` 改用 `--accent-dark`
+- **验证**：`npm run build` 通过（21 页）；对 `dist/` 全量断言（`lang` / 中文日期 / 导航页脚文案 / 文章页 `og:type=article` / 无空封面 / 首页无 `h4`）全部通过。
+- **未做（后续可排期）**：中文正文字体（Atkinson 无中文字形，中文实际回退到系统 sans-serif）、分类/标签与首页分页、Twikoo 延迟加载。
+
 ---
 
 ## 二、当前状态
@@ -177,9 +193,12 @@ src/content/blog/2026/09/
 
 ### 相关代码位置
 - 内容 schema：`src/content.config.ts`（强制 title/description/pubDate）
+- 公共外壳：`src/layouts/BaseLayout.astro`（`<html lang="zh-CN">` + BaseHead + Header + slot + Footer；接收 `title / description / image / ogType`）
 - 文章路由：`src/pages/[...slug].astro`（用 `post.id` 作 slug，含日期/子目录路径）
-- 主页列表：`src/pages/index.astro`（按 pubDate 降序）
-- 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（渲染 frontmatter title 为 H1；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `window load` + CDN 回退）
+- 主页列表：`src/pages/index.astro`（基于 BaseLayout，按 pubDate 降序；文章标题用 `h3`）
+- 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（基于 BaseLayout，`ogType="article"`；渲染 frontmatter title 为 H1；`pubDate`/`heroImage` 可选，缺省不渲染日期区与空封面；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `window load` + CDN 回退）
+- 元信息：`src/components/BaseHead.astro`（`ogType` 控制 og:type；含 twitter:title/description/image；og:image 默认占位图）
+- 日期格式：`src/components/FormattedDate.astro`（`zh-CN`，显示如 `2026年9月17日`）
 - 文章标题间距：`src/styles/global.css`（`.prose h2~h6` 有 `margin-top: 1.5em`，Header 的 `h2` 有独立样式不受影响）
 - 站点信息：`src/consts.ts`（SITE_TITLE=furukawanagisadesi 的博客）
 - About 页：`src/pages/about.astro`
@@ -278,7 +297,7 @@ src/content/blog/2026/09/
 - 已改为纯文字列表，彻底解决
 
 ### 坑 6: 网络/代理
-- GitHub 推送依赖本地代理 `127.0.0.1:17897`，代理未启动时 push 失败
+- GitHub 推送依赖代理，地址写在 `~/.gitconfig` 的 `http.proxy` / `https.proxy`（当前为 `http://192.168.211.130:17897`），代理未启动时 push 失败
 - 直连也被墙；需先启动代理再 `git push`
 
 ### 坑 7: Twikoo「评论失败：0」（CORS preflight 被重定向）

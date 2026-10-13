@@ -136,7 +136,7 @@
 - **改动**：
   - 新增 `src/layouts/BaseLayout.astro`（公共外壳：`<html lang="zh-CN">` + `BaseHead` + `Header` + `<slot />` + `Footer`；接收 `title / description / image / ogType`）
   - `index.astro`、`BlogPost.astro` 改走 `BaseLayout`，删除各自重复的 `html/head/body`
-  - `BlogPost.astro`：Props 改为显式接口（`pubDate / updatedDate / heroImage` 可选，补 `showComments?: boolean`）；无 `pubDate` 不渲染日期区；无 `heroImage` 不渲染空 `.hero-image`；`Last updated on` → `最后更新于`
+  - `BlogPost.astro`：Props 改为显式接口（`pubDate / updatedDate / heroImage` 可选，补 `showComments?: boolean`、`ogType?: 'website' | 'article'`，默认 `article`）；无 `pubDate` 不渲染日期区；无 `heroImage` 不渲染空 `.hero-image`；`Last updated on` → `最后更新于`
   - `about.astro`：去掉 `pubDate`，About 页不再显示日期和空封面
   - `index.astro`：删掉重复的 `main` 宽度；文章标题 `h4` → `h3`
   - `BaseHead.astro`：新增 `ogType` 参数（文章页传 `article`）；补 `twitter:title / description / image`；文章页用 `heroImage` 作 `og:image`（无则回退占位图）

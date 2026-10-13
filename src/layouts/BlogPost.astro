@@ -11,12 +11,21 @@ interface Props {
 	updatedDate?: Date;
 	heroImage?: ImageMetadata;
 	showComments?: boolean;
+	ogType?: 'website' | 'article';
 }
 
-const { title, description, pubDate, updatedDate, heroImage, showComments = true } = Astro.props;
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	showComments = true,
+	ogType = 'article',
+} = Astro.props;
 ---
 
-<BaseLayout title={title} description={description} image={heroImage} ogType="article">
+<BaseLayout title={title} description={description} image={heroImage} ogType={ogType}>
 	<style>
 		main {
 			width: calc(100% - 2em);

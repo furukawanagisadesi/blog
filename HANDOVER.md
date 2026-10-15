@@ -3,7 +3,7 @@
 > 生成时间: 2026-08-09
 > 最近更新: 2026-10-15
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载），供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能），供后续 Agent 接力
 
 ---
 
@@ -163,6 +163,24 @@
 - **验证**：`npm run build` 通过（21 页）；断言文章页初始 HTML 无 `twikoo.css` 的 `<link>`、含 `IntersectionObserver`；About 页无任何 Twikoo 内容。
 - **注意**：评论能否真正渲染依赖 Vercel 云函数与网络，本地只验证了「延迟加载逻辑与产物」，完整效果需在浏览器滚到评论区确认。
 
+### 19. 标签功能（2026-10-15）
+- **范围**：本轮只做标签，首页分页未做。
+- **方案**：文章 frontmatter 增加 `tags`（英文标签、可选、默认空数组）；生成 `/blog/tags/` 索引页与 `/blog/tags/<slug>/` 列表页；文章页标题下显示标签；导航加「标签」。
+- **改动**：
+  - `src/content.config.ts`：schema 加 `tags: z.array(z.string()).default([])`
+  - 新增 `src/lib/tags.ts`：`slugifyTag`（去空白、转小写、空格转 `-`）、`getAllTags`（标签 + 篇数，按篇数降序、同篇数按名升序）、`getPostsByTag`
+  - 新增 `src/components/PostList.astro`：从 `index.astro` 抽出的文章列表（标题 + 描述 + 日期），首页与标签页共用
+  - 新增 `src/pages/tags/index.astro`（`/tags/`）与 `src/pages/tags/[tag].astro`（`/tags/<slug>/`，`getStaticPaths` 由 `getAllTags` 生成）
+  - `src/pages/index.astro`：改用 `PostList`（行为不变）
+  - `src/layouts/BlogPost.astro`：加 `tags?: string[]` prop，`<h1>` 下渲染标签链接（无标签则不渲染，About 页不受影响）
+  - `src/components/Header.astro`：导航改为「首页 / 标签 / 关于」
+  - 19 篇文章 frontmatter 各补一行 `tags`
+- **标签表（9 个）**：`Docker`(7)、`VMware`(7)、`Linux`(5)、`Network`(5)、`RouterOS`(1)、`ImmortalWrt`(1)、`SQL`(1)、`Browser`(1)、`Meta`(1)
+- **提交**：`5f4ac33`（schema + 回填）、`4c3b6d2`（抽 PostList）、`50cb206`（标签页）、`ff30500`（文章页 + 导航）
+- **验证**：`npm run build` 通过（21 → 31 页）；产物全量断言通过（新增：`/tags/index.html` 存在且含全部 9 个标签名、9 个标签页存在、文章页含 `/blog/tags/<slug>/` 链接、About 页无标签区）
+- **注意**：标签用英文（直接作 URL slug），新增/修改文章记得补 `tags`；设计与计划文档见 `docs/superpowers/specs/2026-10-15-tags-design.md`、`docs/superpowers/plans/2026-10-15-tags.md`
+- **踩坑**：计划的产物断言 `-match '<ul>'` 不成立——Astro 会给作用域样式元素注入 `data-astro-cid-*` 属性，`<ul>` 实际是 `<ul data-astro-cid-xxx>`；断言应匹配前缀 `<ul` / `<li data-astro-cid`（并注意 `<li` 会误匹配 `<link`）
+
 ---
 
 ## 二、当前状态
@@ -175,9 +193,10 @@
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
 | 文章数 | 19 篇（2026/08 共 17 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 新增 2 篇） |
 | 主页 | 纯文字文章列表（标题+描述+日期） |
+| 标签页 | `/blog/tags/`（标签索引，9 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | `f868399` |
+| 最新提交 | `ff30500` |
 
 ### 文章目录结构
 ```
@@ -208,10 +227,12 @@ src/content/blog/2026/09/
 ```
 
 ### 相关代码位置
-- 内容 schema：`src/content.config.ts`（强制 title/description/pubDate）
+- 内容 schema：`src/content.config.ts`（强制 title/description/pubDate；`tags` 可选、默认空数组）
 - 公共外壳：`src/layouts/BaseLayout.astro`（`<html lang="zh-CN">` + BaseHead + Header + slot + Footer；接收 `title / description / image / ogType`）
 - 文章路由：`src/pages/[...slug].astro`（用 `post.id` 作 slug，含日期/子目录路径）
-- 主页列表：`src/pages/index.astro`（基于 BaseLayout，按 pubDate 降序；文章标题用 `h3`）
+- 主页列表：`src/pages/index.astro`（基于 BaseLayout，按 pubDate 降序；文章标题用 `h3`；列表渲染抽到 `PostList`）
+- 文章列表组件：`src/components/PostList.astro`（标题 + 描述 + 日期，首页与标签页共用）
+- 标签：`src/lib/tags.ts`（`slugifyTag` / `getAllTags` / `getPostsByTag`）；`src/pages/tags/index.astro`（`/tags/`）、`src/pages/tags/[tag].astro`（`/tags/<slug>/`）；schema 的 `tags` 字段在 `src/content.config.ts`
 - 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（基于 BaseLayout，`ogType="article"`；渲染 frontmatter title 为 H1；`pubDate`/`heroImage` 可选，缺省不渲染日期区与空封面；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `IntersectionObserver` 滚动懒加载 + CDN 回退）
 - 元信息：`src/components/BaseHead.astro`（`ogType` 控制 og:type；含 twitter:title/description/image；og:image 默认占位图）
 - 日期格式：`src/components/FormattedDate.astro`（`zh-CN`，显示如 `2026年9月17日`）
@@ -227,7 +248,7 @@ src/content/blog/2026/09/
 1. **新增文章规范**（完整步骤见第四节「文章检查流程」）：
    - 放 `src/content/blog/YYYY/MM/` 对应日期目录（Docker 类放 `Docker/` 子目录）
    - 文件名用英文 slug（如 `xxx-docker-guide.md`）
-   - **必须带 frontmatter**：`title` / `description` / `pubDate`
+   - **必须带 frontmatter**：`title` / `description` / `pubDate`；建议补 `tags`（英文标签，见第 19 项）
    - 如需同日排序，pubDate 可加时间（`2026-08-08 14:30`）
    - 构建验证 + git 提交推送
 
@@ -238,7 +259,7 @@ src/content/blog/2026/09/
 4. **图片管理**：文章内截图请放到 `src/assets/` 并命名有意义（如 `vmware-virtual-audio-offline.png`），文章中用相对路径 `../../../../assets/图片名` 引用（从 `src/content/blog/2026/08/` 出发是 4 层 `../`）。**不要把图片直接放 `src/content/blog/` 下**，也不要放文件名无意义的 `image.png`/`image-1.png`
 
 5. **未决项**：
-   - 首页若文章很多，可考虑分页
+   - 首页分页：文章多以后可加分页（标签功能已完成，见第 19 项）
    - `immortalwrt-soft-router-guide.md` 与 `blog-launch.md` 的 heroImage 已被注释掉（用户选择不用封面图）
    - Header/Footer 暂无社交链接（用户暂不放）
 

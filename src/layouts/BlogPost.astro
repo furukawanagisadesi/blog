@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import BaseLayout from './BaseLayout.astro';
+import { slugifyTag } from '../lib/tags';
 
 interface Props {
 	title: string;
@@ -10,6 +11,7 @@ interface Props {
 	pubDate?: Date;
 	updatedDate?: Date;
 	heroImage?: ImageMetadata;
+	tags?: string[];
 	showComments?: boolean;
 	ogType?: 'website' | 'article';
 }
@@ -20,9 +22,12 @@ const {
 	pubDate,
 	updatedDate,
 	heroImage,
+	tags = [],
 	showComments = true,
 	ogType = 'article',
 } = Astro.props;
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <BaseLayout title={title} description={description} image={heroImage} ogType={ogType}>
@@ -64,6 +69,29 @@ const {
 		.last-updated-on {
 			font-style: italic;
 		}
+		.tags {
+			list-style: none;
+			margin: 0 0 1em 0;
+			padding: 0;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5em;
+			justify-content: center;
+		}
+		.tags a {
+			display: inline-block;
+			padding: 0.15em 0.6em;
+			border-radius: 999px;
+			background: rgb(var(--gray-light));
+			color: rgb(var(--gray-dark));
+			font-size: 0.8rem;
+			text-decoration: none;
+			transition: 0.2s ease;
+		}
+		.tags a:hover {
+			background: rgb(var(--accent));
+			color: #fff;
+		}
 	</style>
 	<main>
 		<article>
@@ -89,6 +117,17 @@ const {
 						)
 					}
 					<h1>{title}</h1>
+					{
+						tags.length > 0 && (
+							<ul class="tags">
+								{tags.map((tag) => (
+									<li>
+										<a href={base + '/tags/' + slugifyTag(tag) + '/'}>{tag}</a>
+									</li>
+								))}
+							</ul>
+						)
+					}
 					<hr />
 				</div>
 				<slot />

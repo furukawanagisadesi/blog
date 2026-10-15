@@ -1,9 +1,9 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
-> 最近更新: 2026-10-13
+> 最近更新: 2026-10-15
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构），供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈），供后续 Agent 接力
 
 ---
 
@@ -145,7 +145,16 @@
   - `FormattedDate.astro`：`en-us` → `zh-CN`（显示如 `2026年9月17日`）
   - `global.css`：`a:hover` 改用 `--accent-dark`
 - **验证**：`npm run build` 通过（21 页）；对 `dist/` 全量断言（`lang` / 中文日期 / 导航页脚文案 / 文章页 `og:type=article` / 无空封面 / 首页无 `h4`）全部通过。
-- **未做（后续可排期）**：中文正文字体（Atkinson 无中文字形，中文实际回退到系统 sans-serif）、分类/标签与首页分页、Twikoo 延迟加载。
+- **未做（后续可排期）**：分类/标签与首页分页、Twikoo 延迟加载。（中文正文字体已在第 17 项处理）
+
+### 17. 中文字体：系统字体栈（2026-10-15）
+- **问题**：`body` 用 `--font-atkinson`，而 Atkinson 无中文字形，中文回退到浏览器默认 `sans-serif`（各系统不一致、不可控）。
+- **踩坑**：Astro 的字体 `fallbacks` 会**始终**在 `--font-atkinson` 末尾补 `sans-serif`（即使删掉 `fallbacks` 也一样），因此不能靠在 `global.css` 里写 `var(--font-atkinson), "PingFang SC", ...` 来追加中文栈——会被中间的 `sans-serif` 截断而失效（浏览器遇到 `sans-serif` 就停住，不再往后的字体找）。
+- **方案**：把中文栈写进 `astro.config.mjs` 的 `fallbacks`：
+  `fallbacks: ['PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', 'sans-serif']`
+  生成的 `--font-atkinson` 为 `Atkinson-xxx, "…fallback: Arial", "…fallback: Arial Bold", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif`（中文栈在通用兜底之前；`fallback: Arial` 两个面仅用于拉丁字的 CLS，无 CJK 字形，不影响中文）。
+- **改动**：`astro.config.mjs`（`fallbacks`）。`src/styles/global.css` 的 `body { font-family: var(--font-atkinson); }` 保持不变。
+- **验证**：`npm run build` 通过（21 页）；断言 `--font-atkinson` 含 `"PingFang SC"` 且位于 `sans-serif` 之前。
 
 ---
 
@@ -199,6 +208,7 @@ src/content/blog/2026/09/
 - 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（基于 BaseLayout，`ogType="article"`；渲染 frontmatter title 为 H1；`pubDate`/`heroImage` 可选，缺省不渲染日期区与空封面；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `window load` + CDN 回退）
 - 元信息：`src/components/BaseHead.astro`（`ogType` 控制 og:type；含 twitter:title/description/image；og:image 默认占位图）
 - 日期格式：`src/components/FormattedDate.astro`（`zh-CN`，显示如 `2026年9月17日`）
+- 字体：`astro.config.mjs`（Atkinson 本地字体 + `fallbacks` 中文栈 `PingFang SC / Hiragino Sans GB / Microsoft YaHei / Noto Sans CJK SC`）；`src/styles/global.css` 的 `body` 用 `var(--font-atkinson)`
 - 文章标题间距：`src/styles/global.css`（`.prose h2~h6` 有 `margin-top: 1.5em`，Header 的 `h2` 有独立样式不受影响）
 - 站点信息：`src/consts.ts`（SITE_TITLE=furukawanagisadesi 的博客）
 - About 页：`src/pages/about.astro`

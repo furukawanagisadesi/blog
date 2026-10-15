@@ -14,7 +14,7 @@ export default defineConfig({
 			provider: fontProviders.local(),
 			name: 'Atkinson',
 			cssVariable: '--font-atkinson',
-			fallbacks: ['sans-serif'],
+			fallbacks: ['PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', 'sans-serif'],
 			options: {
 				variants: [
 					{

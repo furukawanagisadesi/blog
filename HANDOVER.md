@@ -196,7 +196,7 @@
 | 标签页 | `/blog/tags/`（标签索引，9 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | `ff30500` |
+| 最新提交 | `aa48b93` |
 
 ### 文章目录结构
 ```

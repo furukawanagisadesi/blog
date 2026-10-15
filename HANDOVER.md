@@ -170,7 +170,7 @@
 | 主页 | 纯文字文章列表（标题+描述+日期） |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | `f622ee8` |
+| 最新提交 | `a1ff3b1` |
 
 ### 文章目录结构
 ```

@@ -3,7 +3,7 @@
 > 生成时间: 2026-08-09
 > 最近更新: 2026-10-15
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈），供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载），供后续 Agent 接力
 
 ---
 
@@ -156,6 +156,13 @@
 - **改动**：`astro.config.mjs`（`fallbacks`）。`src/styles/global.css` 的 `body { font-family: var(--font-atkinson); }` 保持不变。
 - **验证**：`npm run build` 通过（21 页）；断言 `--font-atkinson` 含 `"PingFang SC"` 且位于 `sans-serif` 之前。
 
+### 18. Twikoo 评论延迟加载（2026-10-15）
+- **问题**：文章页首屏无条件从 unpkg 加载 Twikoo 的 CSS + JS（第三方、境外 CDN），拖慢首屏。
+- **方案**：改为滚动到评论区附近再加载。`BlogPost.astro` 用 `IntersectionObserver` 监听 `#twikoo` 容器，提前 200px（`rootMargin: '200px 0px'`）触发；触发时才动态插入 `twikoo.css`（`document.head`）与 `twikoo.min.js`（`document.body`），加载完调用 `window.twikoo.init`。保留 unpkg → jsdelivr 回退、`loaded` 去重、envId、版本号（1.7.20）不变。兜底：不支持 `IntersectionObserver` 或找不到容器时，退回 `load` 后立即加载。
+- **改动**：`src/layouts/BlogPost.astro`（去掉常驻 `<link rel="stylesheet" …twikoo.css>`，脚本改为 IIFE + IntersectionObserver）。
+- **验证**：`npm run build` 通过（21 页）；断言文章页初始 HTML 无 `twikoo.css` 的 `<link>`、含 `IntersectionObserver`；About 页无任何 Twikoo 内容。
+- **注意**：评论能否真正渲染依赖 Vercel 云函数与网络，本地只验证了「延迟加载逻辑与产物」，完整效果需在浏览器滚到评论区确认。
+
 ---
 
 ## 二、当前状态
@@ -205,7 +212,7 @@ src/content/blog/2026/09/
 - 公共外壳：`src/layouts/BaseLayout.astro`（`<html lang="zh-CN">` + BaseHead + Header + slot + Footer；接收 `title / description / image / ogType`）
 - 文章路由：`src/pages/[...slug].astro`（用 `post.id` 作 slug，含日期/子目录路径）
 - 主页列表：`src/pages/index.astro`（基于 BaseLayout，按 pubDate 降序；文章标题用 `h3`）
-- 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（基于 BaseLayout，`ogType="article"`；渲染 frontmatter title 为 H1；`pubDate`/`heroImage` 可选，缺省不渲染日期区与空封面；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `window load` + CDN 回退）
+- 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（基于 BaseLayout，`ogType="article"`；渲染 frontmatter title 为 H1；`pubDate`/`heroImage` 可选，缺省不渲染日期区与空封面；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `IntersectionObserver` 滚动懒加载 + CDN 回退）
 - 元信息：`src/components/BaseHead.astro`（`ogType` 控制 og:type；含 twitter:title/description/image；og:image 默认占位图）
 - 日期格式：`src/components/FormattedDate.astro`（`zh-CN`，显示如 `2026年9月17日`）
 - 字体：`astro.config.mjs`（Atkinson 本地字体 + `fallbacks` 中文栈 `PingFang SC / Hiragino Sans GB / Microsoft YaHei / Noto Sans CJK SC`）；`src/styles/global.css` 的 `body` 用 `var(--font-atkinson)`

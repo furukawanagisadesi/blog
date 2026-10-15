@@ -98,35 +98,58 @@ const {
 	</main>
 	{
 		showComments && (
-			<>
-				<link rel="stylesheet" href="https://unpkg.com/twikoo@1.7.20/dist/twikoo.css" />
-				<script>
-					// 避免全局污染与重复加载，用 window.twikoo 判断
-					window.addEventListener('load', function () {
-						var loaded = false;
-						var init = function () {
-							if (loaded) return;
-							loaded = true;
+			<script>
+				(function () {
+					var loaded = false;
+					var envId = 'https://vercel-69q075mt0-furukawanagisadesi.vercel.app';
+					var init = function () {
+						if (loaded) return;
+						loaded = true;
+						// 评论区样式：延迟到需要时再插入
+						var css = document.createElement('link');
+						css.rel = 'stylesheet';
+						css.href = 'https://unpkg.com/twikoo@1.7.20/dist/twikoo.css';
+						document.head.appendChild(css);
+						// 主脚本：unpkg 失败则回退 jsdelivr
+						var boot = function () {
 							if (window.twikoo && window.twikoo.init) {
-								window.twikoo.init({
-									envId: 'https://vercel-69q075mt0-furukawanagisadesi.vercel.app',
-								});
+								window.twikoo.init({ envId: envId });
 							}
 						};
-						// 引入主脚本（unpkg 失败则回退 jsdelivr）
 						var s = document.createElement('script');
 						s.src = 'https://unpkg.com/twikoo@1.7.20/dist/twikoo.min.js';
-						s.onload = init;
+						s.onload = boot;
 						s.onerror = function () {
 							var s2 = document.createElement('script');
 							s2.src = 'https://cdn.jsdelivr.net/npm/twikoo@1.7.20/dist/twikoo.min.js';
-							s2.onload = init;
+							s2.onload = boot;
 							document.body.appendChild(s2);
 						};
 						document.body.appendChild(s);
-					});
-				</script>
-			</>
+					};
+					var target = document.getElementById('twikoo');
+					if (!target || !('IntersectionObserver' in window)) {
+						// 兜底：不支持 IntersectionObserver 或找不到容器时立即加载
+						if (document.readyState === 'complete') init();
+						else window.addEventListener('load', init);
+						return;
+					}
+					// 滚动到评论区附近（提前 200px）再加载
+					var io = new IntersectionObserver(
+						function (entries) {
+							for (var i = 0; i < entries.length; i++) {
+								if (entries[i].isIntersecting) {
+									io.disconnect();
+									init();
+									return;
+								}
+							}
+						},
+						{ rootMargin: '200px 0px' },
+					);
+					io.observe(target);
+				})();
+			</script>
 		)
 	}
 </BaseLayout>

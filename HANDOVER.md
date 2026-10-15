@@ -178,7 +178,7 @@
 - **标签表（9 个）**：`Docker`(7)、`VMware`(7)、`Linux`(5)、`Network`(5)、`RouterOS`(1)、`ImmortalWrt`(1)、`SQL`(1)、`Browser`(1)、`Meta`(1)
 - **提交**：`5f4ac33`（schema + 回填）、`4c3b6d2`（抽 PostList）、`50cb206`（标签页）、`ff30500`（文章页 + 导航）
 - **验证**：`npm run build` 通过（21 → 31 页）；产物全量断言通过（新增：`/tags/index.html` 存在且含全部 9 个标签名、9 个标签页存在、文章页含 `/blog/tags/<slug>/` 链接、About 页无标签区）
-- **注意**：标签用英文（直接作 URL slug），新增/修改文章记得补 `tags`；设计与计划文档见 `docs/superpowers/specs/2026-10-15-tags-design.md`、`docs/superpowers/plans/2026-10-15-tags.md`
+- **注意**：标签用英文（直接作 URL slug），新增/修改文章记得补 `tags`；同一标签请保持大小写一致（`getAllTags` 已按 slug 聚合，`Docker` 与 `docker` 会合并到同一页，但索引显示名取首次出现的写法）；设计与计划文档见 `docs/superpowers/specs/2026-10-15-tags-design.md`、`docs/superpowers/plans/2026-10-15-tags.md`
 - **踩坑**：计划的产物断言 `-match '<ul>'` 不成立——Astro 会给作用域样式元素注入 `data-astro-cid-*` 属性，`<ul>` 实际是 `<ul data-astro-cid-xxx>`；断言应匹配前缀 `<ul` / `<li data-astro-cid`（并注意 `<li` 会误匹配 `<link`）
 
 ---
@@ -196,7 +196,7 @@
 | 标签页 | `/blog/tags/`（标签索引，9 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | `aa48b93` |
+| 最新提交 | `6c19ae3` |
 
 ### 文章目录结构
 ```

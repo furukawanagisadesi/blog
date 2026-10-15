@@ -2,6 +2,7 @@
 title: "VMware Linux PipeWire 音频卡顿解决方案"
 description: "在 VMware 的 Linux 虚拟机里解决 PipeWire 音频卡顿"
 pubDate: "2026-09-17"
+tags: ["VMware", "Linux"]
 ---
 
 本文记录 VMware 下 Linux PipeWire 音频卡顿的解决方法。

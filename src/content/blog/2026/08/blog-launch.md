@@ -2,6 +2,7 @@
 title: "博客建立"
 description: "第一次建立博客的感想"
 pubDate: "2026-08-07"
+tags: ["Meta"]
 ---
 
 ## 开头

@@ -2,6 +2,7 @@
 title: "VMware Ubuntu 安装流程"
 description: "VMware Ubuntu 26.04 安装"
 pubDate: "2026-08-08"
+tags: ["VMware", "Linux"]
 ---
 
 本文记录 Ubuntu 26.04 安装的完整流程。

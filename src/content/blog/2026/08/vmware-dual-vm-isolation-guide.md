@@ -2,6 +2,7 @@
 title: "VMware 双虚拟机隔离上网教程"
 description: "双虚拟机隔离上网"
 pubDate: "2026-08-26"
+tags: ["VMware", "Network"]
 ---
 
 > 本教程需要 1 台连接互联网的实体机，2 个虚拟机，使用镜像：

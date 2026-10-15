@@ -2,6 +2,7 @@
 title: "RouterOS 配置流程"
 description: "RouterOS 软路由的完整配置流程：接口、IP、DHCP、NAT 与 DNS"
 pubDate: "2026-08-08"
+tags: ["RouterOS", "Network"]
 ---
 
 本文记录 RouterOS（MikroTik）软路由从零到能上网的完整配置步骤，配合 WinBox 图形界面操作。

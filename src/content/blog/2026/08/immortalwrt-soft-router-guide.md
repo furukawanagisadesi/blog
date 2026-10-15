@@ -2,6 +2,7 @@
 title: "ImmortalWrt 软路由安装配置指南"
 description: "记录一下安装 ImmortalWrt 的过程"
 pubDate: "2026-08-08"
+tags: ["ImmortalWrt", "Network"]
 ---
 
 > 本教程以 4 网口迷你主机为示例，使用镜像：

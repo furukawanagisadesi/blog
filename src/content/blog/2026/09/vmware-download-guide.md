@@ -2,6 +2,7 @@
 title: "VMware 下载流程"
 description: "VMware 17 安装包的下载途径"
 pubDate: "2026-09-17"
+tags: ["VMware"]
 ---
 
 本文记录 VMware 17 的下载流程。

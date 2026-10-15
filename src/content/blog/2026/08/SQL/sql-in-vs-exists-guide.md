@@ -2,6 +2,7 @@
 title: "SQL IN 与 EXISTS 的理解"
 description: "理解 SQL IN 与 EXISTS 用于优化 SQL 语句"
 pubDate: "2026-08-18"
+tags: ["SQL"]
 ---
 
 > 本文记录对 SQL IN 与 EXISTS 的理解。

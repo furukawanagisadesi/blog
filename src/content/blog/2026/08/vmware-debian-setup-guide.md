@@ -2,6 +2,7 @@
 title: "VMware Debian 安装后设置教程"
 description: "VMware 17 下 Debian 13 的换源与常用设置"
 pubDate: "2026-08-25"
+tags: ["VMware", "Linux"]
 ---
 
 本文记录 VMware 17 下给 Debian 13 换源以及其它设置的流程。

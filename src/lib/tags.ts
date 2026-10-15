@@ -19,15 +19,20 @@ export interface TagCount {
  */
 export async function getAllTags(): Promise<TagCount[]> {
 	const posts = await getCollection('blog');
-	const counts = new Map<string, number>();
+	// 以 slug 为 key 聚合，避免大小写/空白变体（Docker vs docker）被拆成两条
+	const counts = new Map<string, TagCount>();
 	for (const post of posts) {
 		for (const tag of post.data.tags ?? []) {
-			counts.set(tag, (counts.get(tag) ?? 0) + 1);
+			const slug = slugifyTag(tag);
+			const existing = counts.get(slug);
+			if (existing) {
+				existing.count += 1;
+			} else {
+				counts.set(slug, { tag: tag.trim(), slug, count: 1 });
+			}
 		}
 	}
-	return [...counts.entries()]
-		.map(([tag, count]) => ({ tag, slug: slugifyTag(tag), count }))
-		.sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+	return [...counts.values()].sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
 }
 
 /**

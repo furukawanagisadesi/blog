@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getAllTags } from '../../lib/tags';
+
+const tags = await getAllTags();
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<BaseLayout title="标签" description="按标签浏览全部文章">
+	<style>
+		ul {
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+		}
+		ul li {
+			padding: 0.75rem 0;
+			border-bottom: 1px solid rgb(var(--gray-light));
+		}
+		ul li:last-child {
+			border-bottom: none;
+		}
+		ul li a {
+			color: rgb(var(--black));
+			text-decoration: none;
+			transition: 0.2s ease;
+		}
+		ul li a:hover {
+			color: rgb(var(--accent-dark));
+		}
+		.count {
+			margin-left: 0.5em;
+			color: rgb(var(--gray));
+			font-size: 0.9rem;
+		}
+	</style>
+	<main>
+		<h1>标签</h1>
+		<ul>
+			{
+				tags.map((tag) => (
+					<li>
+						<a href={base + '/tags/' + tag.slug + '/'}>{tag.tag}</a>
+						<span class="count">{tag.count}</span>
+					</li>
+				))
+			}
+		</ul>
+	</main>
+</BaseLayout>

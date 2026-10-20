@@ -181,14 +181,26 @@
 - **注意**：标签用英文（直接作 URL slug），新增/修改文章记得补 `tags`；同一标签请保持大小写一致（`getAllTags` 已按 slug 聚合，`Docker` 与 `docker` 会合并到同一页，但索引显示名取首次出现的写法）；设计与计划文档见 `docs/superpowers/specs/2026-10-15-tags-design.md`、`docs/superpowers/plans/2026-10-15-tags.md`
 - **踩坑**：计划的产物断言 `-match '<ul>'` 不成立——Astro 会给作用域样式元素注入 `data-astro-cid-*` 属性，`<ul>` 实际是 `<ul data-astro-cid-xxx>`；断言应匹配前缀 `<ul` / `<li data-astro-cid`（并注意 `<li` 会误匹配 `<link`）
 
+### 20. Docker 文章修订：EasyTier 与 RustDesk（2026-10-20）
+- **`easytier-docker-guide.md`**：原来是单个 `easytier` 容器，用 `entrypoint: /bin/sh` 在一个进程里先后起 `easytier-web-embed` 和 `easytier-core`；现在拆成两个服务，都跑在同一份 `./easytier:/root` 挂载上：
+  - `easytier-web`：`entrypoint: ["/sbin/tini", "--", "easytier-web-embed"]`，参数 `--api-server-port 11211`、`--api-server-addr 127.0.0.1`、`--config-server-port 22020`、`--config-server-protocol udp`、`--db /root/et.db`（数据库落盘）
+  - `easytier-core`：`container_name: easytier` 保持原名（`docker exec` 习惯不变），命令简化为 `--config-server udp://127.0.0.1:22020/admin`
+  - 镜像从 `easytier/easytier:latest` 固定到 `easytier/easytier@sha256:91d6732ea5ff71542fdb99333d2ee7b168e973443114db84db061e452427d91e`
+  - 端口表：UDP 22020 标注「不用开放，已指向本地」，UDP 11011 标注 WireGuard 可选；代码块语言标记 `text`
+  - 两个服务都加 `logging: json-file`（`max-size: 10m`、`max-file: 3`）
+- **`rustdesk-docker-guide.md`**：去掉 `version: "3"`；21118/21119 改为可选并注释掉对应端口映射；新增 `TZ=Asia/Shanghai`、`./appdata:/app/data` 挂载和日志轮转；客户端第 2 步文案改为「ID / 中继服务器」
+- **提交**：`b54c71c`（2 个文件，+58 / −29）
+- **验证**：`npm run build` 通过，31 页
+- **注意**：本地仓库路径已从 `D:\Syncthing\Self\GitHub\blog` 迁到 `D:\GitHub\blog`，旧路径不再存在
+
 ---
 
 ## 二、当前状态
 
 | 项 | 值 |
 |----|----|
-| 本地路径 | `D:\Syncthing\Self\GitHub\blog` |
-| 分支 | `main`，工作区干净 |
+| 本地路径 | `D:\GitHub\blog` |
+| 分支 | `main`，仅有未跟踪的 `CLAUDE.md` |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
 | 文章数 | 19 篇（2026/08 共 17 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 新增 2 篇） |
@@ -196,7 +208,7 @@
 | 标签页 | `/blog/tags/`（标签索引，9 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | `6c19ae3` |
+| 最新提交 | `b54c71c` |
 
 ### 文章目录结构
 ```

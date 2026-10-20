@@ -21,8 +21,8 @@ TCP 21115
 TCP 21116
 UDP 21116
 TCP 21117
-TCP 21118
-TCP 21119
+TCP 21118 （可选）
+TCP 21119 （可选）
 ```
 
 ## 3. 创建 docker-compose.yml 文件
@@ -30,8 +30,6 @@ TCP 21119
 创建文件夹后在目录下新建 `docker-compose.yml` 文件，并写入：
 
 ```yml
-version: "3"
-
 services:
   rustdesk-server:
     container_name: rustdesk-server
@@ -41,15 +39,22 @@ services:
       - 21116:21116
       - 21116:21116/udp
       - 21117:21117
-      - 21118:21118
-      - 21119:21119
+      # - 21118:21118
+      # - 21119:21119
     image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/lejianwen/rustdesk-server-s6:latest
     environment:
       - "RELAY=your_ip:21117"
       - "ENCRYPTED_ONLY=1"
+      - "TZ=Asia/Shanghai"
     volumes:
       - ./data:/data
+      - ./appdata:/app/data
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 ```
 
 ## 4. 启动服务
@@ -70,7 +75,7 @@ cat /home/admin/rustdesk/data/id_ed25519.pub
 查看并复制公钥，进入客户端操作：
 
 1. 设置 → 网络 → 解锁网络设置
-2. ID / 中继服务器 → 填入 ID 服务器 & 中继服务器
+2. ID / 中继服务器 → 填入 ID 服务器（服务器 IP）
 3. 填入 Key
 4. 点击确认
 

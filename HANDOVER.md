@@ -191,7 +191,17 @@
 - **`rustdesk-docker-guide.md`**：去掉 `version: "3"`；21118/21119 改为可选并注释掉对应端口映射；新增 `TZ=Asia/Shanghai`、`./appdata:/app/data` 挂载和日志轮转；客户端第 2 步文案改为「ID / 中继服务器」
 - **提交**：`b54c71c`（2 个文件，+58 / −29）
 - **验证**：`npm run build` 通过，31 页
-- **注意**：本地仓库路径已从 `D:\Syncthing\Self\GitHub\blog` 迁到 `D:\GitHub\blog`，旧路径不再存在
+- **注意**：本地仓库路径为 `D:\Syncthing\blog`（旧的 `D:\Syncthing\Self\GitHub\blog`、`D:\GitHub\blog` 均已失效）
+
+### 21. 文章「修改日期」（2026-10-27）
+- **方案**：手填 frontmatter `updatedDate`；详情页显示「最后更新于 …」，首页/标签列表在发布日期后显示「· 更新于 …」；仅当更新日期晚于发布日期才显示；列表排序仍按 `pubDate`，避免改个错别字就把文章顶到首页。
+- **改动**：
+  - 新增 `src/lib/dates.ts`：`isUpdatedAfterPublished(pubDate?, updatedDate?)`，按 UTC 日期部分（`toISOString().slice(0, 10)`）比较，忽略时间
+  - `src/content.config.ts`：`superRefine` 校验 `updatedDate` 不能早于 `pubDate`，写反直接构建失败
+  - `src/layouts/BlogPost.astro`、`src/components/PostList.astro`：改用该函数决定是否渲染更新日期
+  - 3 篇 Docker 文章（SRS / Syncthing / Nginx-SRS）补 `updatedDate: "2026-10-27"`
+- **注意**：改完已发布文章记得补/更新 `updatedDate`；不要改成读取文件 mtime 或 git 时间自动生成（Syncthing 同步、checkout、浅克隆都会让日期失真）。
+- **文档**：`docs/superpowers/specs/2026-10-27-blog-updated-date-design.md`、`docs/superpowers/plans/2026-10-27-blog-updated-date.md`
 
 ---
 
@@ -199,12 +209,12 @@
 
 | 项 | 值 |
 |----|----|
-| 本地路径 | `D:\GitHub\blog` |
+| 本地路径 | `D:\Syncthing\blog` |
 | 分支 | `main`，仅有未跟踪的 `CLAUDE.md` |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
 | 文章数 | 19 篇（2026/08 共 17 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 新增 2 篇） |
-| 主页 | 纯文字文章列表（标题+描述+日期） |
+| 主页 | 纯文字文章列表（标题+描述+发布日期，有更新时附「更新于」） |
 | 标签页 | `/blog/tags/`（标签索引，9 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
@@ -288,7 +298,7 @@ src/content/blog/2026/09/
 
 1. **文件名**：中文、空格一律改成英文 slug（如 `vmware-pipewire-audio-stutter-fix.md`）；同类文章前缀统一（如 VMware 系列 `vmware-*-guide.md`、`vmware-*-fix.md`）
 2. **目录**：放 `src/content/blog/YYYY/MM/` 对应日期目录，Docker 类放 `Docker/` 子目录
-3. **frontmatter**：`title` / `description` / `pubDate` 三项齐全；`description` 不要照抄 `title`
+3. **frontmatter**：`title` / `description` / `pubDate` 三项齐全；修改已发布文章时补 `updatedDate`（填实际修改日期，同日小改可省略）；`description` 不要照抄 `title`
 4. **正文**：不要重复 H1（页面自动渲染标题）；标题层级连续不错乱
 5. **代码块**：全部带语言标记；命令用 `bash`，配置内容与 GUI 步骤用 `text`
 6. **行内代码**：路径、命令、端口、IP、软件名、配置项全部加反引号

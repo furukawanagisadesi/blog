@@ -2,6 +2,7 @@
 title: "Syncthing Docker 设置教程"
 description: "在 Linux 服务器上用 Docker 部署 Syncthing 文件同步服务"
 pubDate: "2026-08-08"
+updatedDate: "2026-10-27"
 tags: ["Docker"]
 ---
 

@@ -1,9 +1,9 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
-> 最近更新: 2026-10-15
+> 最近更新: 2026-10-27
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能），供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》），供后续 Agent 接力
 
 ---
 
@@ -175,7 +175,8 @@
   - `src/layouts/BlogPost.astro`：加 `tags?: string[]` prop，`<h1>` 下渲染标签链接（无标签则不渲染，About 页不受影响）
   - `src/components/Header.astro`：导航改为「首页 / 标签 / 关于」
   - 19 篇文章 frontmatter 各补一行 `tags`
-- **标签表（9 个）**：`Docker`(7)、`VMware`(7)、`Linux`(5)、`Network`(5)、`RouterOS`(1)、`ImmortalWrt`(1)、`SQL`(1)、`Browser`(1)、`Meta`(1)
+- **标签表（9 个，截至 2026-10-15）**：`Docker`(7)、`VMware`(7)、`Linux`(5)、`Network`(5)、`RouterOS`(1)、`ImmortalWrt`(1)、`SQL`(1)、`Browser`(1)、`Meta`(1)
+  - 2026-10-27 删除 `blog-launch.md` 后，`Meta` 标签消失，现为 8 个标签
 - **提交**：`5f4ac33`（schema + 回填）、`4c3b6d2`（抽 PostList）、`50cb206`（标签页）、`ff30500`（文章页 + 导航）
 - **验证**：`npm run build` 通过（21 → 31 页）；产物全量断言通过（新增：`/tags/index.html` 存在且含全部 9 个标签名、9 个标签页存在、文章页含 `/blog/tags/<slug>/` 链接、About 页无标签区）
 - **注意**：标签用英文（直接作 URL slug），新增/修改文章记得补 `tags`；同一标签请保持大小写一致（`getAllTags` 已按 slug 聚合，`Docker` 与 `docker` 会合并到同一页，但索引显示名取首次出现的写法）；设计与计划文档见 `docs/superpowers/specs/2026-10-15-tags-design.md`、`docs/superpowers/plans/2026-10-15-tags.md`
@@ -213,6 +214,15 @@
 - **验证**：`npm run build` 通过，31 页；产物顺序检查：首页、`/tags/docker/`、`rss.xml` 前三篇均为 `2026-10-27` 更新的 Docker 文章，其后按发布日期降序。
 - **文档**：`docs/superpowers/specs/2026-10-27-blog-recent-activity-sorting-design.md`
 
+### 23. 删除《博客建立》文章（2026-10-27）
+- **操作**：用户删除 `src/content/blog/2026/08/blog-launch.md`（《博客建立》，原第一篇、唯一带 `Meta` 标签的文章）
+- **影响**：
+  - 文章总数 19 → 18（`2026/08` 17 → 16）
+  - 标签 `Meta` 随之消失，标签数 9 → 8；`/blog/tags/meta/` 不再生成，`/blog/blog-launch/` 线上路由在下次部署后消失
+  - `src/assets/blog-post-ai-setup.jpg`（原为该文封面）已无任何引用，可连同其他未引用占位图一起清理（见第三节待办 3）
+- **验证**：`npm run build` 通过，18 篇；产物中无 `blog-launch` 与 `Meta` 标签页
+- **注意**：旧链接（如第 1 项中线上验证地址）会 404；历史记录（第 1、19 项、`docs/` 下的设计/计划文档）保留原文，不回改
+
 ---
 
 ## 二、当前状态
@@ -220,20 +230,19 @@
 | 项 | 值 |
 |----|----|
 | 本地路径 | `D:\Syncthing\blog` |
-| 分支 | `main`，仅有未跟踪的 `CLAUDE.md` |
+| 分支 | `main`，仅有未跟踪的 `.stfolder/`（Syncthing 标记目录，已加入 `.gitignore`） |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 19 篇（2026/08 共 17 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 新增 2 篇） |
+| 文章数 | 18 篇（2026/08 共 16 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 2 篇） |
 | 主页 | 纯文字文章列表（标题+描述+发布日期，有更新时附「更新于」） |
-| 标签页 | `/blog/tags/`（标签索引，9 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
+| 标签页 | `/blog/tags/`（标签索引，8 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | 内容提交 `b54c71c`；本文档更新提交 `ff7ef4e`，此后以 `git log -1` 为准 |
+| 最新提交 | 内容提交 `0037f78`；本文档更新提交以 `git log -1` 为准 |
 
 ### 文章目录结构
 ```
 src/content/blog/2026/08/
-	├── blog-launch.md                    # 《博客建立》
 	├── immortalwrt-soft-router-guide.md  # ImmortalWrt 软路由安装配置指南
 	├── routeros-setup-guide.md           # RouterOS 配置流程
 	├── ie-slow-loading-troubleshoot-guide.md  # IE 网页加载缓慢异常查询与解决
@@ -286,13 +295,13 @@ src/content/blog/2026/09/
 
 2. **markdown 格式规范**（新文章遵循，参见第五节）：代码块语言标记、行内代码、中英文空格、结构顺序；完整检查步骤见第四节
 
-3. **可选清理**：`src/assets/` 下 `blog-placeholder-1/2/4/5.jpg` 已无引用，`blog-placeholder-about.jpg` 已无引用（About 页重构后不再用占位图）。**注意 BaseHead 默认 fallback 仍引用 `blog-placeholder-1.jpg`**，删除前需确认
+3. **可选清理**：`src/assets/` 下 `blog-placeholder-1/2/4/5.jpg` 已无引用，`blog-placeholder-about.jpg` 已无引用（About 页重构后不再用占位图），`blog-post-ai-setup.jpg` 在删除《博客建立》后也已无引用。**注意 BaseHead 默认 fallback 仍引用 `blog-placeholder-1.jpg`**，删除前需确认
 
 4. **图片管理**：文章内截图请放到 `src/assets/` 并命名有意义（如 `vmware-virtual-audio-offline.png`），文章中用相对路径 `../../../../assets/图片名` 引用（从 `src/content/blog/2026/08/` 出发是 4 层 `../`）。**不要把图片直接放 `src/content/blog/` 下**，也不要放文件名无意义的 `image.png`/`image-1.png`
 
 5. **未决项**：
    - 首页分页：文章多以后可加分页（标签功能已完成，见第 19 项）
-   - `immortalwrt-soft-router-guide.md` 与 `blog-launch.md` 的 heroImage 已被注释掉（用户选择不用封面图）
+   - `immortalwrt-soft-router-guide.md` 的 heroImage 已被注释掉（用户选择不用封面图）
    - Header/Footer 暂无社交链接（用户暂不放）
 
 6. **Twikoo 待办**：
@@ -382,7 +391,7 @@ src/content/blog/2026/09/
 
 ```bash
 # 本地开发
-cd "D:\Syncthing\Self\GitHub\blog" && npm run dev   # 默认 http://localhost:4321/blog/
+cd "D:\Syncthing\blog" && npm run dev   # 默认 http://localhost:4321/blog/
 
 # 构建验证
 npm run build

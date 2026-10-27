@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { sortByRecentActivity } from './posts';
 
 /**
  * 把标签转成 URL slug：去空白、转小写、空格转连字符。
@@ -36,11 +37,11 @@ export async function getAllTags(): Promise<TagCount[]> {
 }
 
 /**
- * 取某个标签（按 slug 匹配）下的文章，按发布日期降序。
+ * 取某个标签（按 slug 匹配）下的文章，按最近活动（更新或发布）日期降序。
  */
 export async function getPostsByTag(slug: string): Promise<CollectionEntry<'blog'>[]> {
 	const posts = await getCollection('blog');
-	return posts
-		.filter((post) => (post.data.tags ?? []).some((tag) => slugifyTag(tag) === slug))
-		.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+	return sortByRecentActivity(
+		posts.filter((post) => (post.data.tags ?? []).some((tag) => slugifyTag(tag) === slug)),
+	);
 }

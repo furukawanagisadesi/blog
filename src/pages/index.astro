@@ -3,10 +3,9 @@ import { getCollection } from 'astro:content';
 import PostList from '../components/PostList.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { sortByRecentActivity } from '../lib/posts';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const posts = sortByRecentActivity(await getCollection('blog'));
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>

@@ -22,7 +22,7 @@
 ### 3. 主页改为纯文字文章列表
 - **问题**：新增文章后主页错位。原因：`index.astro` 原布局把第一篇设为通栏 featured 卡片（需 hero 图），无图则错位
 - **方案**：`src/pages/index.astro` 重写为纯文字列表（标题 + 描述 + 日期 + 分隔线），彻底移除首页图片，提交 `c70f961`
-- 排序逻辑：`index.astro` 按 `pubDate` 降序；同一天的文章按 `getCollection()` 原始顺序（文件名字典序），如需精确控制可在 pubDate 加时间
+- 排序逻辑：见第 22 项，现按「最近活动」日期（更新日期优先，否则发布日期）降序；同一天按发布日期降序、文章 `id` 升序，如需精确控制可在 pubDate 加时间
 
 ### 4. 新增 8 篇文章并整理目录结构
 - 用户将文章按日期归档：`src/content/blog/2026/08/`
@@ -194,7 +194,7 @@
 - **注意**：本地仓库路径为 `D:\Syncthing\blog`（旧的 `D:\Syncthing\Self\GitHub\blog`、`D:\GitHub\blog` 均已失效）
 
 ### 21. 文章「修改日期」（2026-10-27）
-- **方案**：手填 frontmatter `updatedDate`；详情页显示「最后更新于 …」，首页/标签列表在发布日期后显示「· 更新于 …」；仅当更新日期晚于发布日期才显示；列表排序仍按 `pubDate`，避免改个错别字就把文章顶到首页。
+- **方案**：手填 frontmatter `updatedDate`；详情页显示「最后更新于 …」，首页/标签列表在发布日期后显示「· 更新于 …」；仅当更新日期晚于发布日期才显示。
 - **改动**：
   - 新增 `src/lib/dates.ts`：`isUpdatedAfterPublished(pubDate?, updatedDate?)`，按 UTC 日期部分（`toISOString().slice(0, 10)`）比较，忽略时间
   - `src/content.config.ts`：`superRefine` 校验 `updatedDate` 不能早于 `pubDate`，写反直接构建失败
@@ -202,6 +202,16 @@
   - 3 篇 Docker 文章（SRS / Syncthing / Nginx-SRS）补 `updatedDate: "2026-10-27"`
 - **注意**：改完已发布文章记得补/更新 `updatedDate`；不要改成读取文件 mtime 或 git 时间自动生成（Syncthing 同步、checkout、浅克隆都会让日期失真）。
 - **文档**：`docs/superpowers/specs/2026-10-27-blog-updated-date-design.md`、`docs/superpowers/plans/2026-10-27-blog-updated-date.md`
+
+### 22. 列表按「最近更新」排序（2026-10-27）
+- **方案**：列表排序键改为「`updatedDate` 晚于 `pubDate` 时取 `updatedDate`，否则取 `pubDate`」降序；同一天按 `pubDate` 降序，再按文章 `id` 升序，保证构建间顺序稳定。首页、标签页、RSS 共用同一函数。
+- **改动**：
+  - `src/lib/dates.ts` 新增 `activityDateKey(pubDate, updatedDate)`
+  - 新增 `src/lib/posts.ts`：`sortByRecentActivity(posts)`
+  - `src/pages/index.astro`、`src/lib/tags.ts`、`src/pages/rss.xml.js` 改用该函数
+- **后果**：批量修订会让多篇旧文同时上浮（例如 3 篇 Docker 文章会排在首页最前，直到有更新的文章或修改）。这是手动维护 `updatedDate` 的预期代价。
+- **验证**：`npm run build` 通过，31 页；产物顺序检查：首页、`/tags/docker/`、`rss.xml` 前三篇均为 `2026-10-27` 更新的 Docker 文章，其后按发布日期降序。
+- **文档**：`docs/superpowers/specs/2026-10-27-blog-recent-activity-sorting-design.md`
 
 ---
 
@@ -252,7 +262,7 @@ src/content/blog/2026/09/
 - 内容 schema：`src/content.config.ts`（强制 title/description/pubDate；`tags` 可选、默认空数组）
 - 公共外壳：`src/layouts/BaseLayout.astro`（`<html lang="zh-CN">` + BaseHead + Header + slot + Footer；接收 `title / description / image / ogType`）
 - 文章路由：`src/pages/[...slug].astro`（用 `post.id` 作 slug，含日期/子目录路径）
-- 主页列表：`src/pages/index.astro`（基于 BaseLayout，按 pubDate 降序；文章标题用 `h3`；列表渲染抽到 `PostList`）
+- 主页列表：`src/pages/index.astro`（基于 BaseLayout，按最近活动日期降序，见第 22 项；文章标题用 `h3`；列表渲染抽到 `PostList`）
 - 文章列表组件：`src/components/PostList.astro`（标题 + 描述 + 日期，首页与标签页共用）
 - 标签：`src/lib/tags.ts`（`slugifyTag` / `getAllTags` / `getPostsByTag`）；`src/pages/tags/index.astro`（`/tags/`）、`src/pages/tags/[tag].astro`（`/tags/<slug>/`）；schema 的 `tags` 字段在 `src/content.config.ts`
 - 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（基于 BaseLayout，`ogType="article"`；渲染 frontmatter title 为 H1；`pubDate`/`heroImage` 可选，缺省不渲染日期区与空封面；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `IntersectionObserver` 滚动懒加载 + CDN 回退）

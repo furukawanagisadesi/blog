@@ -39,7 +39,7 @@ nginx-srs/
 
 ## 4. 创建 srs.conf 文件
 
-在 `/home/admin/nginx-srs` 下新建 `srs.conf` 文件，并写入：
+SRS 的配置放在它自己的 compose 目录 `/home/admin/srs` 下，而不是 `nginx-srs` 目录。新建 `/home/admin/srs/srs.conf` 并写入（SRS 的 `docker-compose.yml` 见《SRS Docker 设置教程》）：
 
 ```
 listen              1935;
@@ -163,8 +163,9 @@ htpasswd -c /home/admin/nginx-srs/htpasswd your_username
 {
   "name": "danmu-server",
   "version": "1.0.0",
+  "main": "server.js",
   "dependencies": {
-    "ws": "^8.0.0"
+    "ws": "^8.18.0"
   }
 }
 ```
@@ -225,11 +226,11 @@ console.log(`Danmu WebSocket server running on ws://0.0.0.0:${PORT}`);
 **Dockerfile**
 
 ```dockerfile
-FROM node:18-alpine
+FROM node:20-alpine
 WORKDIR /app
-COPY package.json server.js ./
+COPY package.json .
 RUN npm install
-EXPOSE 8888
+COPY server.js .
 CMD ["node", "server.js"]
 ```
 
@@ -266,9 +267,11 @@ networks:
     external: true
 ```
 
-## 10. 创建外部网络
+## 10. 确认共享网络
 
-SRS 和 Nginx 共享同一个网络，先创建网络：
+SRS 的 compose 已经定义了名为 `stream-net` 的网络，Nginx 通过 `external: true` 加入，正常情况下不需要手动创建。
+
+如果单独启动 `nginx-srs` 时提示网络不存在，再手动创建：
 
 ```bash
 docker network create stream-net

@@ -17,7 +17,7 @@ mkdir -p /home/admin/srs
 
 ```
 TCP 1935   # RTMP 推流
-TCP 1985   # HTTP API（建议仅本机访问）
+TCP 1985   # HTTP API（当前直接映射到公网，建议安全组限制来源 IP）
 ```
 
 ## 3. 创建 srs.conf 文件
@@ -79,7 +79,16 @@ services:
       - ./logs:/usr/local/srs/objs/logs
     environment:
       - TZ=Asia/Shanghai
+    networks:
+      - stream-net
+
+networks:
+  stream-net:
+    name: stream-net      # 固定网络名，Nginx 那边也用这个名字加入
+    driver: bridge
 ```
+
+`stream-net` 由 SRS 的 compose 创建，Nginx 侧以 `external: true` 的方式加入，因此需要先启动 SRS。
 
 > 如果不需要 Nginx 反代，可以将 8080 也加入 ports 直接对外暴露 HTTP-FLV/HLS 播放地址
 

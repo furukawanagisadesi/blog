@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import FormattedDate from './FormattedDate.astro';
+import { isUpdatedAfterPublished } from '../lib/dates';
 
 interface Props {
 	posts: CollectionEntry<'blog'>[];
@@ -54,6 +55,9 @@ const { posts } = Astro.props;
 					<p class="description">{post.data.description}</p>
 					<p class="date">
 						<FormattedDate date={post.data.pubDate} />
+						{post.data.updatedDate && isUpdatedAfterPublished(post.data.pubDate, post.data.updatedDate) && (
+							<> · 更新于 <FormattedDate date={post.data.updatedDate} /></>
+						)}
 					</p>
 				</a>
 			</li>

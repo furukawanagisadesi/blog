@@ -4,6 +4,7 @@ import type { ImageMetadata } from 'astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import BaseLayout from './BaseLayout.astro';
 import { slugifyTag } from '../lib/tags';
+import { isUpdatedAfterPublished } from '../lib/dates';
 
 interface Props {
 	title: string;
@@ -108,7 +109,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 						pubDate && (
 							<div class="date">
 								<FormattedDate date={pubDate} />
-								{updatedDate && (
+								{updatedDate && isUpdatedAfterPublished(pubDate, updatedDate) && (
 									<div class="last-updated-on">
 										最后更新于 <FormattedDate date={updatedDate} />
 									</div>

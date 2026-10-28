@@ -95,6 +95,39 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 			background: rgb(var(--accent));
 			color: #fff;
 		}
+		.comments-area {
+			margin-top: 3em;
+		}
+		.comments-area.is-hidden {
+			display: none;
+		}
+		.twikoo-status {
+			margin-top: 3em;
+			padding: 2em 1em;
+			text-align: center;
+			color: rgb(var(--gray));
+			border: 1px dashed rgb(var(--gray-light));
+			border-radius: 12px;
+		}
+		.twikoo-status[hidden] {
+			display: none;
+		}
+		.twikoo-status p {
+			margin: 0 0 1em;
+		}
+		.twikoo-status button {
+			font: inherit;
+			font-size: 0.9em;
+			padding: 0.5em 1.2em;
+			border: 0;
+			border-radius: 999px;
+			background: var(--accent);
+			color: #fff;
+			cursor: pointer;
+		}
+		.twikoo-status button:hover {
+			background: var(--accent-dark);
+		}
 	</style>
 	<main>
 		<article>
@@ -134,44 +167,180 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 					<hr />
 				</div>
 				<slot />
-				{showComments && <div id="twikoo" style="margin-top: 3em;"></div>}
+				{
+					showComments && (
+						<>
+							<div class="comments-area" data-twikoo>
+								<div id="twikoo" />
+							</div>
+							<div id="twikoo-status" class="twikoo-status" role="status" aria-live="polite" hidden>
+								<p class="twikoo-status-text" />
+								<button type="button" class="twikoo-status-retry">
+									重新加载评论
+								</button>
+							</div>
+						</>
+					)
+				}
 			</div>
 		</article>
 	</main>
 	{
 		showComments && (
-			<script>
+			<script define:vars={{ twikooAssetBase: base + '/vendor/twikoo/1.7.20' }}>
 				(function () {
-					var loaded = false;
+					var wrapper = document.querySelector('[data-twikoo]');
+					var status = document.getElementById('twikoo-status');
+					if (!wrapper || !status) return;
+					var statusText = status.querySelector('.twikoo-status-text');
+					var retryButton = status.querySelector('.twikoo-status-retry');
 					var envId = 'https://vercel-69q075mt0-furukawanagisadesi.vercel.app';
-					var init = function () {
-						if (loaded) return;
-						loaded = true;
-						// 评论区样式：延迟到需要时再插入
-						var css = document.createElement('link');
-						css.rel = 'stylesheet';
-						css.href = 'https://unpkg.com/twikoo@1.7.20/dist/twikoo.css';
-						document.head.appendChild(css);
-						// 主脚本：unpkg 失败则回退 jsdelivr
-						var boot = function () {
-							if (window.twikoo && window.twikoo.init) {
-								window.twikoo.init({ envId: envId });
-							}
-						};
-						var s = document.createElement('script');
-						s.src = 'https://unpkg.com/twikoo@1.7.20/dist/twikoo.min.js';
-						s.onload = boot;
-						s.onerror = function () {
-							var s2 = document.createElement('script');
-							s2.src = 'https://cdn.jsdelivr.net/npm/twikoo@1.7.20/dist/twikoo.min.js';
-							s2.onload = boot;
-							document.body.appendChild(s2);
-						};
-						document.body.appendChild(s);
+					var slowTimeout = 15000;
+					var attempt = 0;
+					var timer = 0;
+					var settled = false;
+					var scriptLoading = false;
+					var scriptLoaded = false;
+					var observer = null;
+
+					var currentBox = function () {
+						var box = wrapper.querySelector('#twikoo');
+						if (!box) {
+							box = document.createElement('div');
+							box.id = 'twikoo';
+							wrapper.appendChild(box);
+						}
+						return box;
 					};
-					var target = document.getElementById('twikoo');
-					if (!target || !('IntersectionObserver' in window)) {
-						// 兜底：不支持 IntersectionObserver 或找不到容器时立即加载
+
+					var isVisible = function (el) {
+						if (!el) return false;
+						var style = window.getComputedStyle(el);
+						return style.display !== 'none' && style.visibility !== 'hidden';
+					};
+
+					var clearTimer = function () {
+						if (timer) {
+							window.clearTimeout(timer);
+							timer = 0;
+						}
+					};
+
+					var showStatus = function (message) {
+						statusText.textContent = message;
+						status.hidden = false;
+						wrapper.classList.add('is-hidden');
+					};
+
+					var hideStatus = function () {
+						status.hidden = true;
+						wrapper.classList.remove('is-hidden');
+					};
+
+					var fail = function (message) {
+						settled = true;
+						clearTimer();
+						showStatus(message);
+					};
+
+					var checkFailure = function () {
+						if (settled) return;
+						var error = wrapper.querySelector('.tk-comments-error');
+						if (isVisible(error) && error.textContent.trim()) {
+							fail('评论加载失败，请检查网络或代理。');
+							return;
+						}
+						// Twikoo 1.7.20 请求失败时会同时渲染「没有评论」和「查看更多」，
+						// 成功返回 0 条评论时 showExpand 为 false，不会出现该组合。
+						var empty = wrapper.querySelector('.tk-comments-no');
+						var expand = wrapper.querySelector('.tk-expand');
+						if (isVisible(empty) && isVisible(expand)) {
+							fail('评论加载失败，请检查网络或代理。');
+						}
+					};
+
+					var start = function (myAttempt) {
+						if (myAttempt !== attempt) return;
+						settled = false;
+						hideStatus();
+						clearTimer();
+						var box = currentBox();
+						box.innerHTML = '';
+						var result;
+						try {
+							result = window.twikoo.init({
+								envId: envId,
+								onCommentLoaded: function () {
+									if (myAttempt !== attempt) return;
+									settled = true;
+									clearTimer();
+									hideStatus();
+								},
+							});
+						} catch (e) {
+							fail('评论加载失败，请刷新页面重试。');
+							return;
+						}
+						if (result && typeof result.catch === 'function') {
+							// 访客计数等附加请求失败不应中断评论区
+							result.catch(function () {});
+						}
+						timer = window.setTimeout(function () {
+							if (myAttempt !== attempt || settled) return;
+							showStatus('评论加载较慢，请检查网络或代理。');
+						}, slowTimeout);
+						if (!observer) {
+							observer = new MutationObserver(checkFailure);
+							observer.observe(wrapper, { childList: true, subtree: true, attributes: true });
+						}
+					};
+
+					var beginAttempt = function () {
+						var myAttempt = ++attempt;
+						if (window.twikoo && typeof window.twikoo.init === 'function') {
+							start(myAttempt);
+							return;
+						}
+						if (scriptLoading) return;
+						scriptLoading = true;
+						var script = document.createElement('script');
+						script.src = twikooAssetBase + '/twikoo.min.js';
+						script.onload = function () {
+							scriptLoading = false;
+							scriptLoaded = true;
+							start(++attempt);
+						};
+						script.onerror = function () {
+							scriptLoading = false;
+							scriptLoaded = false;
+							fail('评论组件加载失败，请刷新页面重试。');
+						};
+						document.body.appendChild(script);
+					};
+
+					var loadCss = function () {
+						if (document.querySelector('link[data-twikoo-css]')) return;
+						var link = document.createElement('link');
+						link.rel = 'stylesheet';
+						link.href = twikooAssetBase + '/twikoo.css';
+						link.setAttribute('data-twikoo-css', '');
+						document.head.appendChild(link);
+					};
+
+					var init = function () {
+						loadCss();
+						beginAttempt();
+					};
+
+					retryButton.addEventListener('click', function () {
+						if (!scriptLoaded && !(window.twikoo && window.twikoo.init)) {
+							scriptLoading = false;
+						}
+						beginAttempt();
+					});
+
+					if (!('IntersectionObserver' in window)) {
+						// 兜底：不支持 IntersectionObserver 时立即加载
 						if (document.readyState === 'complete') init();
 						else window.addEventListener('load', init);
 						return;
@@ -189,7 +358,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 						},
 						{ rootMargin: '200px 0px' },
 					);
-					io.observe(target);
+					io.observe(wrapper);
 				})();
 			</script>
 		)

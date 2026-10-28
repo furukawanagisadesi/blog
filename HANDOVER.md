@@ -229,6 +229,14 @@
 - **改动**：`src/styles/global.css`、`src/layouts/BlogPost.astro`；设计文档 `docs/superpowers/specs/2026-10-28-layout-width-design.md`。
 - **验证**：`npm run build` 通过（29 页 = 18 篇 + 首页 + 关于 + 标签索引 + 8 个标签页）；dev server + Edge CDP 实测 390px 与 1920px 均无横向溢出（首页 `main` 外宽 1040px、文章正文 860px 含内边距、文本宽 820px）。
 
+### 25. 评论区加载兜底 + Twikoo 资源自托管（2026-10-28）
+- **问题**：① `unpkg.com` + `*.vercel.app` 均为境外依赖，大陆直连时接口约 16～27s 才报错，期间一直转圈；② Twikoo 1.7.20 请求失败时 `reject(xhr.status)` 抛数字 `0`，上层取 `e.message` 得 `undefined`，错误被吞掉，显示「没有评论」；`showExpand` 初始为 `true`，于是「查看更多」同时出现，点击无效。
+- **方案**：Twikoo JS/CSS 改为同源自托管（`public/vendor/twikoo/1.7.20/`）；用 `onCommentLoaded` 作成功信号，15s 无成功显示「加载较慢」，DOM 出现「没有评论 + 查看更多」或错误文本时判定失败，隐藏 Twikoo 并显示「重新加载评论」；重试通过清空容器重新 `init`，用递增 `attempt` 忽略旧实例的迟到回调。
+- **改动**：`src/layouts/BlogPost.astro`（资源地址、状态面板、守卫/重试逻辑）；新增 `public/vendor/twikoo/1.7.20/{twikoo.min.js,twikoo.css,LICENSE,README.md}`；设计文档 `docs/superpowers/specs/2026-10-28-twikoo-resilience-design.md`。
+- **验证**：`npm run build` 通过（29 页），产物不再引用 unpkg/jsdelivr；自托管资源加载 8～39ms；正常网络约 4.6s 显示「没有评论」且无「查看更多」；CDP 立即失败时 1.84s 出错误提示，重试后面板收起并在 0.35s 后再次提示；挂起请求 16.76s 显示「加载较慢」；390px 无横向溢出。
+- **注意**：Vercel 域名可达性未变，大陆直连仍会失败，需代理或后续绑自定义域名/迁后端；升级 Twikoo 时同步替换资源目录、README 哈希和 `BlogPost.astro` 中的版本号。
+- **未做**：Twikoo 升级 2.x、绑域名、迁后端；非空评论列表点「查看更多」失败时暂无提示（本轮只处理空列表假状态）。
+
 ---
 
 ## 二、当前状态
@@ -280,7 +288,7 @@ src/content/blog/2026/09/
 - 主页列表：`src/pages/index.astro`（基于 BaseLayout，按最近活动日期降序，见第 22 项；文章标题用 `h3`；列表渲染抽到 `PostList`）
 - 文章列表组件：`src/components/PostList.astro`（标题 + 描述 + 日期，首页与标签页共用）
 - 标签：`src/lib/tags.ts`（`slugifyTag` / `getAllTags` / `getPostsByTag`）；`src/pages/tags/index.astro`（`/tags/`）、`src/pages/tags/[tag].astro`（`/tags/<slug>/`）；schema 的 `tags` 字段在 `src/content.config.ts`
-- 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（基于 BaseLayout，`ogType="article"`；渲染 frontmatter title 为 H1；`pubDate`/`heroImage` 可选，缺省不渲染日期区与空封面；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `IntersectionObserver` 滚动懒加载 + CDN 回退）
+- 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（基于 BaseLayout，`ogType="article"`；渲染 frontmatter title 为 H1；`pubDate`/`heroImage` 可选，缺省不渲染日期区与空封面；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `IntersectionObserver` 滚动懒加载；JS/CSS 自托管于 `public/vendor/twikoo/1.7.20/`；加载失败/超时由状态面板兜底，可重试）
 - 元信息：`src/components/BaseHead.astro`（`ogType` 控制 og:type；含 twitter:title/description/image；og:image 默认占位图）
 - 日期格式：`src/components/FormattedDate.astro`（`zh-CN`，显示如 `2026年9月17日`）
 - 字体：`astro.config.mjs`（Atkinson 本地字体 + `fallbacks` 中文栈 `PingFang SC / Hiragino Sans GB / Microsoft YaHei / Noto Sans CJK SC`）；`src/styles/global.css` 的 `body` 用 `var(--font-atkinson)`

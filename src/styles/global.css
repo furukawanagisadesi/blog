@@ -28,7 +28,7 @@ body {
 	word-wrap: break-word;
 	overflow-wrap: break-word;
 	color: rgb(var(--gray-dark));
-	font-size: 20px;
+	font-size: 18px;
 	line-height: 1.7;
 }
 main {
@@ -55,19 +55,19 @@ h6 {
 	margin-top: 1.5em;
 }
 h1 {
-	font-size: 3.052em;
+	font-size: 2em;
 }
 h2 {
-	font-size: 2.441em;
+	font-size: 1.5em;
 }
 h3 {
-	font-size: 1.953em;
+	font-size: 1.25em;
 }
 h4 {
-	font-size: 1.563em;
+	font-size: 1.1em;
 }
 h5 {
-	font-size: 1.25em;
+	font-size: 1em;
 }
 strong,
 b {
@@ -83,7 +83,7 @@ p {
 	margin-bottom: 1em;
 }
 .prose p {
-	margin-bottom: 2em;
+	margin-bottom: 1.3em;
 }
 textarea {
 	width: 100%;
@@ -116,7 +116,7 @@ blockquote {
 	border-left: 4px solid var(--accent);
 	padding: 0 0 0 20px;
 	margin: 0;
-	font-size: 1.333em;
+	font-size: 1.1em;
 }
 hr {
 	border: none;
@@ -124,7 +124,7 @@ hr {
 }
 @media (max-width: 720px) {
 	body {
-		font-size: 18px;
+		font-size: 17px;
 	}
 	main {
 		padding: 1em;

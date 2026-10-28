@@ -223,6 +223,12 @@
 - **验证**：`npm run build` 通过，18 篇；产物中无 `blog-launch` 与 `Meta` 标签页
 - **注意**：旧链接（如第 1 项中线上验证地址）会 404；历史记录（第 1、19 项、`docs/` 下的设计/计划文档）保留原文，不回改
 
+### 24. 布局加宽（2026-10-28）
+- **问题**：正文列固定 720px，1920px 宽屏下每侧空白约 600px；首页列表同样偏窄；文章封面却通栏，形成「图宽字窄」。
+- **方案**：适度加宽。`global.css` 的 `:root` 新增 `--content-width: 820px`、`--list-width: 1000px`；`main` 宽度改为 `var(--list-width)`；`BlogPost.astro` 的 `.prose` 改为 `var(--content-width)`；`.hero-image` 改为 `max-width: var(--content-width)` + 居中。移动端 `max-width: calc(100% - 2em)` 与 720px 断点不变。
+- **改动**：`src/styles/global.css`、`src/layouts/BlogPost.astro`；设计文档 `docs/superpowers/specs/2026-10-28-layout-width-design.md`。
+- **验证**：`npm run build` 通过（29 页 = 18 篇 + 首页 + 关于 + 标签索引 + 8 个标签页）；dev server + Edge CDP 实测 390px 与 1920px 均无横向溢出（首页 `main` 外宽 1040px、文章正文 860px 含内边距、文本宽 820px）。
+
 ---
 
 ## 二、当前状态

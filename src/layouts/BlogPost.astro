@@ -40,6 +40,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 		}
 		.hero-image {
 			width: 100%;
+			max-width: var(--content-width);
+			margin: 0 auto;
 		}
 		.hero-image img {
 			display: block;
@@ -48,7 +50,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 			box-shadow: var(--box-shadow);
 		}
 		.prose {
-			width: 720px;
+			width: var(--content-width);
 			max-width: calc(100% - 2em);
 			margin: auto;
 			padding: 1em;

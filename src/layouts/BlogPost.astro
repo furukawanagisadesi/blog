@@ -5,6 +5,7 @@ import FormattedDate from '../components/FormattedDate.astro';
 import BaseLayout from './BaseLayout.astro';
 import { slugifyTag } from '../lib/tags';
 import { isUpdatedAfterPublished } from '../lib/dates';
+import { COMMENTS_ENABLED } from '../consts';
 
 interface Props {
 	title: string;
@@ -28,6 +29,7 @@ const {
 	ogType = 'article',
 } = Astro.props;
 
+const commentsEnabled = COMMENTS_ENABLED && showComments;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
@@ -168,7 +170,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 				</div>
 				<slot />
 				{
-					showComments && (
+					commentsEnabled && (
 						<>
 							<div class="comments-area" data-twikoo>
 								<div id="twikoo" />
@@ -186,7 +188,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 		</article>
 	</main>
 	{
-		showComments && (
+		commentsEnabled && (
 			<script define:vars={{ twikooAssetBase: base + '/vendor/twikoo/1.7.20' }}>
 				(function () {
 					var wrapper = document.querySelector('[data-twikoo]');

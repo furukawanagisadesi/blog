@@ -245,6 +245,12 @@
 - **文档**：`docs/superpowers/specs/2026-10-28-article-typography-design.md`；对比预览曾用 brainstorming visual companion 的临时 HTML（`.superpowers/`，已加入 `.gitignore`）。
 - **未做**：列宽/布局、Twikoo 评论、字体栈未动；如仍觉偏大可再把 `body` 降到 17px（单值改动，布局不受影响）。
 
+### 27. 暂时关闭评论区（2026-10-28）
+- **背景**：评论后端（Vercel + MongoDB Atlas）在大陆直连不可达，接口约 16–27s 超时；用户暂不购买域名，当前无法自建可用的 HTTPS 后端（大陆服务器需备案域名，香港可免备案，或用 Cloudflare 前置；方案见会话讨论，未实施）。故先关闭评论区。
+- **改动**：`src/consts.ts` 新增 `COMMENTS_ENABLED = false`（含注释说明原因与恢复方式）；`src/layouts/BlogPost.astro` 引入该常量，用 `const commentsEnabled = COMMENTS_ENABLED && showComments` 同时控制评论区 DOM 与 Twikoo 脚本，关闭时二者都不渲染。
+- **保留**：`public/vendor/twikoo/1.7.20/` 资源、原兜底/重试逻辑、`.comments-area`/`.twikoo-status` 样式均保留（不启用即惰性、无副作用）；恢复时把 `COMMENTS_ENABLED` 改回 `true` 即可。
+- **验证**：`npm run build` 通过（29 页）；产物文章页不再含 `twikoo.min.js`、`#twikoo`、`data-twikoo`、`IntersectionObserver`、`onCommentLoaded`、「重新加载评论」。
+
 ---
 
 ## 二、当前状态

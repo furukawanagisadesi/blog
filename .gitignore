@@ -28,3 +28,7 @@ pnpm-debug.log*
 
 # brainstorming visual companion
 .superpowers/
+
+# Syncthing version history & local Claude symlink (do not commit)
+.stversions/
+CLAUDE.md

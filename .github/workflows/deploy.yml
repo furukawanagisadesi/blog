@@ -11,16 +11,32 @@ permissions:
   id-token: write
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout your repository using git
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Type check
+        run: npm run check
+
   build:
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v5
       - name: Install, build, and upload your site
         uses: withastro/action@v5
-        # with:
+        with:
+          node-version: 22
         #   path: .            # Astro 项目根路径（可选）
-        #   node-version: 20   # Node 版本（可选，默认20）
         #   package-manager: npm@latest  # 包管理器（可选，自动检测lockfile）
 
   deploy:

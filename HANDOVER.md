@@ -251,6 +251,19 @@
 - **保留**：`public/vendor/twikoo/1.7.20/` 资源、原兜底/重试逻辑、`.comments-area`/`.twikoo-status` 样式均保留（不启用即惰性、无副作用）；恢复时把 `COMMENTS_ENABLED` 改回 `true` 即可。
 - **验证**：`npm run build` 通过（29 页）；产物文章页不再含 `twikoo.min.js`、`#twikoo`、`data-twikoo`、`IntersectionObserver`、`onCommentLoaded`、「重新加载评论」。
 
+### 28. 架构体检后的基础设施加固（2026-10-29）
+- **A（已做）**
+  - `.gitignore` 增加 `.stversions/`、`CLAUDE.md`（此前 `git status` 一直有噪音、易误提交；`.superpowers/` 之前已加）。
+  - CI 增加类型闸门：devDeps 加 `@astrojs/check`、`typescript`，`package.json` 加 `"check": "astro check"`；`deploy.yml` 新增 `check` 作业（`npm ci` + `npm run check`），`build` 作业 `needs: check`，类型不过就不部署。
+  - `deploy.yml` 两个作业显式 `node-version: 22`（对齐 `engines >=22.12`，避免默认 node 版本不一致）。
+  - 删除 `src/assets` 下 8 张未引用图片（`blog-placeholder-2/3/4/5`、`blog-placeholder-about`、`blog-post-ai-setup`、`blog-router-network`、`vm-dual-setup-unreferenced`）；**保留 `blog-placeholder-1.jpg`**（`BaseHead` 默认兜底仍在用）。
+- **B（已做）**
+  - 新增 `src/pages/404.astro`（基于 `BaseLayout`，含返回首页链接）。
+  - 新增 `public/robots.txt`（`Allow: /` + `Sitemap` 指向 `/blog/sitemap-index.xml`）。
+- **验证**：`npm run check` 0 错误/警告/hint（21 文件）；`npm run build` 通过（**30 页** = 29 + 404）；`dist` 含 `404.html`、`robots.txt`。
+- **提交**：`af55323`（A）、`2c3a6a9`（B）。
+- **未做/延后**：首页分页、全局 CSS 与布局解耦（收益小、回归风险大，暂缓）。
+
 ---
 
 ## 二、当前状态

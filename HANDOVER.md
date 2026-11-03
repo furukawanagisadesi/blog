@@ -1,7 +1,7 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
-> 最近更新: 2026-10-27
+> 最近更新: 2026-11-03
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
 > 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》），供后续 Agent 接力
 
@@ -274,6 +274,19 @@
 - **修订** `vmware-debian-setup-guide.md`（`updatedDate: 2026-11-03`，用户改）：注释掉 `deb-src` 行；代理补充大写环境变量与 `no_proxy` 网段、新增 `/etc/sudoers.d/proxy` 的 `env_keep`；「代理设置」「gnome-shell-extensions」「input method panel」标注可选；fcitx5 步骤改为在配置中添加`中州韵`后等待部署完成
 - **验证**：`npm run build` 通过（**31 页** = 30 + 1 新文章）；产物含 `/2026/11/debian-zswap-setup-guide/`，参数表与回滚表渲染为 `<table>`
 
+### 30. 新增 Debian VS Code 文章 + 雾凇拼音章节 + 首次在 Linux 环境构建（2026-11-03）
+- **新增** `src/content/blog/2026/11/debian-vscode-install-guide.md`（《Debian 安装 VS Code 教程》，tags `Linux`）：按 Debian Wiki 推荐方法添加微软 apt 仓库并安装 `code`
+  - 中文文件名 `debian安装VS Code.md` → 英文 slug（Agent 改）
+  - 实测环境：Debian 13 / `arm64` 仓库源同样可用（frontmatter 内含 amd64/arm64/armhf）
+- **修订** `vmware-debian-setup-guide.md`（用户改，Agent 补句号）：新增「6. 安装雾凇拼音（可选）」章节——备份 rime.bak、浅克隆 `rime-ice` 仓库、复制方案文件、`default.custom.yaml` 改用 `rime_ice`；第 5 节末尾步骤 5 改写为「点击 Rime 托盘图标 → 重新部署」并顺延为步骤 6
+- **修订** `debian-zswap-setup-guide.md`（用户改）：删去「1.1 为什么用 swapfile 而不是扩分区」，1.x 编号前移；同日修改，`updatedDate` 按规则未加
+- **换行符**：Syncthing 同步使 3 篇文章（vmware-debian / fedora / ubuntu）变为 CRLF，已统一回 LF（无内容差异，仅消除假 diff）
+- **环境变化**：本次构建首次在 Linux（Debian）环境完成，Node `v26.13.0`（nvm）、npm `v11.20.0`
+  - Windows 下同步来的 `node_modules` 不可用（rolldown 原生绑定缺失），须 `rm -rf node_modules && npm ci` 重装
+  - npm 安全机制会拦截 esbuild 的 postinstall，需 `npm install-scripts approve esbuild`（`npm ci` 后要重新 approve）
+  - 切换环境后跨平台改文章请注意编辑器换行符设置
+- **验证**：`npm run build` 通过（**32 页** = 31 + 1 新文章）、`npm run check` 0 错误/警告/hint；产物含 `dist/2026/11/debian-vscode-install-guide/index.html` 且含标题、微软仓库地址与 `linux` 标签链接
+
 ---
 
 ## 二、当前状态
@@ -284,7 +297,7 @@
 | 分支 | `main`，仅有未跟踪的 `.stfolder/`（Syncthing 标记目录，已加入 `.gitignore`） |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 19 篇（2026/08 共 16 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 2 篇；2026/11 1 篇） |
+| 文章数 | 20 篇（2026/08 共 16 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 2 篇；2026/11 2 篇） |
 | 主页 | 纯文字文章列表（标题+描述+发布日期，有更新时附「更新于」） |
 | 标签页 | `/blog/tags/`（标签索引，8 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
@@ -318,7 +331,8 @@ src/content/blog/2026/09/
 	└── vmware-pipewire-audio-stutter-fix.md  # VMware Linux PipeWire 音频卡顿解决方案
 
 src/content/blog/2026/11/
-	└── debian-zswap-setup-guide.md    # Debian 设置 zswap 教程
+	├── debian-zswap-setup-guide.md    # Debian 设置 zswap 教程
+	└── debian-vscode-install-guide.md  # Debian 安装 VS Code 教程
 ```
 
 ### 相关代码位置

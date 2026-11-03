@@ -11,13 +11,7 @@ tags: ["Linux"]
 
 ## 1. 扩容 swap
 
-### 1.1 为什么用 swapfile 而不是扩分区
-
-`/dev/sda2` 是 swap 分区，它右侧紧挨着根分区 `/dev/sda3`，磁盘已无未分配空间。原地扩大 swap 分区需要移动根分区，风险很高；而根分区还有 11 GiB 富余，用 swapfile 更安全，也随时可以撤销。
-
-目标：1.86 GiB（现有分区）+ 2 GiB（swapfile）≈ 3.9 GiB。
-
-### 1.2 创建 swapfile
+### 1.1 创建 swapfile
 
 ```bash
 # 确认空间足够
@@ -47,7 +41,7 @@ sudo mkswap /swapfile
 sudo swapon /swapfile
 ```
 
-### 1.3 验证
+### 1.2 验证
 
 ```bash
 free -h
@@ -57,7 +51,7 @@ sudo swapon --show
 
 应能看到两块 swap，总量约 3.9 GiB。
 
-### 1.4 写入 fstab
+### 1.3 写入 fstab
 
 先备份，再编辑：
 
@@ -80,7 +74,7 @@ tail -3 /etc/fstab
 
 > **注意**：漏写这一行的话，`/swapfile` 只在本次开机有效，重启后 swap 会退回 1.86 GiB。
 
-### 1.5 验证 fstab 条目
+### 1.4 验证 fstab 条目
 
 ```bash
 sudo systemctl daemon-reload

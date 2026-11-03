@@ -117,4 +117,34 @@ patch:
   menu/page_size: 9 # 候选词数量
 ```
 
-5. 最后随便找个输入框点一下，再点输入法托盘图标，选择「朙月拼音」，然后点「重新部署」。
+6. 最后点击 Rime 托盘图标，然后点「重新部署」。
+
+## 6. 安装雾凇拼音（可选）
+
+```bash
+# 备份现有配置（如果有自造词之类）
+mkdir -p ~/.local/share/fcitx5/rime.bak && cp -r ~/.local/share/fcitx5/rime/* ~/.local/share/fcitx5/rime.bak/ 2>/dev/null
+
+# 拉取方案（仓库较大，建议浅克隆；用户词库在单独仓库不要 clone）
+git clone --depth 1 https://github.com/iDvel/rime-ice.git /home/debian/下载/rime-ice
+
+# 把方案文件复制进 rime 配置目录
+cp -r /home/debian/下载/rime-ice/* ~/.local/share/fcitx5/rime/
+```
+
+然后修改自定义配置：
+
+```bash
+nano ~/.local/share/fcitx5/rime/default.custom.yaml
+```
+
+在文件内填写：
+
+```yml
+patch:
+  schema_list:
+    - schema: rime_ice # 雾凇拼音
+  menu/page_size: 9 # 候选词数量
+```
+
+之后点击 Rime 托盘图标，然后点击其中的「重新部署」。

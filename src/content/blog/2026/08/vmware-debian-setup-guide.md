@@ -1,8 +1,9 @@
 ---
-title: "VMware Debian 安装后设置教程"
-description: "VMware 17 下 Debian 13 的换源与常用设置"
-pubDate: "2026-08-25"
-tags: ["VMware", "Linux"]
+title: 'VMware Debian 安装后设置教程'
+description: 'VMware 17 下 Debian 13 的换源与常用设置'
+pubDate: '2026-08-25'
+updatedDate: '2026-11-03'
+tags: ['VMware', 'Linux']
 ---
 
 本文记录 VMware 17 下给 Debian 13 换源以及其它设置的流程。
@@ -34,16 +35,16 @@ USTC 中科大：
 
 ```text
 deb https://mirrors.ustc.edu.cn/debian/ trixie main contrib non-free non-free-firmware
-deb-src https://mirrors.ustc.edu.cn/debian/ trixie main contrib non-free non-free-firmware
+# deb-src https://mirrors.ustc.edu.cn/debian/ trixie main contrib non-free non-free-firmware
 
 deb https://mirrors.ustc.edu.cn/debian/ trixie-updates main contrib non-free non-free-firmware
-deb-src https://mirrors.ustc.edu.cn/debian/ trixie-updates main contrib non-free non-free-firmware
+# deb-src https://mirrors.ustc.edu.cn/debian/ trixie-updates main contrib non-free non-free-firmware
 
 deb https://mirrors.ustc.edu.cn/debian/ trixie-backports main contrib non-free non-free-firmware
-deb-src https://mirrors.ustc.edu.cn/debian/ trixie-backports main contrib non-free non-free-firmware
+# deb-src https://mirrors.ustc.edu.cn/debian/ trixie-backports main contrib non-free non-free-firmware
 
 deb https://mirrors.ustc.edu.cn/debian-security/ trixie-security main contrib non-free non-free-firmware
-deb-src https://mirrors.ustc.edu.cn/debian-security/ trixie-security main contrib non-free non-free-firmware
+# deb-src https://mirrors.ustc.edu.cn/debian-security/ trixie-security main contrib non-free non-free-firmware
 ```
 
 官方：
@@ -56,7 +57,7 @@ deb http://security.debian.org/debian-security trixie-security main contrib non-
 
 > trixie 为 Debian 13 的代号
 
-## 3. 代理设置
+## 3. 代理设置（可选）
 
 ```bash
 sudo nano /etc/environment
@@ -64,7 +65,17 @@ sudo nano /etc/environment
 http_proxy="http://IP地址:端口号"
 https_proxy="http://IP地址:端口号"
 all_proxy="socks5://IP地址:端口号"
-no_proxy="localhost,127.0.0.1,::1"
+HTTP_PROXY="http://IP地址:端口号"
+HTTPS_PROXY="http://IP地址:端口号"
+ALL_PROXY="socks5://IP地址:端口号"
+no_proxy="localhost,127.0.0.1,::1,网关地址前3段.0/24,.local"
+NO_PROXY="localhost,127.0.0.1,::1,网关地址前3段.0/24,.local"
+
+sudo nano /etc/sudoers.d/proxy
+# 文件内填写
+Defaults env_keep += "http_proxy https_proxy all_proxy no_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY NO_PROXY"
+# 设置文件为只读
+sudo chmod 440 /etc/sudoers.d/proxy
 ```
 
 ## 4. 安装 vmtools、openssh
@@ -81,15 +92,16 @@ sudo systemctl enable --now ssh
 ```bash
 sudo apt install fcitx5 fcitx5-rime fcitx5-chinese-addons fcitx5-config-qt
 sudo apt install fcitx5-module-cloudpinyin
-sudo apt install gnome-shell-extensions
+sudo apt install gnome-shell-extensions # 可选，用于 gnome 桌面
 ```
 
 安装完成后：
 
-1. 打开 `https://extensions.gnome.org/`，搜索并安装 input method panel
-2. 打开 gnome-shell-extensions，启用 input method panel
-3. 在**优化 → 开机启动程序**里添加 fcitx5，然后重启虚拟机
-4. 重启后控制台输入命令：
+1. 打开 `https://extensions.gnome.org/`，搜索并安装 input method panel（可选）
+2. 打开 gnome-shell-extensions，启用 input method panel（可选）
+3. 在**优化 → 开机启动程序**里添加 fcitx5，然后重启虚拟机（可选）
+4. 重启后在 fcitx5 配置中添加`中州韵`，切换并等待它部署完成
+5. 控制台输入命令：
 
 ```bash
 cd ~/.local/share/fcitx5/rime/

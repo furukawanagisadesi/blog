@@ -264,6 +264,16 @@
 - **提交**：`af55323`（A）、`2c3a6a9`（B）。
 - **未做/延后**：首页分页、全局 CSS 与布局解耦（收益小、回归风险大，暂缓）。
 
+### 29. 新增 zswap 教程 + Debian 安装后设置修订（2026-11-03）
+- **新增** `src/content/blog/2026/11/debian-zswap-setup-guide.md`（《Debian 设置 zswap 教程》，tags `Linux`）：记录 Debian 13 上把 swap 从 1.86 GiB（`/dev/sda2`）扩到约 3.9 GiB（+2 GiB `/swapfile`），再启用内建 zswap 的全过程
+  - 中文文件名 `Debian 设置 zswap 教程.md` → 英文 slug；`description` 重写为摘要（不再照抄 `title`）
+  - 修复原稿问题：章节编号断档（`2 → 4`）、参数表缺管道符（渲染成一整行）、与 lzo 选择矛盾的 `modprobe zstd`、fstab 配置行混在 `bash` 块里、缺验证与回滚章节
+  - 关键结论写成独立小节「为什么最终用 lzo 而不是 zstd」（详见坑 8）
+  - 实测环境：Debian 13 / 内核 `6.12.94+deb13-amd64` / 内存 3.8 GiB / 磁盘 20 GiB；swap 分区与根分区相邻、磁盘无空闲空间，故用 swapfile 而非扩分区
+  - 最终参数：`compressor=lzo`、`zpool=zsmalloc`、`max_pool_percent=25`、`accept_threshold_percent=90`、`shrinker_enabled=1`；持久化写 GRUB 内核命令行（`zswap` 内建，`/etc/modprobe.d` 无效）
+- **修订** `vmware-debian-setup-guide.md`（`updatedDate: 2026-11-03`，用户改）：注释掉 `deb-src` 行；代理补充大写环境变量与 `no_proxy` 网段、新增 `/etc/sudoers.d/proxy` 的 `env_keep`；「代理设置」「gnome-shell-extensions」「input method panel」标注可选；fcitx5 步骤改为在配置中添加`中州韵`后等待部署完成
+- **验证**：`npm run build` 通过（**31 页** = 30 + 1 新文章）；产物含 `/2026/11/debian-zswap-setup-guide/`，参数表与回滚表渲染为 `<table>`
+
 ---
 
 ## 二、当前状态
@@ -274,12 +284,12 @@
 | 分支 | `main`，仅有未跟踪的 `.stfolder/`（Syncthing 标记目录，已加入 `.gitignore`） |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 18 篇（2026/08 共 16 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 2 篇） |
+| 文章数 | 19 篇（2026/08 共 16 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 2 篇；2026/11 1 篇） |
 | 主页 | 纯文字文章列表（标题+描述+发布日期，有更新时附「更新于」） |
 | 标签页 | `/blog/tags/`（标签索引，8 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | 内容提交 `0037f78`；本文档更新提交以 `git log -1` 为准 |
+| 最新提交 | 内容提交 `c5ebe8c`；本文档更新提交以 `git log -1` 为准 |
 
 ### 文章目录结构
 ```
@@ -306,6 +316,9 @@ src/content/blog/2026/08/
 src/content/blog/2026/09/
 	├── vmware-download-guide.md              # VMware 下载流程
 	└── vmware-pipewire-audio-stutter-fix.md  # VMware Linux PipeWire 音频卡顿解决方案
+
+src/content/blog/2026/11/
+	└── debian-zswap-setup-guide.md    # Debian 设置 zswap 教程
 ```
 
 ### 相关代码位置
@@ -425,6 +438,12 @@ src/content/blog/2026/09/
 - 原因：Vercel 的 **Deployment Protection（Vercel Authentication）未关闭**，导致对 OPTIONS 预检请求重定向到 `vercel.com/login`，被浏览器 CORS 拦截；HTTP 状态 0 表示请求根本没到达业务函数
 - **修复**：Vercel → 项目 → Settings → Deployment Protection → **Vercel Authentication = Disabled** → Save → Redeploy
 - 注意：读取能通但提交失败，就是此原因（读走 GET、提交走 POST+新头触发 preflight）
+
+### 坑 8: zswap `compressor=zstd` 静默回退 lzo
+- 现象：内核命令行写了 `zswap.compressor=zstd`，开机后 `/sys/module/zswap/parameters/compressor` 仍是 `lzo`，且**没有任何报错**
+- 原因：`zswap` 是内建（`CONFIG_ZSWAP=y`），初始化在 `subsys_initcall` 阶段，**早于**根文件系统挂载与用户态 `modprobe`，此时 `/lib/modules` 不可用，`crypto/zstd.ko.xz` 加载不到，内核回退到内建的默认算法 `lzo`。把 `zstd` 放进 initramfs 也无效，模块加载仍晚于 zswap 初始化
+- 处理：用内建 `lzo`（推荐，开机即用不会回退）；或开机后 `modprobe zstd` → `enabled=0` → `compressor=zstd` → `enabled=1`（需池为空）；彻底方案是编译内核时把 zstd 设为默认算法（个人机器不划算）
+- 排查命令：`for f in /sys/module/zswap/parameters/*; do echo "$(basename $f)=$(cat $f)"; done`、`grep -E "zstd" /proc/crypto`（无输出即未加载）
 
 ---
 

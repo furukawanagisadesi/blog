@@ -296,7 +296,7 @@
 - **修订** `vmware-debian-setup-guide.md`：第 5、6 节的「重新部署」改为「重新启动」，`updatedDate` 更新为 `2026-11-04`
 - **按第四节检查并修复格式**：`description` 不再照抄 `title`；配置内容代码块 `bash` → `text`；`### 5.` → `## 5.`；补句末句号；代理占位符统一 `your_ip:port`；`fedora-zswap` 的 CRLF → LF，子标题 `0.`～`6.` → `1.1`～`1.7`
 - **验证**：`npm run build` 通过（**34 页** = 22 篇 + 首页 + 关于 + 标签索引 + 8 个标签页 + 404）；产物含英文 slug 路由，`debian-rime-caps-lock-fix` 渲染为单个 `<ol>`（3 个 `<li>`），`vmware-fedora` 第 5 节为 `<h2>`
-- **注意**：本轮改动（含删除旧文、重命名新文）尚未提交；提交时用 `git add -A` 可一并记录删除与重命名
+- **提交**：`dd713c6`（6 个文件，+293 / −50；含删除旧文与重命名新文）
 
 ---
 
@@ -313,7 +313,7 @@
 | 标签页 | `/blog/tags/`（标签索引，8 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | 上一内容提交 `c0a76dd`；第 31 项改动尚未提交，提交后以 `git log -1` 为准 |
+| 最新提交 | 内容提交 `dd713c6`（第 31 项）；本文档更新提交以 `git log -1` 为准 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构

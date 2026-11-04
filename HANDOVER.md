@@ -288,8 +288,9 @@
 - **验证**：`npm run build` 通过（**32 页** = 31 + 1 新文章）、`npm run check` 0 错误/警告/hint；产物含 `dist/2026/11/debian-vscode-install-guide/index.html` 且含标题、微软仓库地址与 `linux` 标签链接
 
 ### 31. Fedora 系列重组 + Rime Caps 排查 + 格式修复（2026-11-04）
-- **重组 Fedora 文章**：删除 `2026/08/vmware-fedora-mirror-update-guide.md`，新增 `2026/11/vmware-fedora-setup-guide.md`（《VMware Fedora 安装后设置教程》，tags `VMware`/`Linux`）。在换源/更新基础上补充 ssh 开机自启、git 代理、fcitx5-rime、`/etc/environment` 与 dnf 代理设置
+- **重组 Fedora 文章**：删除 `2026/08/vmware-fedora-mirror-update-guide.md`，新增 `2026/11/vmware-fedora-setup-guide.md`（《VMware Fedora 安装后设置教程》，tags `VMware`/`Linux`）。在换源/更新基础上补充 ssh 开机自启、git 代理、ibus-rime（含雾凇拼音）、`/etc/environment` 与 dnf 代理设置
   - 旧文 `pubDate` 为 2026-08-09，新文改为 2026-11-04；旧路由 `/blog/2026/08/vmware-fedora-mirror-update-guide/` 上线后将 404
+  - 同日用户改为 Fedora 45 GNOME + NYIST（南阳理工学院）镜像 + `ibus-rime`；Agent 修正镜像文案、步骤重复编号、列表缩进与配置代码块语言标记
 - **新增** `2026/11/fedora-zswap-setup-guide.md`（《Fedora 设置 zswap 教程》，tags `Linux`）：禁用 zram → btrfs 创建 swapfile → 写入 fstab → 运行时启用 zswap → `grubby` 持久化 → 重启验证
 - **新增** `2026/11/debian-rime-caps-lock-fix.md`（《Debian 13 GNOME 桌面 Rime 开启 Caps 无法输入大写字母的解决方法》，tags `Linux`）：`im-config` 选择 fcitx5 + `environment.d` 环境变量 + 完整重启
   - 原中文文件名 `debian-fcitx5输入法状态caps无法大写输入的解决方案.md` → 英文 slug（构建曾出现 URL 乱码，坑 3）

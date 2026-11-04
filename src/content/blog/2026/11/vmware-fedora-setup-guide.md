@@ -1,28 +1,25 @@
 ---
 title: 'VMware Fedora 安装后设置教程'
-description: 'VMware 17 下 Fedora 44 的换源与常用设置'
+description: 'VMware 17 下 Fedora 45 GNOME 的换源与常用设置'
 pubDate: '2026-11-04'
 tags: ['VMware', 'Linux']
 ---
 
-本文记录 VMware 17 下给 Fedora 换源并执行更新的完整流程。
+VMware 17 下 Fedora 45 GNOME 的换源与常用设置。
 
 ## 1. 换源
 
-从官方默认源换 USTC（中科大）。
+从官方默认源换到 NYIST（南阳理工学院）镜像。
 
 ```bash
-# 1. 备份原配置（替换前先备份，稳妥）
-sudo cp -a /etc/yum.repos.d /etc/yum.repos.d.bak
+# 1. 创建覆写文件（目录：/etc/dnf/repos.override.d/）
+sudo dnf config-manager setopt \
+fedora.baseurl='https://mirrors.nyist.edu.cn/fedora/releases/$releasever/Everything/$basearch/os/' \
+fedora.metalink= \
+updates.baseurl='https://mirrors.nyist.edu.cn/fedora/updates/$releasever/Everything/$basearch/' \
+updates.metalink=
 
-# 2. 一键替换为 USTC（注释 metalink、启用 USTC baseurl）
-sudo sed -e 's|^metalink=|#metalink=|g' \
-         -e 's|^#baseurl=http://download.example/pub/fedora/linux|baseurl=https://mirrors.ustc.edu.cn/fedora|g' \
-         -i.bak \
-         /etc/yum.repos.d/fedora.repo \
-         /etc/yum.repos.d/fedora-updates.repo
-
-# 3. 清缓存并重建（验证新源是否可用）
+# 2. 清缓存并重建（验证新源是否可用）
 sudo dnf clean all
 sudo dnf makecache
 ```
@@ -45,45 +42,57 @@ sudo systemctl enable --now sshd
 
 ```bash
 sudo dnf install git
-# 建立 .gitconfig 添加 proxy 地址
 nano ~/.gitconfig
-# 输入
+```
+
+在文件中填写代理地址：
+
+```text
 [http]
 	proxy = http://your_ip:port
 ```
 
-## 4. 安装 fcitx5-rime 输入法
+## 4. 安装 Rime 输入法
 
-```bash
-# 1. 安装（不要装 fcitx5-autostart，交给 imsettings 启动，避免双启动）
-sudo dnf install fcitx5 fcitx5-rime fcitx5-configtool fcitx5-gtk fcitx5-qt
+1. 安装 `ibus-rime`：
 
-# 2. 切换为默认输入法（fcitx5 包自带 /etc/X11/xinit/xinput.d/fcitx5.conf）
-imsettings-switch fcitx5
+   ```bash
+   sudo dnf install ibus-rime
+   ```
 
-# 3. 注销重登生效，然后验证
-imsettings-info    # 应显示 GTK/Qt immodule = fcitx, XMODIFIERS=@im=fcitx
-pgrep -a fcitx5
-fcitx5-diagnose
+2. 重启 IBus：
 
-# 4. 安装雾凇拼音
-# 拉取方案
-git clone --depth 1 https://github.com/iDvel/rime-ice.git /home/fedora/下载/rime-ice
+   ```bash
+   ibus restart
+   ```
 
-# 把方案文件复制进 rime 配置目录
-cp -r /home/fedora/下载/rime-ice/* ~/.local/share/fcitx5/rime/
+3. 添加 RIME 为输入源：
 
-# 修改自定义配置
-nano ~/.local/share/fcitx5/rime/default.custom.yaml
+   - 打开系统 **“设置”** → **“键盘”**（或“区域与语言”）。
+   - 在“输入源”部分点击 **“+”** 号。
+   - 选择 **“汉语 (中国)”**，然后找到并添加 **“中文 (Rime)”**。
 
-# 文件内填写
-patch:
-  schema_list:
-    - schema: rime_ice # 雾凇拼音
-  menu/page_size: 9 # 候选词数量
+4. 安装雾凇拼音（Rime 的配置目录 `~/.config/ibus/rime/`）：
 
-# 最后需要注销重新登录或重启 fcitx5
-```
+   ```bash
+   git clone --depth 1 https://github.com/iDvel/rime-ice.git /home/fedora/下载/rime-ice
+   cp -r /home/fedora/下载/rime-ice/* ~/.config/ibus/rime/
+   ```
+
+5. 自定义雾凇拼音：
+
+   ```bash
+   nano ~/.config/ibus/rime/default.custom.yaml
+   ```
+
+   在文件内填写：
+
+   ```yml
+   patch:
+     schema_list:
+       - schema: rime_ice # 雾凇拼音
+     menu/page_size: 6 # 候选词数量
+   ```
 
 ## 5. 代理设置（可选）
 

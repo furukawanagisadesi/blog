@@ -2,7 +2,7 @@
 title: 'VMware Debian 安装后设置教程'
 description: 'VMware 17 下 Debian 13 的换源与常用设置'
 pubDate: '2026-08-25'
-updatedDate: '2026-11-03'
+updatedDate: '2026-11-04'
 tags: ['VMware', 'Linux']
 ---
 
@@ -117,7 +117,7 @@ patch:
   menu/page_size: 9 # 候选词数量
 ```
 
-6. 最后点击 Rime 托盘图标，然后点「重新部署」。
+6. 最后点击 Rime 托盘图标，然后点「重新启动」。
 
 ## 6. 安装雾凇拼音（可选）
 
@@ -147,4 +147,4 @@ patch:
   menu/page_size: 9 # 候选词数量
 ```
 
-之后点击 Rime 托盘图标，然后点击其中的「重新部署」。
+之后点击 Rime 托盘图标，然后点击其中的「重新启动」。

@@ -1,9 +1,9 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
-> 最近更新: 2026-11-03
+> 最近更新: 2026-11-04
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》），供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查），供后续 Agent 接力
 
 ---
 
@@ -287,6 +287,17 @@
   - 切换环境后跨平台改文章请注意编辑器换行符设置
 - **验证**：`npm run build` 通过（**32 页** = 31 + 1 新文章）、`npm run check` 0 错误/警告/hint；产物含 `dist/2026/11/debian-vscode-install-guide/index.html` 且含标题、微软仓库地址与 `linux` 标签链接
 
+### 31. Fedora 系列重组 + Rime Caps 排查 + 格式修复（2026-11-04）
+- **重组 Fedora 文章**：删除 `2026/08/vmware-fedora-mirror-update-guide.md`，新增 `2026/11/vmware-fedora-setup-guide.md`（《VMware Fedora 安装后设置教程》，tags `VMware`/`Linux`）。在换源/更新基础上补充 ssh 开机自启、git 代理、fcitx5-rime、`/etc/environment` 与 dnf 代理设置
+  - 旧文 `pubDate` 为 2026-08-09，新文改为 2026-11-04；旧路由 `/blog/2026/08/vmware-fedora-mirror-update-guide/` 上线后将 404
+- **新增** `2026/11/fedora-zswap-setup-guide.md`（《Fedora 设置 zswap 教程》，tags `Linux`）：禁用 zram → btrfs 创建 swapfile → 写入 fstab → 运行时启用 zswap → `grubby` 持久化 → 重启验证
+- **新增** `2026/11/debian-rime-caps-lock-fix.md`（《Debian 13 GNOME 桌面 Rime 开启 Caps 无法输入大写字母的解决方法》，tags `Linux`）：`im-config` 选择 fcitx5 + `environment.d` 环境变量 + 完整重启
+  - 原中文文件名 `debian-fcitx5输入法状态caps无法大写输入的解决方案.md` → 英文 slug（构建曾出现 URL 乱码，坑 3）
+- **修订** `vmware-debian-setup-guide.md`：第 5、6 节的「重新部署」改为「重新启动」，`updatedDate` 更新为 `2026-11-04`
+- **按第四节检查并修复格式**：`description` 不再照抄 `title`；配置内容代码块 `bash` → `text`；`### 5.` → `## 5.`；补句末句号；代理占位符统一 `your_ip:port`；`fedora-zswap` 的 CRLF → LF，子标题 `0.`～`6.` → `1.1`～`1.7`
+- **验证**：`npm run build` 通过（**34 页** = 22 篇 + 首页 + 关于 + 标签索引 + 8 个标签页 + 404）；产物含英文 slug 路由，`debian-rime-caps-lock-fix` 渲染为单个 `<ol>`（3 个 `<li>`），`vmware-fedora` 第 5 节为 `<h2>`
+- **注意**：本轮改动（含删除旧文、重命名新文）尚未提交；提交时用 `git add -A` 可一并记录删除与重命名
+
 ---
 
 ## 二、当前状态
@@ -297,12 +308,12 @@
 | 分支 | `main`，仅有未跟踪的 `.stfolder/`（Syncthing 标记目录，已加入 `.gitignore`） |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 20 篇（2026/08 共 16 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 2 篇；2026/11 2 篇） |
+| 文章数 | 22 篇（2026/08 共 15 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 2 篇；2026/11 5 篇） |
 | 主页 | 纯文字文章列表（标题+描述+发布日期，有更新时附「更新于」） |
 | 标签页 | `/blog/tags/`（标签索引，8 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | 内容提交 `ddd98c9`；本文档更新提交以 `git log -1` 为准 |
+| 最新提交 | 上一内容提交 `c0a76dd`；第 31 项改动尚未提交，提交后以 `git log -1` 为准 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构
@@ -313,7 +324,6 @@ src/content/blog/2026/08/
 	├── ie-slow-loading-troubleshoot-guide.md  # IE 网页加载缓慢异常查询与解决
 	├── vmware-ubuntu-setup-guide.md      # VMware Ubuntu 安装流程
 	├── vmware-ubuntu-virtual-audio-bug-fix.md   # VMware Ubuntu 虚拟音频设备离线解决方案
-	├── vmware-fedora-mirror-update-guide.md     # VMware Fedora 换源并更新教程
 	├── vmware-debian-setup-guide.md      # VMware Debian 安装后设置教程
 	├── vmware-dual-vm-isolation-guide.md # VMware 双虚拟机隔离上网教程
 	├── Docker/
@@ -332,8 +342,11 @@ src/content/blog/2026/09/
 	└── vmware-pipewire-audio-stutter-fix.md  # VMware Linux PipeWire 音频卡顿解决方案
 
 src/content/blog/2026/11/
-	├── debian-zswap-setup-guide.md    # Debian 设置 zswap 教程
-	└── debian-vscode-install-guide.md  # Debian 安装 VS Code 教程
+	├── debian-zswap-setup-guide.md      # Debian 设置 zswap 教程
+	├── debian-vscode-install-guide.md   # Debian 安装 VS Code 教程
+	├── debian-rime-caps-lock-fix.md     # Debian 13 GNOME 下 Rime Caps 无法输入大写字母的解决方法
+	├── fedora-zswap-setup-guide.md      # Fedora 设置 zswap 教程
+	└── vmware-fedora-setup-guide.md     # VMware Fedora 安装后设置教程
 ```
 
 ### 相关代码位置

@@ -305,6 +305,7 @@
 - **修订** `fedora-zswap-setup-guide.md`：`updatedDate: 2026-11-05`；去掉「现在只用了 12K」注释、swapfile 命令补「大小自行修改」、ASCII 冒号改中文冒号
 - **格式修复**（按第四节检查）：5/6/7 节编号列表统一缩进（渲染为单个 `<ol>`）；重复的 `## 6.` → `## 7.`；配置代码块拆分 `bash` + `text` / `yml`；引言改为完整句子并去掉 frontmatter 多余空行
 - **验证**：`npm run build` 通过（**34 页**）；产物标题 1～7 连续，共 4 个 `<ol>`，无行尾空格，LF
+- **提交**：`e6642d2`（4 个文件，+227 / −137；含重命名）
 
 ---
 
@@ -321,7 +322,7 @@
 | 标签页 | `/blog/tags/`（标签索引，8 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | 内容提交 `438da51`（第 31 项同日修订）；本文档更新提交以 `git log -1` 为准 |
+| 最新提交 | 内容提交 `e6642d2`（第 32 项）；本文档更新提交以 `git log -1` 为准 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构

@@ -1,7 +1,7 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
-> 最近更新: 2026-11-04
+> 最近更新: 2026-11-05
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
 > 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查），供后续 Agent 接力
 
@@ -299,6 +299,13 @@
 - **验证**：`npm run build` 通过（**34 页** = 22 篇 + 首页 + 关于 + 标签索引 + 8 个标签页 + 404）；产物含英文 slug 路由，`debian-rime-caps-lock-fix` 渲染为单个 `<ol>`（3 个 `<li>`），`vmware-fedora` 第 5 节为 `<h2>`
 - **提交**：`dd713c6`（6 个文件，+293 / −50；含删除旧文与重命名新文）
 
+### 32. Fedora 教程合并扩写 + flatpak / 插件 / 代理章节（2026-11-05）
+- **重命名** `2026/11/vmware-fedora-setup-guide.md` → `2026/11/fedora-setup-guide.md`，标题改为《Fedora 安装后设置教程》，`updatedDate: 2026-11-05`；旧路由 `/blog/2026/11/vmware-fedora-setup-guide/` 上线后将 404
+- **扩写**：新增「5. 更换 flatpak 仓库」（禁用 Fedora Flatpaks、flathub 换 USTC、添加用户级仓库）、「6. 安装插件」（ExtensionManager、Dash to Dock、gnome-tweaks）、「7. 代理设置（可选）」（`proxon` / `proxoff` 开关式代理、dnf 代理、`/etc/environment.d/99-proxy.conf` 全局代理）
+- **修订** `fedora-zswap-setup-guide.md`：`updatedDate: 2026-11-05`；去掉「现在只用了 12K」注释、swapfile 命令补「大小自行修改」、ASCII 冒号改中文冒号
+- **格式修复**（按第四节检查）：5/6/7 节编号列表统一缩进（渲染为单个 `<ol>`）；重复的 `## 6.` → `## 7.`；配置代码块拆分 `bash` + `text` / `yml`；引言改为完整句子并去掉 frontmatter 多余空行
+- **验证**：`npm run build` 通过（**34 页**）；产物标题 1～7 连续，共 4 个 `<ol>`，无行尾空格，LF
+
 ---
 
 ## 二、当前状态
@@ -347,7 +354,7 @@ src/content/blog/2026/11/
 	├── debian-vscode-install-guide.md   # Debian 安装 VS Code 教程
 	├── debian-rime-caps-lock-fix.md     # Debian 13 GNOME 下 Rime Caps 无法输入大写字母的解决方法
 	├── fedora-zswap-setup-guide.md      # Fedora 设置 zswap 教程
-	└── vmware-fedora-setup-guide.md     # VMware Fedora 安装后设置教程
+	└── fedora-setup-guide.md            # Fedora 安装后设置教程
 ```
 
 ### 相关代码位置

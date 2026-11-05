@@ -2,6 +2,7 @@
 title: 'Fedora 设置 zswap 教程'
 description: '在 Fedora 44 上将默认的 zram 修改为 zswap 的过程'
 pubDate: '2026-11-03'
+updatedDate: '2026-11-05'
 tags: ['Linux']
 ---
 
@@ -21,12 +22,12 @@ swapon --show; zramctl; free -h
 
 ### 1.2 停用 zram
 
-官方文档写明的禁用方式就是建一个空配置文件，它会覆盖 `/usr/lib/systemd/zram-generator.conf`:
+官方文档写明的禁用方式就是建一个空配置文件，它会覆盖 `/usr/lib/systemd/zram-generator.conf`：
 
 ```bash
 sudo touch /etc/systemd/zram-generator.conf
 
-# 立即释放当前 zram（现在只用了 12K，安全）
+# 立即释放当前 zram
 sudo swapoff /dev/zram0
 echo 1 | sudo tee /sys/block/zram0/reset
 echo 0 | sudo tee /sys/class/zram-control/hot_remove
@@ -44,7 +45,7 @@ zramctl            # 应无输出
 不要用 `fallocate` 或 `dd`——btrfs 上会失败或产生 COW 问题。
 
 ```bash
-sudo btrfs filesystem mkswapfile --size 2G /swapfile
+sudo btrfs filesystem mkswapfile --size 2G /swapfile # swapfile 大小自行修改
 sudo chmod 600 /swapfile
 ```
 

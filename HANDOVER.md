@@ -3,11 +3,23 @@
 > 生成时间: 2026-08-09
 > 最近更新: 2026-11-05
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查），供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查、Fedora 教程扩写），供后续 Agent 接力
+
+## 目录
+
+- [一、历史会话记录（按时间顺序）](#一历史会话记录按时间顺序)
+- [二、当前状态](#二当前状态)
+- [三、待办事项（供后续 Agent）](#三待办事项供后续-agent)
+- [四、文章检查流程（新增/修改文章照此执行）](#四文章检查流程新增修改文章照此执行)
+- [五、约定：博客 markdown 统一规范（重要，新文章遵守）](#五约定博客-markdown-统一规范重要新文章遵守)
+- [六、踩坑记录](#六踩坑记录)
+- [七、日常操作速查](#七日常操作速查)
 
 ---
 
-## 一、本次会话完成的工作
+## 一、历史会话记录（按时间顺序）
+
+> 以下是按时间顺序保留的会话存档，最新进展在末尾（第 29～32 项）。当前可用信息以「二、当前状态」为准。
 
 ### 1. 发布第一篇博客文章
 - `src/content/blog/template.md`（用户已填内容）→ 重命名为 `blog-launch.md`（《博客建立》）
@@ -219,7 +231,7 @@
 - **影响**：
   - 文章总数 19 → 18（`2026/08` 17 → 16）
   - 标签 `Meta` 随之消失，标签数 9 → 8；`/blog/tags/meta/` 不再生成，`/blog/blog-launch/` 线上路由在下次部署后消失
-  - `src/assets/blog-post-ai-setup.jpg`（原为该文封面）已无任何引用，可连同其他未引用占位图一起清理（见第三节待办 3）
+  - `src/assets/blog-post-ai-setup.jpg`（原为该文封面）已无任何引用，相关占位图已在第 28 项统一清理
 - **验证**：`npm run build` 通过，18 篇；产物中无 `blog-launch` 与 `Meta` 标签页
 - **注意**：旧链接（如第 1 项中线上验证地址）会 404；历史记录（第 1、19 项、`docs/` 下的设计/计划文档）保留原文，不回改
 
@@ -314,15 +326,15 @@
 | 项 | 值 |
 |----|----|
 | 本地路径 | `D:\Syncthing\blog` |
-| 分支 | `main`，仅有未跟踪的 `.stfolder/`（Syncthing 标记目录，已加入 `.gitignore`） |
+| 分支 | `main`，工作区干净（`.stfolder/` 为 Syncthing 标记目录，已加入 `.gitignore`） |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
 | 文章数 | 22 篇（2026/08 共 15 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 2 篇；2026/11 5 篇） |
 | 主页 | 纯文字文章列表（标题+描述+发布日期，有更新时附「更新于」） |
-| 标签页 | `/blog/tags/`（标签索引，8 个标签）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
+| 标签页 | `/blog/tags/`（标签索引，8 个：`Docker` / `VMware` / `Linux` / `Network` / `SQL` / `RouterOS` / `ImmortalWrt` / `Browser`）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
-| 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示 |
-| 最新提交 | 内容提交 `e6642d2`（第 32 项）；本文档更新提交以 `git log -1` 为准 |
+| 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
+| 最新提交 | 内容提交 `e6642d2`（第 32 项）；本次文档整理提交以 `git log -1` 为准 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构
@@ -365,7 +377,7 @@ src/content/blog/2026/11/
 - 主页列表：`src/pages/index.astro`（基于 BaseLayout，按最近活动日期降序，见第 22 项；文章标题用 `h3`；列表渲染抽到 `PostList`）
 - 文章列表组件：`src/components/PostList.astro`（标题 + 描述 + 日期，首页与标签页共用）
 - 标签：`src/lib/tags.ts`（`slugifyTag` / `getAllTags` / `getPostsByTag`）；`src/pages/tags/index.astro`（`/tags/`）、`src/pages/tags/[tag].astro`（`/tags/<slug>/`）；schema 的 `tags` 字段在 `src/content.config.ts`
-- 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（基于 BaseLayout，`ogType="article"`；渲染 frontmatter title 为 H1；`pubDate`/`heroImage` 可选，缺省不渲染日期区与空封面；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `IntersectionObserver` 滚动懒加载；JS/CSS 自托管于 `public/vendor/twikoo/1.7.20/`；加载失败/超时由状态面板兜底，可重试）
+- 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（基于 BaseLayout，`ogType="article"`；渲染 frontmatter title 为 H1；`pubDate`/`heroImage` 可选，缺省不渲染日期区与空封面；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `IntersectionObserver` 滚动懒加载；JS/CSS 自托管于 `public/vendor/twikoo/1.7.20/`；加载失败/超时由状态面板兜底，可重试）；`src/consts.ts` 的 `COMMENTS_ENABLED` 为评论总开关（当前 `false`）
 - 元信息：`src/components/BaseHead.astro`（`ogType` 控制 og:type；含 twitter:title/description/image；og:image 默认占位图）
 - 日期格式：`src/components/FormattedDate.astro`（`zh-CN`，显示如 `2026年9月17日`）
 - 字体：`astro.config.mjs`（Atkinson 本地字体 + `fallbacks` 中文栈 `PingFang SC / Hiragino Sans GB / Microsoft YaHei / Noto Sans CJK SC`）；`src/styles/global.css` 的 `body` 用 `var(--font-atkinson)`
@@ -386,7 +398,7 @@ src/content/blog/2026/11/
 
 2. **markdown 格式规范**（新文章遵循，参见第五节）：代码块语言标记、行内代码、中英文空格、结构顺序；完整检查步骤见第四节
 
-3. **可选清理**：`src/assets/` 下 `blog-placeholder-1/2/4/5.jpg` 已无引用，`blog-placeholder-about.jpg` 已无引用（About 页重构后不再用占位图），`blog-post-ai-setup.jpg` 在删除《博客建立》后也已无引用。**注意 BaseHead 默认 fallback 仍引用 `blog-placeholder-1.jpg`**，删除前需确认
+3. **图片资源**：`src/assets/` 目前只剩 `blog-placeholder-1.jpg`（`BaseHead` 默认 fallback 仍在用）与 9 张文章截图，已无需要清理的未引用图片（第 28 项已集中清理过）
 
 4. **图片管理**：文章内截图请放到 `src/assets/` 并命名有意义（如 `vmware-virtual-audio-offline.png`），文章中用相对路径 `../../../../assets/图片名` 引用（从 `src/content/blog/2026/08/` 出发是 4 层 `../`）。**不要把图片直接放 `src/content/blog/` 下**，也不要放文件名无意义的 `image.png`/`image-1.png`
 
@@ -396,6 +408,7 @@ src/content/blog/2026/11/
    - Header/Footer 暂无社交链接（用户暂不放）
 
 6. **Twikoo 待办**：
+   - **恢复评论**：先把 `src/consts.ts` 的 `COMMENTS_ENABLED` 改回 `true`（第 27 项）；大陆直连 Vercel 仍可能超时
    - 可选：绑定自定义域名（Vercel → Domains 添加 → Cloudflare 加 CNAME 开代理），然后把 `BlogPost.astro` 里的 envId 换成新域名
    - 进入 Twikoo 管理面板（评论框右上角 ⚙️ 齿轮 + 管理密码）可改评论设置（如评论每页条数 `COMMENT_PAGE_SIZE`、开启反垃圾、验证码等）
    - 若改 Vercel 部署配置，务必保持 Vercel Authentication = Disabled
@@ -416,7 +429,7 @@ src/content/blog/2026/11/
 8. **图片**：截图放 `src/assets/` 并取有意义的名字，正文用相对路径 `![描述](../../../../assets/图片名)` 引用；不要放 `image.png` 这类无意义名
 9. **敏感信息**：服务器地址 `your_ip`、账号 `your_username`、密码 `your_password`
 10. **构建验证**：`npm run build` 通过，确认新路由已生成（Astro 缓存问题见第六节坑 1）
-11. **提交推送**：`git add -A && git commit && git push origin main`（需代理在线）
+11. **提交推送**：`git add -A && git commit && git push`（远程为 SSH over 443，需 key 已解锁；否则改用 HTTPS 地址，见第六节坑 6）
 12. **线上核对 + 更新本文档**：部署后访问线上页面；回填「当前状态」的文章数、目录结构、最新提交
 
 ---
@@ -469,6 +482,7 @@ src/content/blog/2026/11/
 ### 坑 6: 网络/代理
 - GitHub 推送依赖代理，地址写在 `~/.gitconfig` 的 `http.proxy` / `https.proxy`（当前为 `http://192.168.211.130:17897`），代理未启动时 push 失败
 - 直连也被墙；需先启动代理再 `git push`
+- 远程是 `ssh://git@ssh.github.com:443/...`；Windows 上 SSH key 未加入 agent 时会报 `Permission denied (publickey)`，可改用 HTTPS 地址推送：`git push https://github.com/furukawanagisadesi/blog.git main`（凭据已存于 `~/.git-credentials`）
 
 ### 坑 7: Twikoo「评论失败：0」（CORS preflight 被重定向）
 - 现象：提交评论报「评论失败：0」，Console 显示 `Redirect is not allowed for a preflight request`

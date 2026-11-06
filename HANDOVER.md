@@ -334,6 +334,17 @@
 - **验证**：`npm run build` 通过（**36 页** = 23 篇 + 首页 + 关于 + 标签索引 + 9 个标签页 + 404）；`npm run check` 0 错误/警告/hint；线上文章页与 `/blog/tags/rime/` 均返回 200
 - **提交**：`77105ac`（2 个文件，+125 / −1）
 
+### 35. ImmortalWrt 文章扩写：AdGuard Home 架构调整 + UPnP + 常见问题（2026-11-07）
+- **修订** `src/content/blog/2026/08/immortalwrt-soft-router-guide.md`（`updatedDate: 2026-11-07`，`description` 重写）：
+  - 第 8 节「安装 AdGuard Home」重写：8.1 安装初始化、8.2 DNS 工作模式对比（方案 A：AdGuard Home 独占 `53`，可看真实客户端 IP；方案 B：dnsmasq 转发，来源全是 `127.0.0.1`）、8.3 yaml 配置、8.4 dnsmasq 调整（`5353` / `noresolv` / `min_cache_ttl=60` / `dns_redirect=0` / DHCP option 6）、8.5 显式 DNAT DNS 劫持（IPv4 + IPv6）、8.6 验证
+  - 新增第 9 节「配置 UPnP（可选）」：CGNAT 判断（`100.64.0.0/10`）、`miniupnpd-nftables` 安装与配置、`secure_mode`、验证、`miniupnpc` 测试、关闭方法
+  - 新增第 10 节「常见问题」：DHCP 租约到期不返还旧 IP 的原因与静态租约、AdGuard Home 客户端显示 `127.0.0.1`、IPv6 连通性排查
+  - 新增第 11 节「安全建议」：SSH 密码登录、full-cone NAT、无用 WAN 放行、UPnP、`min_cache_ttl`
+  - 修正旧文错误：`mount --bind //tmp/introot` → `mount --bind / /tmp/introot`；LAN 网桥端口 `eth1、eth2、eth3` → `eth1、eth2`（eth3 留给 WAN）；distfeeds 代码块补 `text` 语言标记；配置路径 `/etc/adguardhome/adguardhome.yaml` → `/etc/adguardhome.yaml`；统一「AdGuard Home」写法
+- **背景**：本轮内容来自实际路由器会话（ImmortalWrt 24.10.5 x86_64 / fw4）：确认 UPnP 未安装并完成配置；把 AdGuard Home 调到 `53` 解决客户端归属；发现 `dns_redirect` 会跟随 dnsmasq 端口导致绕过 AdGuard Home，改为显式 DNAT；解释 DHCP 租约与重装系统后 IP 变化的正常行为
+- **验证**：`npm ci` 重装依赖（Linux 同步来的 `node_modules` 符号链接在 Windows 下不可用）；`npm run build` 通过（36 页）；`npm run check` 0 错误/警告/hint；产物含「配置 UPnP」「DNS-Hijack-AGH」「最后更新于」
+- **未提交**：本次未执行 `git commit` / `git push`，待用户确认后按第六节坑 6 的方式推送
+
 ---
 
 ## 二、当前状态

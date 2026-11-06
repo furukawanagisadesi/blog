@@ -323,6 +323,7 @@
 - **修订** `fedora-setup-guide.md`：第 4 步增加白霜拼音（`rime-frost`）与雾凇拼音二选一；第 5 步增加 `rime_frost` 的 `default.custom.yaml` 示例
 - **格式修复**：两个方案之间补「或：」；`rime_frost` 示例注释 `雾凇拼音` → `白霜拼音`；`updatedDate` → `2026-11-06`
 - **验证**：`npm run build` 通过（**34 页**）；第 4/5 节仍为同一 `<ol>`，`yml` 代码块 2 个
+- **提交**：`983d780`（2 个文件，+27 / −4）
 
 ---
 
@@ -339,7 +340,7 @@
 | 标签页 | `/blog/tags/`（标签索引，8 个：`Docker` / `VMware` / `Linux` / `Network` / `SQL` / `RouterOS` / `ImmortalWrt` / `Browser`）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
-| 最新提交 | 内容提交 `e6642d2`（第 32 项）；本次文档整理提交以 `git log -1` 为准 |
+| 最新提交 | 内容提交 `983d780`（第 33 项）；本文档更新提交以 `git log -1` 为准 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构

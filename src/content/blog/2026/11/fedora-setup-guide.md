@@ -2,7 +2,7 @@
 title: 'Fedora 安装后设置教程'
 description: 'Fedora 45 GNOME 的换源与常用设置'
 pubDate: '2026-11-04'
-updatedDate: '2026-11-05'
+updatedDate: '2026-11-06'
 tags: ['VMware', 'Linux']
 ---
 
@@ -73,14 +73,23 @@ proxy = http://your_ip:port
    - 在“输入源”部分点击 **“+”** 号。
    - 选择 **“汉语 (中国)”**，然后找到并添加 **“中文 (Rime)”**。
 
-4. 安装雾凇拼音（Rime 的配置目录 `~/.config/ibus/rime/`）：
+4. 安装雾凇拼音/白霜拼音（两个方案二选一，Rime 的配置目录 `~/.config/ibus/rime/`）：
 
    ```bash
+   # 雾凇拼音
    git clone --depth 1 https://github.com/iDvel/rime-ice.git /home/fedora/下载/rime-ice
    cp -r /home/fedora/下载/rime-ice/* ~/.config/ibus/rime/
    ```
 
-5. 自定义雾凇拼音：
+   或：
+
+   ```bash
+   # 白霜拼音
+   git clone --depth 1 https://github.com/iDvel/rime-frost.git /home/fedora/下载/rime-frost
+   cp -r /home/fedora/下载/rime-frost/* ~/.config/ibus/rime/
+   ```
+
+5. 自定义拼音方案：
 
    ```bash
    nano ~/.config/ibus/rime/default.custom.yaml
@@ -92,6 +101,15 @@ proxy = http://your_ip:port
    patch:
      schema_list:
        - schema: rime_ice # 雾凇拼音
+     menu/page_size: 6 # 候选词数量
+   ```
+
+   或
+
+   ```yml
+   patch:
+     schema_list:
+       - schema: rime_frost # 白霜拼音
      menu/page_size: 6 # 候选词数量
    ```
 

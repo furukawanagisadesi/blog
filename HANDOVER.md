@@ -343,7 +343,7 @@
   - 修正旧文错误：`mount --bind //tmp/introot` → `mount --bind / /tmp/introot`；LAN 网桥端口 `eth1、eth2、eth3` → `eth1、eth2`（eth3 留给 WAN）；distfeeds 代码块补 `text` 语言标记；配置路径 `/etc/adguardhome/adguardhome.yaml` → `/etc/adguardhome.yaml`；统一「AdGuard Home」写法
 - **背景**：本轮内容来自实际路由器会话（ImmortalWrt 24.10.5 x86_64 / fw4）：确认 UPnP 未安装并完成配置；把 AdGuard Home 调到 `53` 解决客户端归属；发现 `dns_redirect` 会跟随 dnsmasq 端口导致绕过 AdGuard Home，改为显式 DNAT；解释 DHCP 租约与重装系统后 IP 变化的正常行为
 - **验证**：`npm ci` 重装依赖（Linux 同步来的 `node_modules` 符号链接在 Windows 下不可用）；`npm run build` 通过（36 页）；`npm run check` 0 错误/警告/hint；产物含「配置 UPnP」「DNS-Hijack-AGH」「最后更新于」
-- **未提交**：本次未执行 `git commit` / `git push`，待用户确认后按第六节坑 6 的方式推送
+- **提交**：`7b4b931`（2 个文件，+216 / −31）；SSH 推送时 host key 校验失败，按第六节坑 6 改用 HTTPS 地址推送成功
 
 ---
 
@@ -360,7 +360,7 @@
 | 标签页 | `/blog/tags/`（标签索引，9 个：`Docker` / `VMware` / `Linux` / `Network` / `SQL` / `RouterOS` / `ImmortalWrt` / `Browser` / `Rime`）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
-| 最新提交 | 内容提交 `77105ac`（第 34 项）；本文档更新提交以 `git log -1` 为准 |
+| 最新提交 | 内容提交 `7b4b931`（第 35 项）；本文档更新提交以 `git log -1` 为准 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构

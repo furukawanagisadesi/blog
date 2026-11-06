@@ -3,7 +3,7 @@
 > 生成时间: 2026-08-09
 > 最近更新: 2026-11-06
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查、Fedora 教程扩写），供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查、Fedora 教程扩写、Rime 用户词典延迟修复），供后续 Agent 接力
 
 ## 目录
 
@@ -19,7 +19,7 @@
 
 ## 一、历史会话记录（按时间顺序）
 
-> 以下是按时间顺序保留的会话存档，最新进展在末尾（第 29～32 项）。当前可用信息以「二、当前状态」为准。
+> 以下是按时间顺序保留的会话存档，最新进展在末尾（第 29～34 项）。当前可用信息以「二、当前状态」为准。
 
 ### 1. 发布第一篇博客文章
 - `src/content/blog/template.md`（用户已填内容）→ 重命名为 `blog-launch.md`（《博客建立》）
@@ -325,6 +325,15 @@
 - **验证**：`npm run build` 通过（**34 页**）；第 4/5 节仍为同一 `<ol>`，`yml` 代码块 2 个
 - **提交**：`983d780`（2 个文件，+27 / −4）
 
+### 34. 新增 Rime 用户词典延迟文章（2026-11-06）
+- **新增** `src/content/blog/2026/11/rime-user-dictionary-lag-fix.md`（《Rime 输入法词汇不跟手解决方案》，tags `Rime`）：用 lua 补丁在每次上屏后切换用户词典事务，解决选词后用户词不立即生效、需按 Esc 才出现的问题
+  - 中文文件名 `rime输入法词汇不跟手解决方案.md` → 英文 slug
+  - 按第四节检查修复：`description` 不再照抄 `title`；`### 5.2` → `### 4.2`，后续章节顺延为 5/6；代码块 `yaml` → `yml`；三平台路径补全文件名并改为列表；补句末标点；去掉「路线一」表述
+- **修订** `fedora-setup-guide.md`（用户改）：第 5 节的用户级 flathub 仓库改为与系统级并列的「或」选项，不再单独占一个编号
+- **环境**：本次在 Fedora 45 上用 Node `v26.3.1` / npm `11.16.0` 构建，同步来的 `node_modules` 可直接使用
+- **验证**：`npm run build` 通过（**36 页** = 23 篇 + 首页 + 关于 + 标签索引 + 9 个标签页 + 404）；`npm run check` 0 错误/警告/hint；线上文章页与 `/blog/tags/rime/` 均返回 200
+- **提交**：`77105ac`（2 个文件，+125 / −1）
+
 ---
 
 ## 二、当前状态
@@ -335,12 +344,12 @@
 | 分支 | `main`，工作区干净（`.stfolder/` 为 Syncthing 标记目录，已加入 `.gitignore`） |
 | 远程 | `https://github.com/furukawanagisadesi/blog.git` |
 | 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 22 篇（2026/08 共 15 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 2 篇；2026/11 5 篇） |
+| 文章数 | 23 篇（2026/08 共 15 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 2 篇；2026/11 6 篇） |
 | 主页 | 纯文字文章列表（标题+描述+发布日期，有更新时附「更新于」） |
-| 标签页 | `/blog/tags/`（标签索引，8 个：`Docker` / `VMware` / `Linux` / `Network` / `SQL` / `RouterOS` / `ImmortalWrt` / `Browser`）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
+| 标签页 | `/blog/tags/`（标签索引，9 个：`Docker` / `VMware` / `Linux` / `Network` / `SQL` / `RouterOS` / `ImmortalWrt` / `Browser` / `Rime`）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
-| 最新提交 | 内容提交 `983d780`（第 33 项）；本文档更新提交以 `git log -1` 为准 |
+| 最新提交 | 内容提交 `77105ac`（第 34 项）；本文档更新提交以 `git log -1` 为准 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构
@@ -373,7 +382,8 @@ src/content/blog/2026/11/
 	├── debian-vscode-install-guide.md   # Debian 安装 VS Code 教程
 	├── debian-rime-caps-lock-fix.md     # Debian 13 GNOME 下 Rime Caps 无法输入大写字母的解决方法
 	├── fedora-zswap-setup-guide.md      # Fedora 设置 zswap 教程
-	└── fedora-setup-guide.md            # Fedora 安装后设置教程
+	├── fedora-setup-guide.md            # Fedora 安装后设置教程
+	└── rime-user-dictionary-lag-fix.md  # Rime 输入法词汇不跟手解决方案
 ```
 
 ### 相关代码位置

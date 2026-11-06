@@ -136,7 +136,7 @@ proxy = http://your_ip:port
    sudo flatpak remote-modify flathub --url=https://mirrors.ustc.edu.cn/flathub
    ```
 
-4. 添加用户级 flathub 仓库：
+   或添加用户级 flathub 仓库：
 
    ```bash
    flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo

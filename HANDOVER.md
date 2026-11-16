@@ -3,7 +3,7 @@
 > 生成时间: 2026-08-09
 > 最近更新: 2026-11-16
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查、Fedora 教程扩写、Rime 用户词典延迟修复、ImmortalWrt 文章扩写、zswap 双教程回滚章节补全），供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查、Fedora 教程扩写、Rime 用户词典延迟修复、ImmortalWrt 文章扩写、zswap 双教程回滚章节补全、Fedora 教程补 librime-lua），供后续 Agent 接力
 
 ## 目录
 
@@ -358,7 +358,14 @@
   - 注意：`/etc/fstab.bak.*`、`/etc/kernel/cmdline.bak.*`、`~/cmdline.*.txt` 为第 1.1 步备份，确认无误后可删
 - **验证**：`npm run build` 通过（**36 页**）；产物 Fedora 文章含 1 个 `<table>`、「2.6 分项回滚对照表」；Debian 文章含 2 个 `<table>`（参数表 + 对照表）；两篇均渲染「最后更新于 2026年11月16日」
 - **提交**：`61e20c1`（2 个文件，+149 / −5，仅含两篇 zswap 文章；工作区另有用户未提交的 `fedora-setup-guide.md` 改动，未纳入）
-- **未推送**：用户选择只 commit 不 push
+- **推送**：先只 commit，随后由用户在 TortoiseGit 中推送成功（remote 为 `ssh://git@ssh.github.com:443/...`）
+
+### 37. Fedora 教程补 librime-lua + 候选词数量（2026-11-16）
+- **修订** `fedora-setup-guide.md`（用户改，Agent 收尾；`updatedDate: 2026-11-06` → `2026-11-16`）：第 4 节步骤 1 增加 `sudo dnf install librime-lua`（Rime 的 lua 插件依赖），两个 `default.custom.yaml` 示例的 `menu/page_size` 由 `6` 改为 `9`
+- **格式修复**：用户原稿笔误 `sudo dinf` → `sudo dnf`；步骤 1 标题由「安装 `ibus-rime`：」改为「安装 `ibus-rime` 与 `librime-lua`（后者给 Rime 的 lua 插件用）：」，与代码块内容对应
+- **背景**：该改动是用户在 2026-11-15 自行编辑后一直留在工作区未提交，第 36 项提交时按要求未纳入
+- **验证**：`npm run build` 通过（**36 页**）；产物含 `librime-lua` 与两处 `page_size: 9`
+- **提交**：`a713385`（1 个文件，+5 / −4）
 
 ---
 
@@ -375,7 +382,7 @@
 | 标签页 | `/blog/tags/`（标签索引，9 个：`Docker` / `VMware` / `Linux` / `Network` / `SQL` / `RouterOS` / `ImmortalWrt` / `Browser` / `Rime`）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
-| 最新提交 | 内容提交 `61e20c1`（第 36 项，仅本地未推送）；本文档更新提交以 `git log -1` 为准 |
+| 最新提交 | 内容提交 `a713385`（第 37 项；第 36 项已推送）；本文档更新提交以 `git log -1` 为准 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构

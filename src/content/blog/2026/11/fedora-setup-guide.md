@@ -2,7 +2,7 @@
 title: 'Fedora 安装后设置教程'
 description: 'Fedora 45 GNOME 的换源与常用设置'
 pubDate: '2026-11-04'
-updatedDate: '2026-11-06'
+updatedDate: '2026-11-16'
 tags: ['VMware', 'Linux']
 ---
 
@@ -55,10 +55,11 @@ proxy = http://your_ip:port
 
 ## 4. 安装 Rime 输入法
 
-1. 安装 `ibus-rime`：
+1. 安装 `ibus-rime` 与 `librime-lua`（后者给 Rime 的 lua 插件用）：
 
    ```bash
    sudo dnf install ibus-rime
+   sudo dnf install librime-lua
    ```
 
 2. 重启 IBus：
@@ -101,7 +102,7 @@ proxy = http://your_ip:port
    patch:
      schema_list:
        - schema: rime_ice # 雾凇拼音
-     menu/page_size: 6 # 候选词数量
+     menu/page_size: 9 # 候选词数量
    ```
 
    或
@@ -110,7 +111,7 @@ proxy = http://your_ip:port
    patch:
      schema_list:
        - schema: rime_frost # 白霜拼音
-     menu/page_size: 6 # 候选词数量
+     menu/page_size: 9 # 候选词数量
    ```
 
 ## 5. 更换 flatpak 仓库

@@ -1,9 +1,9 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
-> 最近更新: 2026-11-06
+> 最近更新: 2026-11-16
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查、Fedora 教程扩写、Rime 用户词典延迟修复），供后续 Agent 接力
+> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查、Fedora 教程扩写、Rime 用户词典延迟修复、ImmortalWrt 文章扩写、zswap 双教程回滚章节补全），供后续 Agent 接力
 
 ## 目录
 
@@ -19,7 +19,7 @@
 
 ## 一、历史会话记录（按时间顺序）
 
-> 以下是按时间顺序保留的会话存档，最新进展在末尾（第 29～34 项）。当前可用信息以「二、当前状态」为准。
+> 以下是按时间顺序保留的会话存档，最新进展在末尾（第 29～36 项）。当前可用信息以「二、当前状态」为准。
 
 ### 1. 发布第一篇博客文章
 - `src/content/blog/template.md`（用户已填内容）→ 重命名为 `blog-launch.md`（《博客建立》）
@@ -345,6 +345,21 @@
 - **验证**：`npm ci` 重装依赖（Linux 同步来的 `node_modules` 符号链接在 Windows 下不可用）；`npm run build` 通过（36 页）；`npm run check` 0 错误/警告/hint；产物含「配置 UPnP」「DNS-Hijack-AGH」「最后更新于」
 - **提交**：`7b4b931`（2 个文件，+216 / −31）；SSH 推送时 host key 校验失败，按第六节坑 6 改用 HTTPS 地址推送成功
 
+### 36. 补全 zswap 双教程的回滚章节（2026-11-16）
+- **背景**：用户反馈《Debian 设置 zswap 教程》《Fedora 设置 zswap 教程》里「设置完怎么退回原始状态」写得不够完整——Debian 只有一张 3 行表格，Fedora 干脆没有回滚章节。
+- **修订** `debian-zswap-setup-guide.md`（`updatedDate: 2026-11-16`）：「6. 回滚」扩为「6. 回滚（恢复原始状态）」
+  - 开头写明原始状态：swap 只有 `/dev/sda2`（1.86 GiB）、zswap 未启用、内核命令行无 `zswap.*`
+  - 6.1 完整回滚步骤（6 步）：关闭 zswap 并确认 `Zswap`/`Zswapped` 为 0 → `swapoff /swapfile` → `diff` 后 `sed -i '\|^/swapfile[[:space:]]|d' /etc/fstab` + `daemon-reload` → `rm -f /swapfile` → 恢复 `/etc/default/grub.bak.*` + `update-grub` → 重启后 5 项验证
+  - 原 3 行表格改写为 6.2「分项回滚对照表」（临时关闭 / 永久关闭 / 只撤 swapfile / 全部回滚）
+  - 补充注意事项：`swapoff` 前先腾内存、删 fstab 行前先 `diff`、备份文件不要整份覆盖（会丢掉后来的挂载点/换源参数）
+- **修订** `fedora-zswap-setup-guide.md`（`updatedDate: 2026-11-05` → `2026-11-16`）：原文没有回滚内容，新增「2. 回滚（恢复 Fedora 默认状态）」
+  - 开头写明默认状态：zram（`/dev/zram0`）启用、zswap 关闭、无 `/swapfile`；顺序为「先停 swapfile 与 zswap → 撤内核参数 → 恢复 zram」
+  - 2.1 关闭 zswap；2.2 停用并删除 swapfile（`diff` + `sed` 删 fstab 行 + `rm`）；2.3 `grubby --update-kernel=ALL --remove-args="zswap.enabled zswap.compressor zswap.max_pool_percent"`；2.4 删除 `/etc/systemd/zram-generator.conf` → `daemon-reload` → `systemctl start systemd-zram-setup@zram0.service` 恢复 zram；2.5 重启后 6 项验证；2.6 分项回滚对照表（含「zram 与 zswap 不叠加，二者选一」）
+  - 注意：`/etc/fstab.bak.*`、`/etc/kernel/cmdline.bak.*`、`~/cmdline.*.txt` 为第 1.1 步备份，确认无误后可删
+- **验证**：`npm run build` 通过（**36 页**）；产物 Fedora 文章含 1 个 `<table>`、「2.6 分项回滚对照表」；Debian 文章含 2 个 `<table>`（参数表 + 对照表）；两篇均渲染「最后更新于 2026年11月16日」
+- **提交**：`61e20c1`（2 个文件，+149 / −5，仅含两篇 zswap 文章；工作区另有用户未提交的 `fedora-setup-guide.md` 改动，未纳入）
+- **未推送**：用户选择只 commit 不 push
+
 ---
 
 ## 二、当前状态
@@ -360,7 +375,7 @@
 | 标签页 | `/blog/tags/`（标签索引，9 个：`Docker` / `VMware` / `Linux` / `Network` / `SQL` / `RouterOS` / `ImmortalWrt` / `Browser` / `Rime`）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
-| 最新提交 | 内容提交 `7b4b931`（第 35 项）；本文档更新提交以 `git log -1` 为准 |
+| 最新提交 | 内容提交 `61e20c1`（第 36 项，仅本地未推送）；本文档更新提交以 `git log -1` 为准 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构

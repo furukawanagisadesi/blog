@@ -25,6 +25,8 @@ jobs:
         run: npm ci
       - name: Type check
         run: npm run check
+      - name: Markdown lint
+        run: npm run lint:md
 
   build:
     needs: check

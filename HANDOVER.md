@@ -487,6 +487,8 @@ src/content/blog/2026/11/
 
 写作规范已独立成文，**唯一来源是 [`docs/WRITING.md`](docs/WRITING.md)**（front matter、标题、代码块、排版、标签词表、文章骨架、检查命令全在里面）。本节不再重复，避免两处漂移。
 
+从新建文章到线上可见的完整操作步骤见 [`docs/PUBLISH.md`](docs/PUBLISH.md)。
+
 配套工具（已并入仓库）：
 
 ```bash

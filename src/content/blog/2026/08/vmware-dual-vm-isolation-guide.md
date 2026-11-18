@@ -1,8 +1,9 @@
 ---
-title: "VMware 双虚拟机隔离上网教程"
-description: "双虚拟机隔离上网"
-pubDate: "2026-08-26"
-tags: ["VMware", "Network"]
+title: 'VMware 双虚拟机隔离上网教程'
+description: '双虚拟机隔离上网'
+pubDate: '2026-08-26'
+updatedDate: '2026-11-17'
+tags: ['VMware', 'Network']
 ---
 
 > 本教程需要 1 台连接互联网的实体机，2 个虚拟机，使用镜像：
@@ -60,9 +61,3 @@ ip a
 ![B 虚拟机代理配置](../../../../assets/vm-b-proxy-config.png)
 
 B 虚拟机开启网络代理后，即可通过 A 虚拟机代理转发上网。
-
-**修改 DNS 覆写配置**：
-
-建议修改为 Google 公共 DNS `8.8.8.8`，DOH `https://dns.google/dns-query`，可以有效防止 DNS 泄露。
-
-![DNS 覆写-域名服务器](../../../../assets/vm-b-dns-overwrite.png)

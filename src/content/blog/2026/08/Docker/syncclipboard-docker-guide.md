@@ -1,8 +1,8 @@
 ---
-title: "SyncClipboard Docker 设置教程"
-description: "在 Linux 服务器上用 Docker 部署 SyncClipboard 剪贴板同步服务"
-pubDate: "2026-08-08"
-tags: ["Docker"]
+title: 'SyncClipboard Docker 设置教程'
+description: '在 Linux 服务器上用 Docker 部署 SyncClipboard 剪贴板同步服务'
+pubDate: '2026-08-08'
+tags: ['Docker']
 ---
 
 ## 1. 创建文件夹
@@ -15,7 +15,7 @@ mkdir -p /home/admin/syncclipboard
 
 ## 2. 开放服务器端口
 
-```
+```text
 TCP 5033
 ```
 

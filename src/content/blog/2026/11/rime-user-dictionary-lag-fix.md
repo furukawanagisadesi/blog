@@ -2,7 +2,6 @@
 title: 'Rime 输入法词汇不跟手解决方案'
 description: 'Rime 选词后用户词不立即生效、需按 Esc 才出现的原因与 lua 补丁解决方案。'
 pubDate: '2026-11-06'
-# updatedDate: '2026-11-06'
 tags: ['Rime']
 ---
 

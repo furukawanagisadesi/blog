@@ -1,8 +1,8 @@
 ---
-title: "SQL IN 与 EXISTS 的理解"
-description: "理解 SQL IN 与 EXISTS 用于优化 SQL 语句"
-pubDate: "2026-08-18"
-tags: ["SQL"]
+title: 'SQL IN 与 EXISTS 的理解'
+description: '理解 SQL IN 与 EXISTS 用于优化 SQL 语句'
+pubDate: '2026-08-18'
+tags: ['SQL']
 ---
 
 > 本文记录对 SQL IN 与 EXISTS 的理解。
@@ -100,5 +100,5 @@ EXISTS 总复杂度 O(m log n)
 ```
 
 > IN / EXISTS 重点在于是否命中索引。
-
+>
 > 现代 SQL Server/MySQL/PostgreSQL 优化器中，数据库可以根据索引和统计信息采用最优的执行计划。

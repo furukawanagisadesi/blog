@@ -1,9 +1,9 @@
 ---
-title: "SRS Docker 设置教程"
-description: "在 Linux 服务器上用 Docker 部署 SRS 流媒体服务器"
-pubDate: "2026-08-08"
-updatedDate: "2026-10-27"
-tags: ["Docker"]
+title: 'SRS Docker 设置教程'
+description: '在 Linux 服务器上用 Docker 部署 SRS 流媒体服务器'
+pubDate: '2026-08-08'
+updatedDate: '2026-10-27'
+tags: ['Docker']
 ---
 
 ## 1. 创建文件夹
@@ -16,7 +16,7 @@ mkdir -p /home/admin/srs
 
 ## 2. 开放服务器端口
 
-```
+```text
 TCP 1935   # RTMP 推流
 TCP 1985   # HTTP API（当前直接映射到公网，建议安全组限制来源 IP）
 ```
@@ -25,7 +25,7 @@ TCP 1985   # HTTP API（当前直接映射到公网，建议安全组限制来�
 
 创建文件夹后在目录下新建 `srs.conf` 文件，并写入：
 
-```
+```text
 listen              1935;
 max_connections     1000;
 daemon              off;

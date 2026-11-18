@@ -1,9 +1,9 @@
 ---
-title: "Nginx-SRS 直播推流设置教程"
-description: "在 Linux 服务器上用 Docker 部署 Nginx + SRS 直播推流服务"
-pubDate: "2026-08-08"
-updatedDate: "2026-10-27"
-tags: ["Docker"]
+title: 'Nginx-SRS 直播推流设置教程'
+description: '在 Linux 服务器上用 Docker 部署 Nginx + SRS 直播推流服务'
+pubDate: '2026-08-08'
+updatedDate: '2026-10-27'
+tags: ['Docker']
 ---
 
 ## 1. 创建文件夹
@@ -16,7 +16,7 @@ mkdir -p /home/admin/nginx-srs/{web,danmu}
 
 ## 2. 开放服务器端口
 
-```
+```text
 TCP 80        # 直播播放页（Nginx 反代）
 TCP 1935      # RTMP 推流
 TCP 1985      # SRS API（建议仅本机访问）
@@ -24,7 +24,7 @@ TCP 1985      # SRS API（建议仅本机访问）
 
 ## 3. 创建目录结构
 
-```
+```text
 nginx-srs/
 ├── docker-compose.yml
 ├── nginx.conf
@@ -42,7 +42,7 @@ nginx-srs/
 
 SRS 的配置放在它自己的 compose 目录 `/home/admin/srs` 下，而不是 `nginx-srs` 目录。新建 `/home/admin/srs/srs.conf` 并写入（SRS 的 `docker-compose.yml` 见《SRS Docker 设置教程》）：
 
-```
+```text
 listen              1935;
 max_connections     1000;
 daemon              off;
@@ -158,7 +158,7 @@ htpasswd -c /home/admin/nginx-srs/htpasswd your_username
 
 在 `/home/admin/nginx-srs/danmu/` 下创建以下文件：
 
-**package.json**
+### 8.1 `package.json`
 
 ```json
 {
@@ -171,7 +171,7 @@ htpasswd -c /home/admin/nginx-srs/htpasswd your_username
 }
 ```
 
-**server.js**
+### 8.2 `server.js`
 
 ```javascript
 const WebSocket = require("ws");
@@ -224,7 +224,7 @@ wss.on("connection", (ws) => {
 console.log(`Danmu WebSocket server running on ws://0.0.0.0:${PORT}`);
 ```
 
-**Dockerfile**
+### 8.3 `Dockerfile`
 
 ```dockerfile
 FROM node:20-alpine

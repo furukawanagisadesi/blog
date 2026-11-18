@@ -1,9 +1,9 @@
 ---
-title: "Debian 设置 zswap 教程"
-description: "在 Debian 13 上把 swap 从 2 GiB 扩容到约 4 GiB，并启用内建 zswap 做压缩缓存，附 lzo 与 zstd 的取舍"
-pubDate: "2026-11-03"
-updatedDate: "2026-11-16"
-tags: ["Linux"]
+title: 'Debian 设置 zswap 教程'
+description: '在 Debian 13 上把 swap 从 2 GiB 扩容到约 4 GiB，并启用内建 zswap 做压缩缓存，附 lzo 与 zstd 的取舍'
+pubDate: '2026-11-03'
+updatedDate: '2026-11-16'
+tags: ['Linux']
 ---
 
 本文记录在 Debian 13 上把 swap 从 1.86 GiB 扩容到约 3.9 GiB，并启用 zswap 作为 swap 前置压缩缓存的过程。
@@ -102,7 +102,7 @@ zswap 是 swap 的**前置压缩缓存**：换出的页先压缩进内存池，�
 3.8 GiB 内存下的推荐值：
 
 | 参数 | 建议值 | 说明 |
-|---|---|---|
+| --- | --- | --- |
 | `compressor` | `lzo` | 内建，开机即用；`zstd` 压缩比更高但会回退（见第 4 节） |
 | `zpool` | `zsmalloc` | 默认，压缩密度最高 |
 | `max_pool_percent` | `25` | 压缩池上限约为内存的 25%，只是上限、按需占用 |
@@ -252,7 +252,7 @@ cat /proc/swaps
 ### 6.2 分项回滚对照表
 
 | 目标 | 操作 |
-|---|---|
+| --- | --- |
 | 临时关闭 zswap | `echo 0 \| sudo tee /sys/module/zswap/parameters/enabled`（重启后按内核参数恢复） |
 | 永久关闭 zswap | 按 6.1 第 5 步撤销 `zswap.*` → `sudo update-grub` → 重启 |
 | 只撤 swapfile、保留 zswap | 按 6.1 第 1～4 步执行；此时 zswap 只剩 `/dev/sda2` 可用，压缩池作用基本消失，建议一并关闭 |

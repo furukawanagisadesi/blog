@@ -1,8 +1,8 @@
 ---
-title: "Debian 安装 VS Code 教程"
-description: "在 Debian 13 上安装 VS Code"
-pubDate: "2026-11-03"
-tags: ["Linux"]
+title: 'Debian 安装 VS Code 教程'
+description: '在 Debian 13 上安装 VS Code'
+pubDate: '2026-11-03'
+tags: ['Linux']
 ---
 
 本文记录在 Debian 13 上安装 VS Code 的过程。

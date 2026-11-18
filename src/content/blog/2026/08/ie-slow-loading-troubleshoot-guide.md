@@ -1,8 +1,8 @@
 ---
-title: "IE 网页加载缓慢异常查询与解决"
-description: "记录一次 IE 浏览器网页加载缓慢异常查询与解决的过程"
-pubDate: "2026-08-17"
-tags: ["Network", "Browser"]
+title: 'IE 网页加载缓慢异常查询与解决'
+description: '记录一次 IE 浏览器网页加载缓慢异常查询与解决的过程'
+pubDate: '2026-08-17'
+tags: ['Browser', 'Network']
 ---
 
 > 本文记录一次 IE 浏览器网页加载缓慢异常查询与解决的过程。

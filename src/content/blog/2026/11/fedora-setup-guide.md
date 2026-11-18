@@ -3,7 +3,7 @@ title: 'Fedora 安装后设置教程'
 description: 'Fedora 45 GNOME 的换源与常用设置'
 pubDate: '2026-11-04'
 updatedDate: '2026-11-16'
-tags: ['VMware', 'Linux']
+tags: ['Linux', 'VMware']
 ---
 
 本文记录 VMware 17 下 Fedora 45 GNOME 的换源与常用设置流程。

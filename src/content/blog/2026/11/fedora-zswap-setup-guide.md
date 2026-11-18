@@ -175,7 +175,7 @@ ls -l /swapfile          # 应不存在
 ### 2.6 分项回滚对照表
 
 | 目标 | 操作 |
-|---|---|
+| --- | --- |
 | 临时关闭 zswap | `echo 0 \| sudo tee /sys/module/zswap/parameters/enabled`（重启后按内核参数恢复） |
 | 永久关闭 zswap | 按 2.3 撤销 `zswap.*` → 重启 |
 | 只撤 swapfile、保留 zswap | 按 2.2 全部步骤；此时 zswap 没有真实 swap 可写，压缩池作用基本消失，建议一并关闭 |

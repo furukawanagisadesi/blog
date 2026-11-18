@@ -466,13 +466,13 @@ src/content/blog/2026/11/
 
 ## 四、文章检查流程（新增/修改文章照此执行）
 
-> 逐条过一遍；markdown 格式细节见第五节。
+> 逐条过一遍；markdown 格式细节见 `docs/WRITING.md`。
 
 1. **文件名**：中文、空格一律改成英文 slug（如 `vmware-pipewire-audio-stutter-fix.md`）；同类文章前缀统一（如 VMware 系列 `vmware-*-guide.md`、`vmware-*-fix.md`）
 2. **目录**：放 `src/content/blog/YYYY/MM/` 对应日期目录，Docker 类放 `Docker/` 子目录
 3. **frontmatter**：`title` / `description` / `pubDate` 三项齐全；修改已发布文章时补 `updatedDate`（填实际修改日期，同日小改可省略）；`description` 不要照抄 `title`
 4. **正文**：不要重复 H1（页面自动渲染标题）；标题层级连续不错乱
-5. **代码块**：全部带语言标记；命令用 `bash`，配置内容与 GUI 步骤用 `text`
+5. **代码块**：全部带语言标记；命令用 `bash`，配置内容与 GUI 步骤用 `text`（白名单见 `docs/WRITING.md` 第 4 节）
 6. **行内代码**：路径、命令、端口、IP、软件名、配置项全部加反引号
 7. **排版**：中英文之间加空格；`**加粗**` 内部无空格；补全句号；文件末尾留一个换行
 8. **图片**：截图放 `src/assets/` 并取有意义的名字，正文用相对路径 `![描述](../../../../assets/图片名)` 引用；不要放 `image.png` 这类无意义名
@@ -483,27 +483,21 @@ src/content/blog/2026/11/
 
 ---
 
-## 五、约定：博客 markdown 统一规范（重要，新文章遵守）
+## 五、约定：博客 markdown 统一规范 → 见 `docs/WRITING.md`
 
-1. 代码块必须带语言标记：`bash` / `yml` / `nginx` / `json` / `javascript` / `dockerfile` / `sql` / `text`
-2. 路径、命令、端口、IP、软件名用反引号包裹（行内代码）
-3. 中文与英文/数字之间加空格
-4. 加粗写法 `**文字**`（内部无空格）
-5. Docker 系列结构统一：
-   ```
-   ## 1. 创建文件夹
-   ## 2. 开放服务器端口
-   ## 3. 创建 docker-compose.yml 文件
-   ## 4. 创建配置文件（如需）
-   ## 5. 启动服务
-   ## 6+ 后续配置 / 测试 / 客户端设置
-   ```
-6. 菜单路径用引用块：`> **菜单路径**：IP → Addresses → Add (+)`
-7. 配置字段用「字段 / 值」两列表格
-8. 长命令输出用代码块（`bash` 或 `text`）
-9. 文章正文不要重复 H1（页面自动渲染标题）
-10. 敏感信息一律用占位符：服务器地址 `your_ip`、账号 `your_username`、密码 `your_password`
-11. 图片放 `src/assets/`（命名有意义），正文用相对路径 `![描述](../../../../assets/图片名)` 引用（从 `src/content/blog/2026/08/` 出发需 4 层 `../`）
+写作规范已独立成文，**唯一来源是 [`docs/WRITING.md`](docs/WRITING.md)**（front matter、标题、代码块、排版、标签词表、文章骨架、检查命令全在里面）。本节不再重复，避免两处漂移。
+
+配套工具（已并入仓库）：
+
+```bash
+npm run new -- <slug> "<标题>"   # 新建符合规范的骨架
+npm run lint:md                  # 检查
+npm run fix:md                   # 自动修可修复项
+npm run fmt:frontmatter          # 统一 front matter 引号/键序/标签排序
+npm run verify                   # check + lint:md + build
+```
+
+`simple-git-hooks` 已接管 pre-commit，对改动的 md 自动跑 `markdownlint-cli2 --fix`；CI 会跑全量 lint 兜底。
 
 ---
 

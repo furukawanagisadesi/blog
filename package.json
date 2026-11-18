@@ -10,7 +10,21 @@
     "build": "astro build",
     "check": "astro check",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "new": "node scripts/new-post.mjs",
+    "fmt:frontmatter": "node scripts/fmt-frontmatter.mjs",
+    "lint:md": "markdownlint-cli2 \"src/content/blog/**/*.md\" \"docs/WRITING.md\"",
+    "fix:md": "markdownlint-cli2 --fix \"src/content/blog/**/*.md\" \"docs/WRITING.md\"",
+    "format": "prettier --write \"**/*.{js,mjs,ts,astro,css,json}\"",
+    "verify": "npm run check && npm run lint:md && npm run build",
+    "prepare": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "src/content/blog/**/*.md": "markdownlint-cli2 --fix",
+    "docs/WRITING.md": "markdownlint-cli2 --fix"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.5",
@@ -21,6 +35,10 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
+    "lint-staged": "^16.4.0",
+    "markdownlint-cli2": "^0.24.1",
+    "prettier": "^3.10.1",
+    "simple-git-hooks": "^2.14.0",
     "typescript": "^6.0.3"
   },
   "allowScripts": {

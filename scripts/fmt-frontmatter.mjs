@@ -42,7 +42,7 @@ function normalizeDate(v) {
   return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
 }
 
-function formatFrontMatter(lines, file) {
+function formatFrontMatter(lines) {
   const fields = new Map();
   const problems = [];
   const dropped = [];
@@ -113,7 +113,7 @@ for (const file of files) {
     continue;
   }
   const original = m[1].split(/\r?\n/);
-  const { lines, problems, dropped } = formatFrontMatter(original, file);
+  const { lines, problems, dropped } = formatFrontMatter(original);
   const rebuilt = `---\n${lines.join('\n')}\n---\n`;
   const rest = text.slice(m[0].length);
   const next = rebuilt + rest;
@@ -132,3 +132,4 @@ for (const file of files) {
 }
 
 console.log(`\n${dry ? '[dry] 将改写' : '已改写'} ${changed} / ${files.length} 篇`);
+

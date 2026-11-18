@@ -25,7 +25,7 @@ tags: ['Network', 'RouterOS']
 
 > **菜单路径**：WinBox → `Interfaces`
 
-1. 打开 **WinBox**，登录到 RouterOS
+1. 打开 `WinBox`，登录到 RouterOS
 2. 左侧点击 **Interfaces**
 3. 找到对应接口并改名：
 

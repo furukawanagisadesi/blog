@@ -367,6 +367,18 @@
 - **验证**：`npm run build` 通过（**36 页**）；产物含 `librime-lua` 与两处 `page_size: 9`
 - **提交**：`a713385`（1 个文件，+5 / −4）
 
+### 38. 全站视觉精修（2026-11-19）
+
+- **背景**：用户要求"美化博客"。经 3 轮设计树问答定案：范围=视觉层全站精修（不动 DOM/文案/逻辑）、风格=极简精修、暗色=只跟随系统、验收=本地目检 + `npm run verify` + 前后对照。
+- **设计 token（`src/styles/global.css`）**：`--bg` / `--surface` / `--on-accent` 三个新变量；`--black`、`--gray`、`--gray-light`、`--gray-dark` 由原冷蓝灰系替换为中性灰阶（值仍为 RGB 三元组，调用点无需改动）；`--accent` 由高饱和 `#2337ff` 改为深靛蓝 `#1f4e8c`；`--box-shadow` 淡化为两层。
+- **暗色模式**：`@media (prefers-color-scheme: dark)` 覆盖全部颜色变量 + `color-scheme: light dark`；暗色下 `img` 加 `filter: brightness(0.92)` 缓解浅色截图刺眼，阴影换为 1px 边框。**无手动切换、无 FOUC、零 JS**。
+- **代码块**：`astro.config.mjs` 加 `markdown.shikiConfig.themes`（`github-light` / `github-dark`），`global.css` 用 `pre.astro-code` 的 `--shiki-dark*` 变量在暗色下覆盖；`pre` 加边框、10px 圆角、`overflow-x: auto`；行内 `code` 改为 `--surface` 底 + 1px 边框。
+- **表格**（此前只有 `width:100%`）：补边框、`th` 底色与加粗、偶数行斑马纹、`vertical-align: top`；≤720px 改 `display:block` + `overflow-x:auto`，避免 `routeros-setup-guide.md` 的 33 行宽表挤压变形。
+- **组件**：`Header` 去掉硬编码 `white` 与实心阴影，改 `--bg` + 1px 下边框；导航改用 `--accent`，active 态加深加粗；`Footer` 去掉复用顶部渐变、改上边框 + 小字号；`PostList` 分隔线淡化、hover 时标题变色并右移 3px、整个条目标题联动（原 `.title:hover` 只是标题自身）；`BlogPost` 标签胶囊改描边样式并以 `--on-accent` 兜住暗色对比；`tags/index` 的 hover 由 `--accent-dark` 统一为 `--accent`。
+- **验证**：`npm run verify` 全绿（`astro check` 0 error / 0 warning，markdownlint 24 文件 0 issues，build **36 页**）；抽查 `dist` 产物确认 `<pre>` 同时含内联浅色值与 `--shiki-dark` 变量，且 CSS 产物含 `prefers-color-scheme` 规则。
+- **提交**：`7beaaf6`（token + Shiki 配置）、`3a0c445`（组件样式）；**未 push**。
+- **故意没做**：引入依赖 / Tailwind / 图标库 / View Transitions / 手动暗色切换按钮 / 代码复制按钮 / 行号 / 卡片化 / 双栏网格 / 换字体 / 中文标点挤压 / 新增断点。
+
 ---
 
 ## 二、当前状态
@@ -382,7 +394,8 @@
 | 标签页 | `/blog/tags/`（标签索引，9 个：`Docker` / `VMware` / `Linux` / `Network` / `SQL` / `RouterOS` / `ImmortalWrt` / `Browser` / `Rime`）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
-| 最新提交 | 内容提交 `a713385`（第 37 项；第 36 项已推送）；本文档更新提交以 `git log -1` 为准 |
+| 最新提交 | 视觉改版 `3a0c445`（页头/页脚/列表/文章页）+ `7beaaf6`（设计 token、暗色模式、Shiki 双主题）；内容提交 `a713385`（第 37 项）；本文档更新提交以 `git log -1` 为准 |
+| 视觉主题 | 极简精修：浅色 `#fdfdfc` 底 / 深靛蓝 `#1f4e8c` 强调色；**暗色模式只跟随系统**（`prefers-color-scheme`），无手动切换、无 JS；代码块 Shiki 明暗双主题；表格有边框 + 表头底色 + 斑马纹，≤720px 可横向滚动 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构
@@ -432,6 +445,7 @@ src/content/blog/2026/11/
 - 字体：`astro.config.mjs`（Atkinson 本地字体 + `fallbacks` 中文栈 `PingFang SC / Hiragino Sans GB / Microsoft YaHei / Noto Sans CJK SC`）；`src/styles/global.css` 的 `body` 用 `var(--font-atkinson)`
 - 文章标题间距：`src/styles/global.css`（`.prose h2~h6` 有 `margin-top: 1.5em`，Header 的 `h2` 有独立样式不受影响）
 - 站点信息：`src/consts.ts`（SITE_TITLE=furukawanagisadesi 的博客）
+- 视觉主题（2026-11-19）：`src/styles/global.css` 的设计 token 集中在 `:root`——`--bg`（页面底色）、`--surface`（次级表面）、`--accent`/`--accent-dark`/`--on-accent`（强调色及其上的文字色）、`--black`/`--gray`/`--gray-light`/`--gray-dark`（文字色阶，**保持逗号分隔 RGB 三元组写法**，调用处写 `rgb(var(--x))` / `rgba(var(--x), α)`）。暗色模式通过 `@media (prefers-color-scheme: dark)` 覆盖同一批变量，只跟随系统、无手动切换、无 JS。语法高亮用 Shiki 双主题（`astro.config.mjs` 的 `markdown.shikiConfig.themes = { light: 'github-light', dark: 'github-dark' }`），暗色由 `global.css` 里 `pre.astro-code` 的 `--shiki-dark*` 变量覆盖。**新增组件样式时不要硬编码颜色，一律用 token**，否则暗色下会露出白块。
 - About 页：`src/pages/about.astro`
 
 ---

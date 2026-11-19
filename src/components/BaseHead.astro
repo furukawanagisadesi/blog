@@ -35,17 +35,26 @@ const { title, description, image = FallbackImage, ogType = 'website' } = Astro.
 
 <Font cssVariable="--font-atkinson" preload />
 
+<!-- 移动端地址栏/状态栏配色；先给默认值，下面脚本会按实际主题改写 -->
+<meta name="theme-color" content="#fdfdfc" />
+
 <!-- 主题初始化：必须同步、必须早于首次绘制，否则手动选过深色的用户会先看到白闪 -->
 <script is:inline>
 	(function () {
+		var dark = false;
 		try {
 			var saved = localStorage.getItem('theme');
 			if (saved === 'light' || saved === 'dark') {
 				document.documentElement.dataset.theme = saved;
+				dark = saved === 'dark';
+			} else {
+				dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 			}
 		} catch (e) {
 			// 隐私模式禁用 localStorage：本次会话仅跟随系统偏好
 		}
+		var bar = document.querySelector('meta[name="theme-color"]');
+		if (bar) bar.setAttribute('content', dark ? '#16181d' : '#fdfdfc');
 	})();
 </script>
 

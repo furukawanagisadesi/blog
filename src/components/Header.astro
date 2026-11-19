@@ -52,6 +52,17 @@ import HeaderLink from './HeaderLink.astro';
 		}
 	}
 
+	function isDark(mode: Mode): boolean {
+		if (mode === 'dark') return true;
+		if (mode === 'light') return false;
+		return window.matchMedia('(prefers-color-scheme: dark)').matches;
+	}
+
+	function syncThemeColor(mode: Mode) {
+		const bar = document.querySelector('meta[name="theme-color"]');
+		if (bar) bar.setAttribute('content', isDark(mode) ? '#16181d' : '#fdfdfc');
+	}
+
 	function applyMode(mode: Mode) {
 		if (mode === 'auto') {
 			delete document.documentElement.dataset.theme;
@@ -63,6 +74,7 @@ import HeaderLink from './HeaderLink.astro';
 		} catch {
 			// 存不了就只影响当前页面，不阻断切换
 		}
+		syncThemeColor(mode);
 		const button = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
 		if (button) {
 			button.setAttribute('aria-label', LABELS[mode]);
@@ -76,6 +88,10 @@ import HeaderLink from './HeaderLink.astro';
 		toggle.addEventListener('click', () => {
 			const next = MODES[(MODES.indexOf(readMode()) + 1) % MODES.length];
 			applyMode(next);
+		});
+		// 处于「自动」时，系统偏好变化要同步地址栏配色
+		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+			if (readMode() === 'auto') syncThemeColor('auto');
 		});
 	}
 </script>

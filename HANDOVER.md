@@ -371,13 +371,24 @@
 
 - **背景**：用户要求"美化博客"。经 3 轮设计树问答定案：范围=视觉层全站精修（不动 DOM/文案/逻辑）、风格=极简精修、暗色=只跟随系统、验收=本地目检 + `npm run verify` + 前后对照。
 - **设计 token（`src/styles/global.css`）**：`--bg` / `--surface` / `--on-accent` 三个新变量；`--black`、`--gray`、`--gray-light`、`--gray-dark` 由原冷蓝灰系替换为中性灰阶（值仍为 RGB 三元组，调用点无需改动）；`--accent` 由高饱和 `#2337ff` 改为深靛蓝 `#1f4e8c`；`--box-shadow` 淡化为两层。
-- **暗色模式**：`@media (prefers-color-scheme: dark)` 覆盖全部颜色变量 + `color-scheme: light dark`；暗色下 `img` 加 `filter: brightness(0.92)` 缓解浅色截图刺眼，阴影换为 1px 边框。**无手动切换、无 FOUC、零 JS**。
+- **暗色模式（初版）**：`@media (prefers-color-scheme: dark)` 覆盖全部颜色变量 + `color-scheme: light dark`；暗色下 `img` 加 `filter: brightness(0.92)` 缓解浅色截图刺眼，阴影换为 1px 边框。**无手动切换、无 FOUC、零 JS**。
 - **代码块**：`astro.config.mjs` 加 `markdown.shikiConfig.themes`（`github-light` / `github-dark`），`global.css` 用 `pre.astro-code` 的 `--shiki-dark*` 变量在暗色下覆盖；`pre` 加边框、10px 圆角、`overflow-x: auto`；行内 `code` 改为 `--surface` 底 + 1px 边框。
 - **表格**（此前只有 `width:100%`）：补边框、`th` 底色与加粗、偶数行斑马纹、`vertical-align: top`；≤720px 改 `display:block` + `overflow-x:auto`，避免 `routeros-setup-guide.md` 的 33 行宽表挤压变形。
 - **组件**：`Header` 去掉硬编码 `white` 与实心阴影，改 `--bg` + 1px 下边框；导航改用 `--accent`，active 态加深加粗；`Footer` 去掉复用顶部渐变、改上边框 + 小字号；`PostList` 分隔线淡化、hover 时标题变色并右移 3px、整个条目标题联动（原 `.title:hover` 只是标题自身）；`BlogPost` 标签胶囊改描边样式并以 `--on-accent` 兜住暗色对比；`tags/index` 的 hover 由 `--accent-dark` 统一为 `--accent`。
 - **验证**：`npm run verify` 全绿（`astro check` 0 error / 0 warning，markdownlint 24 文件 0 issues，build **36 页**）；抽查 `dist` 产物确认 `<pre>` 同时含内联浅色值与 `--shiki-dark` 变量，且 CSS 产物含 `prefers-color-scheme` 规则。
 - **提交**：`7beaaf6`（token + Shiki 配置）、`3a0c445`（组件样式）；**未 push**。
 - **故意没做**：引入依赖 / Tailwind / 图标库 / View Transitions / 手动暗色切换按钮 / 代码复制按钮 / 行号 / 卡片化 / 双栏网格 / 换字体 / 中文标点挤压 / 新增断点。
+
+### 39. 手动主题切换按钮（2026-11-19）
+
+- **背景**：用户本地目检后要求加手动暗色切换；同时确认 SSH key 已配好、远程可达。
+- **token 重构**：全部颜色 token 改为 CSS `light-dark(浅色, 深色)`，**删掉原先重复的 `@media (prefers-color-scheme: dark)` 变量覆盖块**（改色只需改一处）。三元组写法随之取消，调用点从 `rgb(var(--x))` / `rgba(var(--x), α)` 收敛为 `var(--x)` / `color-mix(in srgb, var(--x) α%, transparent)`（共 35 处，纯机械替换）。
+- **主题状态**：三态循环「跟随系统 → 浅色 → 深色」。`<html data-theme="light|dark">` 表示强制，**无该属性即跟随系统**；`html[data-theme]` 上的 `color-scheme` 是 `light-dark()` 生效的开关，不能写进 `:root`。
+- **按钮**（`Header.astro`）：内联 SVG 三图标（半圆/太阳/月亮），零新依赖，`currentColor` 跟随主题；按 `data-theme` 显示对应图标；`aria-label` / `title` 用中文写明当前状态。窄屏（≤480px）与导航同排换行。
+- **持久化 + 防闪烁**：`localStorage.theme`（`auto`/`light`/`dark`）；`BaseHead.astro` 的 `<head>` 内用 `<script is:inline>` 同步读取并写 `data-theme`，早于首次绘制，避免深色用户白闪。两处 `localStorage` 访问都包了 try/catch，隐私模式退化但不报错。
+- **联动修正**：Shiki 深色着色与 `img` 压暗原先只挂在 `@media (prefers-color-scheme: dark)` 下，手动切深色时不生效；现改为 `html[data-theme='dark'] …` **加上** `@media (prefers-color-scheme: dark) { html:not([data-theme='light']) … }`，两种来源都覆盖。
+- **验证**：`npm run verify` 全绿（0 error / 0 warning，24 文件 0 issues，36 页）。在 `dist` 产物里核对：`light-dark()` 10 处未被构建移除；`<head>` 内联脚本存在；`html[data-theme=dark]` 的图片与 Shiki 规则、`html:not([data-theme=light])` 的 media 规则均正确输出。
+- **注意**：`light-dark()` 只接受颜色值，**不能包整段 `box-shadow` 列表**——阴影统一为浅色软阴影 + `--ring`（浅色为 transparent，深色为 1px 描边）。
 
 ---
 
@@ -394,8 +405,8 @@
 | 标签页 | `/blog/tags/`（标签索引，9 个：`Docker` / `VMware` / `Linux` / `Network` / `SQL` / `RouterOS` / `ImmortalWrt` / `Browser` / `Rime`）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
-| 最新提交 | 视觉改版 `3a0c445`（页头/页脚/列表/文章页）+ `7beaaf6`（设计 token、暗色模式、Shiki 双主题）；内容提交 `a713385`（第 37 项）；本文档更新提交以 `git log -1` 为准 |
-| 视觉主题 | 极简精修：浅色 `#fdfdfc` 底 / 深靛蓝 `#1f4e8c` 强调色；**暗色模式只跟随系统**（`prefers-color-scheme`），无手动切换、无 JS；代码块 Shiki 明暗双主题；表格有边框 + 表头底色 + 斑马纹，≤720px 可横向滚动 |
+| 最新提交 | 手动主题切换（本次提交）+ 视觉改版 `3a0c445` / `7beaaf6` / `7f2750e`；内容提交 `a713385`（第 37 项）；本文档更新提交以 `git log -1` 为准 |
+| 视觉主题 | 极简精修：浅色 `#fdfdfc` 底 / 深靛蓝 `#1f4e8c` 强调色；**主题三态**（跟随系统 / 浅色 / 深色），页头按钮切换并存入 `localStorage.theme`，`<head>` 内联脚本防白闪；代码块 Shiki 明暗双主题；表格有边框 + 表头底色 + 斑马纹，≤720px 可横向滚动 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构
@@ -445,7 +456,7 @@ src/content/blog/2026/11/
 - 字体：`astro.config.mjs`（Atkinson 本地字体 + `fallbacks` 中文栈 `PingFang SC / Hiragino Sans GB / Microsoft YaHei / Noto Sans CJK SC`）；`src/styles/global.css` 的 `body` 用 `var(--font-atkinson)`
 - 文章标题间距：`src/styles/global.css`（`.prose h2~h6` 有 `margin-top: 1.5em`，Header 的 `h2` 有独立样式不受影响）
 - 站点信息：`src/consts.ts`（SITE_TITLE=furukawanagisadesi 的博客）
-- 视觉主题（2026-11-19）：`src/styles/global.css` 的设计 token 集中在 `:root`——`--bg`（页面底色）、`--surface`（次级表面）、`--accent`/`--accent-dark`/`--on-accent`（强调色及其上的文字色）、`--black`/`--gray`/`--gray-light`/`--gray-dark`（文字色阶，**保持逗号分隔 RGB 三元组写法**，调用处写 `rgb(var(--x))` / `rgba(var(--x), α)`）。暗色模式通过 `@media (prefers-color-scheme: dark)` 覆盖同一批变量，只跟随系统、无手动切换、无 JS。语法高亮用 Shiki 双主题（`astro.config.mjs` 的 `markdown.shikiConfig.themes = { light: 'github-light', dark: 'github-dark' }`），暗色由 `global.css` 里 `pre.astro-code` 的 `--shiki-dark*` 变量覆盖。**新增组件样式时不要硬编码颜色，一律用 token**，否则暗色下会露出白块。
+- 视觉主题（2026-11-19）：`src/styles/global.css` 的设计 token 集中在 `:root`——`--bg`、`--surface`、`--accent`/`--accent-dark`/`--on-accent`、`--black`/`--gray`/`--gray-light`/`--gray-dark`/`--ring`，**每个都写成 `light-dark(浅色, 深色)`**，调用点直接 `var(--x)`，半透明用 `color-mix(in srgb, var(--x) α%, transparent)`。生效哪组由 `html` 的 `color-scheme` 决定：无 `data-theme` 时跟随系统，`html[data-theme='light'/'dark']` 强制覆盖——**新增 light-dark 相关规则时记住这个开关在 `html` 上，写进 `:root` 会失效**。主题三态由 `Header.astro` 的按钮切换并写入 `localStorage.theme`，`BaseHead.astro` 的 `<head>` 内联脚本在首绘前恢复，防白闪。语法高亮用 Shiki 双主题（`astro.config.mjs` 的 `markdown.shikiConfig.themes`），深色着色规则同时挂在 `html[data-theme='dark']` 和 `@media (prefers-color-scheme: dark) { html:not([data-theme='light'])… }` 两处，新增类似规则要两处都补。**新增组件样式时不要硬编码颜色，一律用 token。**
 - About 页：`src/pages/about.astro`
 
 ---

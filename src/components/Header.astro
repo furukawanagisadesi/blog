@@ -10,15 +10,81 @@ import HeaderLink from './HeaderLink.astro';
 			<HeaderLink href="/">首页</HeaderLink>
 			<HeaderLink href="/tags">标签</HeaderLink>
 			<HeaderLink href="/about">关于</HeaderLink>
+			<button type="button" class="theme-toggle" data-theme-toggle aria-label="切换主题，当前跟随系统" title="切换主题，当前跟随系统">
+				<svg class="icon icon-auto" viewBox="0 0 24 24" aria-hidden="true">
+					<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2" />
+					<path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor" />
+				</svg>
+				<svg class="icon icon-light" viewBox="0 0 24 24" aria-hidden="true">
+					<circle cx="12" cy="12" r="4.5" fill="currentColor" />
+					<path
+						d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+					/>
+				</svg>
+				<svg class="icon icon-dark" viewBox="0 0 24 24" aria-hidden="true">
+					<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor" />
+				</svg>
+			</button>
 		</div>
 	</nav>
 </header>
+<script>
+	// 主题三态循环：自动 → 浅色 → 深色 → 自动。自动态不写 data-theme，交给 CSS 跟随系统。
+	const STORAGE_KEY = 'theme';
+	type Mode = 'auto' | 'light' | 'dark';
+	const MODES: Mode[] = ['auto', 'light', 'dark'];
+	const LABELS: Record<Mode, string> = {
+		auto: '切换主题，当前跟随系统',
+		light: '切换主题，当前浅色',
+		dark: '切换主题，当前深色',
+	};
+
+	function readMode(): Mode {
+		try {
+			const saved = localStorage.getItem(STORAGE_KEY);
+			return MODES.includes(saved as Mode) ? (saved as Mode) : 'auto';
+		} catch {
+			// 隐私模式下 localStorage 会抛异常，此时退化为仅本次会话生效
+			return 'auto';
+		}
+	}
+
+	function applyMode(mode: Mode) {
+		if (mode === 'auto') {
+			delete document.documentElement.dataset.theme;
+		} else {
+			document.documentElement.dataset.theme = mode;
+		}
+		try {
+			localStorage.setItem(STORAGE_KEY, mode);
+		} catch {
+			// 存不了就只影响当前页面，不阻断切换
+		}
+		const button = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+		if (button) {
+			button.setAttribute('aria-label', LABELS[mode]);
+			button.title = LABELS[mode];
+		}
+	}
+
+	const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+	if (toggle) {
+		applyMode(readMode());
+		toggle.addEventListener('click', () => {
+			const next = MODES[(MODES.indexOf(readMode()) + 1) % MODES.length];
+			applyMode(next);
+		});
+	}
+</script>
 <style>
 	header {
 		margin: 0;
 		padding: 0 1em;
 		background: var(--bg);
-		border-bottom: 1px solid rgb(var(--gray-light));
+		border-bottom: 1px solid var(--gray-light);
 		box-shadow: none;
 	}
 	h2 {
@@ -32,7 +98,7 @@ import HeaderLink from './HeaderLink.astro';
 	}
 	nav h2 a,
 	nav h2 a.active {
-		color: rgb(var(--black));
+		color: var(--black);
 	}
 	nav {
 		display: flex;
@@ -51,9 +117,37 @@ import HeaderLink from './HeaderLink.astro';
 	}
 	nav a.active {
 		text-decoration: none;
-		color: rgb(var(--black));
+		color: var(--black);
 		font-weight: 700;
 		border-bottom-color: var(--accent);
+	}
+	.internal-links {
+		display: flex;
+		align-items: center;
+	}
+	.theme-toggle {
+		display: flex;
+		align-items: center;
+		padding: 1em 0.5em;
+		border: 0;
+		background: none;
+		color: var(--accent);
+		cursor: pointer;
+		transition: color 0.2s ease;
+	}
+	.theme-toggle:hover {
+		color: var(--accent-dark);
+	}
+	.icon {
+		width: 1.1em;
+		height: 1.1em;
+		display: none;
+	}
+	/* 未设置 data-theme 即「自动」，图标随状态三选一显示 */
+	html:not([data-theme]) .icon-auto,
+	html[data-theme='light'] .icon-light,
+	html[data-theme='dark'] .icon-dark {
+		display: block;
 	}
 
 	@media (max-width: 480px) {
@@ -69,6 +163,9 @@ import HeaderLink from './HeaderLink.astro';
 			flex-wrap: wrap;
 		}
 		nav a {
+			padding: 0.5em;
+		}
+		.theme-toggle {
 			padding: 0.5em;
 		}
 	}

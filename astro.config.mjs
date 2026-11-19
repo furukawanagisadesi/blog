@@ -9,6 +9,11 @@ export default defineConfig({
 	site: 'https://furukawanagisadesi.github.io',
 	base: '/blog',
 	integrations: [mdx(), sitemap()],
+	markdown: {
+		shikiConfig: {
+			themes: { light: 'github-light', dark: 'github-dark' },
+		},
+	},
 	fonts: [
 		{
 			provider: fontProviders.local(),

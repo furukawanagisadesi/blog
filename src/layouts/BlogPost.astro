@@ -193,6 +193,50 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 			</div>
 		</article>
 	</main>
+	<script>
+		// 代码块复制按钮。用 JS 包一层容器，按钮才不会随 <pre> 的横向滚动跑掉。
+		// 脚本是 Astro 打包的共享模块，无法按页面剔除，因此 About 页也会加载它；
+		// 那里没有匹配的节点，遍历为空，直接跳过。
+		const COPY_TEXT = '复制';
+		const COPIED_TEXT = '已复制';
+		const FAILED_TEXT = '复制失败';
+
+		// 代码块复制。站点运行在 HTTPS（GitHub Pages）下，navigator.clipboard 始终可用；
+		// 它失败只可能是用户拒绝权限，此时如实提示失败即可，不必再用已弃用的 execCommand 兜底。
+		async function copyText(text: string): Promise<boolean> {
+			try {
+				await navigator.clipboard.writeText(text);
+				return true;
+			} catch {
+				return false;
+			}
+		}
+
+		document.querySelectorAll<HTMLPreElement>('.prose pre.astro-code').forEach((pre) => {
+			const frame = document.createElement('div');
+			frame.className = 'code-frame';
+			pre.replaceWith(frame);
+			frame.appendChild(pre);
+
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'code-copy';
+			button.textContent = COPY_TEXT;
+			frame.appendChild(button);
+
+			let timer = 0;
+			button.addEventListener('click', async () => {
+				const ok = await copyText(pre.textContent ?? '');
+				button.dataset.state = ok ? 'copied' : 'failed';
+				button.textContent = ok ? COPIED_TEXT : FAILED_TEXT;
+				window.clearTimeout(timer);
+				timer = window.setTimeout(() => {
+					delete button.dataset.state;
+					button.textContent = COPY_TEXT;
+				}, 2000);
+			});
+		});
+	</script>
 	{
 		commentsEnabled && (
 			<script define:vars={{ twikooAssetBase: base + '/vendor/twikoo/1.7.20' }}>

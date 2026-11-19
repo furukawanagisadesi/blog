@@ -390,6 +390,13 @@
 - **验证**：`npm run verify` 全绿（0 error / 0 warning，24 文件 0 issues，36 页）。在 `dist` 产物里核对：`light-dark()` 10 处未被构建移除；`<head>` 内联脚本存在；`html[data-theme=dark]` 的图片与 Shiki 规则、`html:not([data-theme=light])` 的 media 规则均正确输出。
 - **注意**：`light-dark()` 只接受颜色值，**不能包整段 `box-shadow` 列表**——阴影统一为浅色软阴影 + `--ring`（浅色为 transparent，深色为 1px 描边）。
 
+### 40. 移动端 theme-color（2026-11-19）
+
+- **背景**：第 39 项做完后发现移动端浏览器地址栏/状态栏配色不跟随主题，切换按钮在手机上只生效一半。
+- **实现**：`BaseHead.astro` 加 `<meta name="theme-color" content="#fdfdfc">` 默认值（必须在 `<head>` 内、且写在初始化脚本**之前**），由同一段 `is:inline` 脚本按实际主题改写为 `#16181d` / `#fdfdfc`；`Header.astro` 的 `applyMode()` 也调 `syncThemeColor()`，保证手动切换即时生效；另监听 `matchMedia('(prefers-color-scheme: dark)').addEventListener('change')`，仅在「自动」态下同步。
+- **验证**：`npm run verify` 全绿（0 error / 0 warning，24 文件 0 issues，36 页）；产物中 `theme-color` meta 仅出现 1 次且位于脚本前，inline 脚本未被压缩。
+- **纠正一条既有误判**：Markdown 正文图片**早已**由 Astro 自动加 `loading="lazy"` 与 `decoding="async"`（`<Image>` 组件与 Markdown 管线都做了），实测 8 张图片全部带该属性。此前"正文截图缺懒加载"的说法不成立，无需改动。
+
 ---
 
 ## 二、当前状态

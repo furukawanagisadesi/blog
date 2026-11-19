@@ -7,44 +7,44 @@
 :root {
 	color-scheme: light dark;
 
-	/* 背景与表面 */
-	--bg: #fdfdfc;
-	--surface: 246, 247, 249;
+	/*
+		颜色 token 一律用 light-dark()，括号内依次为浅色、深色值。
+		生效哪一组由 color-scheme 决定：默认跟随系统，
+		<html data-theme="light|dark"> 由页头的切换按钮写入以强制覆盖。
+	*/
+	--bg: light-dark(#fdfdfc, #16181d);
+	--surface: light-dark(#f6f7f9, #1c1f25);
 
-	/* 文字色阶，保持逗号分隔 RGB 三元组写法，供 rgb()/rgba() 调用 */
-	--black: 31, 35, 40;
-	--gray: 91, 100, 112;
-	--gray-light: 228, 231, 235;
-	--gray-dark: 45, 51, 59;
+	/* 文字色阶 */
+	--black: light-dark(#1f2328, #e2e6eb);
+	--gray: light-dark(#5b6470, #969faa);
+	--gray-light: light-dark(#e4e7eb, #2d3138);
+	--gray-dark: light-dark(#2d333b, #d7dbe0);
 
 	/* 强调色 */
-	--accent: #1f4e8c;
-	--accent-dark: #163a68;
-	--on-accent: #fff;
+	--accent: light-dark(#1f4e8c, #7cb0ff);
+	--accent-dark: light-dark(#163a68, #a8caff);
+	--on-accent: light-dark(#fff, #101418);
 
-	--gray-gradient: rgba(var(--gray-light), 35%), var(--bg);
+	--gray-gradient: color-mix(in srgb, var(--gray-light) 35%, transparent), var(--bg);
 	--content-width: 820px;
 	--list-width: 1000px;
+	/* 暗色下软阴影不可见，改用 1px 描边；浅色时描边为透明 */
+	--ring: light-dark(transparent, color-mix(in srgb, var(--gray-light) 80%, transparent));
 	--box-shadow:
-		0 2px 6px rgba(var(--gray), 12%), 0 8px 24px rgba(var(--gray), 16%);
+		0 2px 6px color-mix(in srgb, var(--gray) 12%, transparent),
+		0 8px 24px color-mix(in srgb, var(--gray) 16%, transparent), 0 0 0 1px var(--ring);
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--bg: #16181d;
-		--surface: 28, 31, 37;
-
-		--black: 226, 230, 235;
-		--gray: 150, 159, 170;
-		--gray-light: 45, 49, 56;
-		--gray-dark: 215, 219, 224;
-
-		--accent: #7cb0ff;
-		--accent-dark: #a8caff;
-		--on-accent: #101418;
-
-		--box-shadow: 0 0 0 1px rgba(var(--gray-light), 80%);
-	}
+/*
+	只有显式声明 color-scheme 才能让 light-dark() 不再跟随系统偏好。
+	这两个选择器必须挂在 html 上，写进 :root 会覆盖上面 :root 的 color-scheme。
+*/
+html[data-theme='light'] {
+	color-scheme: light;
+}
+html[data-theme='dark'] {
+	color-scheme: dark;
 }
 
 body {
@@ -58,7 +58,7 @@ body {
 	background-size: 100% 600px;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
-	color: rgb(var(--gray-dark));
+	color: var(--gray-dark);
 	font-size: 18px;
 	line-height: 1.7;
 }
@@ -75,7 +75,7 @@ h4,
 h5,
 h6 {
 	margin: 0 0 0.5rem 0;
-	color: rgb(var(--black));
+	color: var(--black);
 	line-height: 1.25;
 }
 .prose h2,
@@ -103,7 +103,7 @@ h5 {
 strong,
 b {
 	font-weight: 700;
-	color: rgb(var(--black));
+	color: var(--black);
 }
 a {
 	color: var(--accent);
@@ -142,38 +142,42 @@ table {
 th,
 td {
 	padding: 0.55em 0.8em;
-	border: 1px solid rgb(var(--gray-light));
+	border: 1px solid var(--gray-light);
 	text-align: left;
 	vertical-align: top;
 }
 th {
-	background-color: rgb(var(--surface));
-	color: rgb(var(--black));
+	background-color: var(--surface);
+	color: var(--black);
 	font-weight: 700;
 }
 tbody tr:nth-child(even) {
-	background-color: rgba(var(--gray-light), 35%);
+	background-color: color-mix(in srgb, var(--gray-light) 35%, transparent);
 }
 img {
 	max-width: 100%;
 	height: auto;
 	border-radius: 8px;
 }
+/* 暗色下压暗图片亮度，避免浅色截图刺眼；手动切换与跟随系统都要生效 */
+html[data-theme='dark'] img {
+	filter: brightness(0.92);
+}
 @media (prefers-color-scheme: dark) {
-	img {
+	html:not([data-theme='light']) img {
 		filter: brightness(0.92);
 	}
 }
 code {
 	padding: 0.15em 0.4em;
-	background-color: rgb(var(--surface));
-	border: 1px solid rgb(var(--gray-light));
+	background-color: var(--surface);
+	border: 1px solid var(--gray-light);
 	border-radius: 4px;
 	font-size: 0.9em;
 }
 pre {
 	padding: 1.25em 1.5em;
-	border: 1px solid rgb(var(--gray-light));
+	border: 1px solid var(--gray-light);
 	border-radius: 10px;
 	overflow-x: auto;
 	line-height: 1.6;
@@ -181,13 +185,18 @@ pre {
 pre > code {
 	all: unset;
 }
-/* Shiki 双主题：light 为内联默认值，dark 通过 CSS 变量覆盖 */
+/* Shiki 双主题：浅色值为内联样式，深色值在 --shiki-dark 里，需要手动切换 */
+pre.astro-code {
+	background-color: var(--surface) !important;
+}
+html[data-theme='dark'] pre.astro-code,
+html[data-theme='dark'] pre.astro-code span {
+	color: var(--shiki-dark) !important;
+}
 @media (prefers-color-scheme: dark) {
-	pre.astro-code {
-		background-color: var(--shiki-dark-bg) !important;
-		color: var(--shiki-dark) !important;
-	}
-	pre.astro-code span {
+	/* 仅在用户没手动选浅色时跟随系统 */
+	html:not([data-theme='light']) pre.astro-code,
+	html:not([data-theme='light']) pre.astro-code span {
 		color: var(--shiki-dark) !important;
 	}
 }
@@ -196,12 +205,12 @@ blockquote {
 	padding: 0.2em 0 0.2em 1.25em;
 	border-left: 3px solid var(--accent);
 	border-radius: 0 6px 6px 0;
-	background-color: rgba(var(--gray-light), 30%);
+	background-color: color-mix(in srgb, var(--gray-light) 30%, transparent);
 	font-size: 1.05em;
 }
 hr {
 	border: none;
-	border-top: 1px solid rgb(var(--gray-light));
+	border-top: 1px solid var(--gray-light);
 }
 @media (max-width: 720px) {
 	body {

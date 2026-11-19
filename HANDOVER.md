@@ -397,6 +397,17 @@
 - **验证**：`npm run verify` 全绿（0 error / 0 warning，24 文件 0 issues，36 页）；产物中 `theme-color` meta 仅出现 1 次且位于脚本前，inline 脚本未被压缩。
 - **纠正一条既有误判**：Markdown 正文图片**早已**由 Astro 自动加 `loading="lazy"` 与 `decoding="async"`（`<Image>` 组件与 Markdown 管线都做了），实测 8 张图片全部带该属性。此前"正文截图缺懒加载"的说法不成立，无需改动。
 
+### 41. 代码块复制按钮 + 404 页美化（2026-11-19）
+
+- **代码块复制**（`BlogPost.astro` 末尾 `<script>` + `global.css`）：遍历 `.prose pre.astro-code`，用 JS 包一层 `.code-frame` 再插入 `<button class="code-copy">`。**必须包一层**——`pre` 自带 `overflow-x: auto`，按钮直接放进去会跟着横向滚动跑掉。点击后文案变「已复制」/「复制失败」并保持 2 秒。
+  - 桌面端 hover 才淡入，`@media (hover: none)` 下常驻（触屏没有 hover，否则点不出来）。
+  - 只用 `navigator.clipboard`，**不做 `execCommand` 兜底**：站点在 GitHub Pages HTTPS 下运行，clipboard API 必然可用；`execCommand` 已弃用，留一段不可达的兜底只会让 `astro check` 出 hint 且增加维护面。失败仅可能是用户拒绝权限，如实提示即可。
+  - 脚本是 Astro 打包的共享模块，About 页（共用 `BlogPost` 布局但无代码块）也会加载它；选择器无匹配、遍历为空，直接跳过。
+  - 失败态颜色走 `--danger` token（`light-dark(#b02a2a, #ff8f8f)`），不硬编码。
+- **404 页**（`src/pages/404.astro`）：大号 404（`clamp(3.5rem, 12vw, 6rem)`，`--accent` 色）+ 标题 + 说明 + 两个按钮（返回首页 / 浏览标签），列表居中；主要按钮用 `--accent` + `--on-accent`，暗色下自动反色。链接均带 `base` 前缀（`/blog/`、`/blog/tags/`）。样式按页面 scoped 注入 `404.html` 的内联 `<style>`。
+- **验证**：`npm run verify` 全绿（0 error / 0 warning / 0 hint，24 文件 0 issues，36 页）。产物核对：`.code-copy` `.code-frame` `data-state` `hover:none` 规则均输出；404 页 scoped 样式与两个链接正确（`/blog/`、`/blog/tags/`）；首页不加载复制脚本。
+- **过程中修掉两个自己引入的问题**：`.code-frame > pre { margin: 0 }` 会抹掉 `pre` 默认外边距导致代码块紧贴上下文，已给 `.code-frame` 补 `margin: 1em 0`；失败态颜色原先硬编码 `#c04040`，已收敛为 `--danger`。
+
 ---
 
 ## 二、当前状态
@@ -413,7 +424,7 @@
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
 | 最新提交 | 手动主题切换（本次提交）+ 视觉改版 `3a0c445` / `7beaaf6` / `7f2750e`；内容提交 `a713385`（第 37 项）；本文档更新提交以 `git log -1` 为准 |
-| 视觉主题 | 极简精修：浅色 `#fdfdfc` 底 / 深靛蓝 `#1f4e8c` 强调色；**主题三态**（跟随系统 / 浅色 / 深色），页头按钮切换并存入 `localStorage.theme`，`<head>` 内联脚本防白闪；代码块 Shiki 明暗双主题；表格有边框 + 表头底色 + 斑马纹，≤720px 可横向滚动 |
+| 视觉主题 | 极简精修：浅色 `#fdfdfc` 底 / 深靛蓝 `#1f4e8c` 强调色；**主题三态**（跟随系统 / 浅色 / 深色），页头按钮切换并存入 `localStorage.theme`，`<head>` 内联脚本防白闪，移动端 `theme-color` 同步；代码块 Shiki 明暗双主题 + 悬停复制按钮；表格有边框 + 表头底色 + 斑马纹，≤720px 可横向滚动 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构

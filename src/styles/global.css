@@ -170,6 +170,7 @@ html[data-theme='dark'] img {
 	}
 }
 code {
+	font-family: var(--font-mono);
 	padding: 0.15em 0.4em;
 	background-color: var(--surface);
 	border: 1px solid var(--gray-light);
@@ -177,6 +178,8 @@ code {
 	font-size: 0.9em;
 }
 pre {
+	font-family: var(--font-mono);
+	font-size: 0.9em;
 	padding: 1.25em 1.5em;
 	border: 1px solid var(--gray-light);
 	border-radius: 10px;

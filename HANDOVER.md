@@ -408,6 +408,18 @@
 - **验证**：`npm run verify` 全绿（0 error / 0 warning / 0 hint，24 文件 0 issues，36 页）。产物核对：`.code-copy` `.code-frame` `data-state` `hover:none` 规则均输出；404 页 scoped 样式与两个链接正确（`/blog/`、`/blog/tags/`）；首页不加载复制脚本。
 - **过程中修掉两个自己引入的问题**：`.code-frame > pre { margin: 0 }` 会抹掉 `pre` 默认外边距导致代码块紧贴上下文，已给 `.code-frame` 补 `margin: 1em 0`；失败态颜色原先硬编码 `#c04040`，已收敛为 `--danger`。
 
+### 42. 代码字体改为自托管等宽（2026-11-20）
+
+- **背景**：原 `code` / `pre` 没有 `font-family`，落到 UA 默认 `monospace`（Windows 上实际是 Consolas），与正文 Atkinson Hyperlegible 明显不是一套，用户反馈"代码字体和别的不一样"。目标是给代码一套**有意选择、跨设备一致**的自托管等宽字体，只作用于 `code` / `pre`，不动正文与标题排版。
+- **选型**：**Atkinson Hyperlegible Mono**（正文 Atkinson 的等宽同胞，同源设计、同许可）。latin 子集、仅 400 + 700 normal、**woff2**：`atkinson-mono-regular.woff2` 10,056 B、`atkinson-mono-bold.woff2` 10,040 B，合计约 20 KB；文件直接入库 `src/assets/fonts/`，**不新增 npm 依赖**。来源 `@fontsource/atkinson-hyperlegible-mono@5.3.0`（上游 `github.com/googlefonts/atkinson-hyperlegible-next-mono`），许可 **SIL OFL-1.1**，许可文本随仓库放 `src/assets/fonts/OFL-AtkinsonHyperlegibleMono.txt`。
+- **接入**（`astro.config.mjs`）：新增第二段 `fontProviders.local()` 配置，`name: 'Atkinson Mono'`、`cssVariable: '--font-mono'`，回退栈按「拉丁等宽 → 系统等宽（`ui-monospace, SFMono-Regular, Menlo, Consolas, DejaVu Sans Mono`）→ 中文栈（`PingFang SC, Hiragino Sans GB, Microsoft YaHei, Noto Sans CJK SC`）→ `monospace`」排列；Astro 会自动补一层 metrics 匹配的 fallback（本次落在 `Courier New`）。
+- **注入**：`BaseHead.astro` 在原有 `<Font cssVariable="--font-atkinson" preload />` 之后加 `<Font cssVariable="--font-mono" />`。**等宽字体不预加载**——只有含代码的页面才需要它，预加载会让所有页面白付一次请求；正文 Atkinson 的预加载保持不变。
+- **样式**（`global.css`）：`code` 与 `pre` 各加一行 `font-family: var(--font-mono)`；`pre > code { all: unset }` 依赖继承，故代码块内字体自动跟随 `pre`，无需再写一遍。
+- **尺寸调整**：Atkinson Mono 每字符宽 `0.632em`，比 Windows 上的 Consolas（`0.55em`）宽约 15%，同样 18px 下每行少放约 10 个字符，全站 1090 行代码里有 15 行新增横向溢出。故给 `pre` 补 `font-size: 0.9em`（16.2px），与行内代码原本的 `0.9em` 统一，溢出收敛到 3 行（均为本身超过 85 字符的极端长命令）。`pre.astro-code` 的内边距、边框、圆角、复制按钮均未改动。
+- **回退表现**：代码块中的中文注释回退到系统中文字体（全站 17 篇含中文注释）；唯一含框线字符的 `nginx-srs-live-streaming-guide.md` 树形图走系统等宽兜底，`├── │` 对齐未被破坏。Atkinson Mono latin 子集 219 字形，不含框线（U+2500–257F）与箭头（U+2190–21FF），这类字符一律依赖回退，属预期行为。
+- **验证**：`npm run verify` 全绿（`astro check` 0 error / 0 warning，markdownlint 25 文件 0 issues，build 36 页）。产物核对：`--font-mono` 变量与 `@font-face` 指向 `font-mono-400/700-normal-*.woff2`；`<link rel="preload">` 仍只有正文 Atkinson 两个字重；浅色 / 深色、行内代码、含中文注释的代码块均逐项目检正常，`immortalwrt` 那篇的 `physdiskwrite.exe` 长命令在 `0.9em` 下已完整放下。
+- **故意没做**：不改行内代码的 `0.9em` 与边框、不改 `docs/WRITING.md`、不加 italic 字重（内容里没有 `md` 代码块，Shiki 的 italic 只作用于极少数 scope，正文本身也是合成倾斜）、不给现有 Atkinson 补许可文件（模板遗留，不追改）。
+
 ---
 
 ## 二、当前状态

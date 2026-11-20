@@ -37,5 +37,38 @@ export default defineConfig({
 				],
 			},
 		},
+		{
+			provider: fontProviders.local(),
+			name: 'Atkinson Mono',
+			cssVariable: '--font-mono',
+			fallbacks: [
+				'ui-monospace',
+				'SFMono-Regular',
+				'Menlo',
+				'Consolas',
+				'DejaVu Sans Mono',
+				'PingFang SC',
+				'Hiragino Sans GB',
+				'Microsoft YaHei',
+				'Noto Sans CJK SC',
+				'monospace',
+			],
+			options: {
+				variants: [
+					{
+						src: ['./src/assets/fonts/atkinson-mono-regular.woff2'],
+						weight: 400,
+						style: 'normal',
+						display: 'swap',
+					},
+					{
+						src: ['./src/assets/fonts/atkinson-mono-bold.woff2'],
+						weight: 700,
+						style: 'normal',
+						display: 'swap',
+					},
+				],
+			},
+		},
 	],
 });

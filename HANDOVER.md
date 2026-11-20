@@ -429,7 +429,7 @@
 - **代码块**：`pre` 内边距 1.4em、圆角 12px、`tab-size: 4`、`scrollbar-width: thin`、`overscroll-behavior-x: contain`；`.code-copy` 描边改 `--hairline`，加 `backdrop-filter` 与 `:active` 缩放。
 - **首页**（`src/pages/index.astro`）：新增 masthead —— kicker「技术笔记 / NOTES」+ H1（`clamp(2rem, 5vw, 2.9rem)`）+ lead + 「23 篇文章 / 9 个标签」计数；下方「最近更新」段头（右侧「按标签浏览」入口），再接 `PostList`。
 - **列表条目**（`PostList.astro`）：整行 `<a>` 可点（原先是标题链接），hover 整行浅底色 + 标题 `→` 滑入；日期与「更新于」同一行；标签**单独一行**描边胶囊（和日期挤在一起会在行尾留下孤零零的分隔点）；`data-reveal` 挂在每个 `<li>` 上。
-- **文章页**（`BlogPost.astro` + `[...slug].astro`）：标题区留白加大（`margin-bottom: 2.2em`），H1 `2.1em`，日期小字等宽数字，`.title hr` 改 3em 居中短横线，标签改描边胶囊；hero 图下加 2.5em；**新增「约 N 分钟」阅读时长**——按中文 350 字/分、西文 200 词/分、代码 10 行/分合并计算，下限 1 分钟，在 `[...slug].astro` 算好后以 `readingTime` prop 传入（参考值：`debian-zswap` 16 分钟、`immortalwrt` 23 分钟、`nginx-srs` 24 分钟）。
+- **文章页**（`BlogPost.astro` + `[...slug].astro`）：标题区留白加大（`margin-bottom: 2.2em`），H1 `2.1em`，日期小字等宽数字，`.title hr` 改 3em 居中短横线，标签改描边胶囊；hero 图下加 2.5em。**阅读时长已按用户要求移除**（原先按中文 350 字/分、西文 200 词/分、代码 10 行/分估算并显示「约 N 分钟」，同日回退，`readingTime` prop 与计算逻辑一并删除）。
 - **页头**（`Header.astro`）：sticky + `backdrop-filter: blur(12px) saturate(140%)`；导航灰色 hover 转黑；当前页用 2px 短横线（`::after` + `scaleX`）替代原 4px 底边——`HeaderLink.astro` 的 active 下划线已移除，交给 Header 统一控制；主题按钮改描边 pill；**≤480px 改静态定位并两行布局**（标题一行、导航一行）。
 - **标签页**（`tags/index.astro`、`tags/[tag].astro`）：索引页头部「N 个标签，按文章数排序」，列表行 hover 高亮 + 等宽计数胶囊；单标签页改面包屑「标签 /」+ H1 + 「N 篇文章」，列表复用 `PostList`。
 - **页脚**（`Footer.astro`）：两栏（版权 + 首页/标签/关于/RSS），`width: calc(var(--list-width) - 2em)` 与正文左缘对齐。
@@ -455,7 +455,7 @@
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
 | 最新提交 | 手动主题切换（本次提交）+ 视觉改版 `3a0c445` / `7beaaf6` / `7f2750e`；内容提交 `a713385`（第 37 项）；本文档更新提交以 `git log -1` 为准 |
-| 视觉主题 | 极简精修（2026-11-20 全站视觉精修，见第 43 项）：浅色 `#fdfdfc` 底 / 深靛蓝 `#1f4e8c` 强调色；**主题三态**（跟随系统 / 浅色 / 深色），页头按钮切换并存入 `localStorage.theme`，`<head>` 内联脚本防白闪，移动端 `theme-color` 同步；首页 masthead + 「最近更新」列表（整行可点、标题箭头、标签胶囊）；页头 sticky 毛玻璃（≤480px 两行静态）；文章页显示「约 N 分钟」阅读时长；表格只留横线、≤720px 在自身盒子内横向滚动；代码块 Shiki 明暗双主题 + 悬停复制按钮；首屏外元素用 IntersectionObserver 淡入，`prefers-reduced-motion` 下全关 |
+| 视觉主题 | 极简精修（2026-11-20 全站视觉精修，见第 43 项）：浅色 `#fdfdfc` 底 / 深靛蓝 `#1f4e8c` 强调色；**主题三态**（跟随系统 / 浅色 / 深色），页头按钮切换并存入 `localStorage.theme`，`<head>` 内联脚本防白闪，移动端 `theme-color` 同步；首页 masthead + 「最近更新」列表（整行可点、标题箭头、标签胶囊）；页头 sticky 毛玻璃（≤480px 两行静态）；表格只留横线、≤720px 在自身盒子内横向滚动；代码块 Shiki 明暗双主题 + 悬停复制按钮；首屏外元素用 IntersectionObserver 淡入，`prefers-reduced-motion` 下全关 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构

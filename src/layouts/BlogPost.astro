@@ -16,7 +16,6 @@ interface Props {
 	tags?: string[];
 	showComments?: boolean;
 	ogType?: 'website' | 'article';
-	readingTime?: number;
 }
 
 const {
@@ -28,7 +27,6 @@ const {
 	tags = [],
 	showComments = true,
 	ogType = 'article',
-	readingTime,
 } = Astro.props;
 
 const commentsEnabled = COMMENTS_ENABLED && showComments;
@@ -168,7 +166,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 						pubDate && (
 							<div class="date">
 								<FormattedDate date={pubDate} />
-								{readingTime && <> · 约 {readingTime} 分钟</>}
 								{updatedDate && isUpdatedAfterPublished(pubDate, updatedDate) && (
 									<div class="last-updated-on">
 										最后更新于 <FormattedDate date={updatedDate} />

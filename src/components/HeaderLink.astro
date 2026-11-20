@@ -13,12 +13,9 @@ const isActive = href === pathname || href === '/' + (subpath?.[0] || '');
 	<slot />
 </a>
 <style>
+	/* 只提供基础显示；当前页样式（短横线）由 Header 控制，避免下划线重复 */
 	a {
 		display: inline-block;
 		text-decoration: none;
-	}
-	a.active {
-		font-weight: bolder;
-		text-decoration: underline;
 	}
 </style>

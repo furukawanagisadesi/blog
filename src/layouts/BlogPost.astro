@@ -16,6 +16,7 @@ interface Props {
 	tags?: string[];
 	showComments?: boolean;
 	ogType?: 'website' | 'article';
+	readingTime?: number;
 }
 
 const {
@@ -27,6 +28,7 @@ const {
 	tags = [],
 	showComments = true,
 	ogType = 'article',
+	readingTime,
 } = Astro.props;
 
 const commentsEnabled = COMMENTS_ENABLED && showComments;
@@ -43,7 +45,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 		.hero-image {
 			width: 100%;
 			max-width: var(--content-width);
-			margin: 0 auto;
+			margin: 0 auto 2.5em;
 		}
 		.hero-image img {
 			display: block;
@@ -59,48 +61,62 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 			color: var(--gray-dark);
 		}
 		.title {
-			margin-bottom: 1em;
-			padding: 1em 0;
+			margin-bottom: 2.2em;
+			padding: 1em 0 0;
 			text-align: center;
-			line-height: 1;
+			line-height: 1.1;
 		}
 		.title h1 {
-			margin: 0 0 0.5em 0;
+			margin: 0 0 0.6em 0;
+			font-size: 2.1em;
+			letter-spacing: -0.02em;
 		}
 		.date {
-			margin-bottom: 0.5em;
+			margin-bottom: 1.1em;
+			font-size: 0.8rem;
+			letter-spacing: 0.08em;
+			font-variant-numeric: tabular-nums;
 			color: var(--gray);
 		}
 		.last-updated-on {
-			font-style: italic;
+			margin-top: 0.4em;
+			font-size: 0.85rem;
+			letter-spacing: 0;
 		}
 		.tags {
 			list-style: none;
-			margin: 0 0 1em 0;
+			margin: 0 0 1.6em 0;
 			padding: 0;
 			display: flex;
 			flex-wrap: wrap;
-			gap: 0.5em;
+			gap: 0.45em;
 			justify-content: center;
 		}
 		.tags a {
 			display: inline-block;
-			padding: 0.2em 0.7em;
-			border: 1px solid var(--gray-light);
+			padding: 0.18em 0.7em;
+			border: 1px solid var(--hairline);
 			border-radius: 999px;
-			background: var(--surface);
+			background: transparent;
 			color: var(--gray);
-			font-size: 0.8rem;
+			font-size: 0.78rem;
 			text-decoration: none;
 			transition:
-				background 0.2s ease,
-				color 0.2s ease,
-				border-color 0.2s ease;
+				color 0.2s var(--ease),
+				border-color 0.2s var(--ease),
+				background-color 0.2s var(--ease);
 		}
 		.tags a:hover {
 			background: var(--accent);
 			border-color: var(--accent);
 			color: var(--on-accent);
+		}
+		/* 标题区与正文之间的收束线：短、居中、不横跨整列 */
+		.title hr {
+			width: 3em;
+			margin: 0 auto;
+			border: none;
+			border-top: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
 		}
 		.comments-area {
 			margin-top: 3em;
@@ -147,11 +163,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 				)
 			}
 			<div class="prose">
-				<div class="title">
+				<div class="title" data-reveal>
 					{
 						pubDate && (
 							<div class="date">
 								<FormattedDate date={pubDate} />
+								{readingTime && <> · 约 {readingTime} 分钟</>}
 								{updatedDate && isUpdatedAfterPublished(pubDate, updatedDate) && (
 									<div class="last-updated-on">
 										最后更新于 <FormattedDate date={updatedDate} />

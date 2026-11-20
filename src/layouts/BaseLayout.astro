@@ -23,5 +23,32 @@ const { title, description, image, ogType = 'website' } = Astro.props;
 		<Header />
 		<slot />
 		<Footer />
+		<script>
+			/*
+				进场动效：只把「首屏之外」的元素先藏起来，滚到附近再淡入。
+				首屏元素不参与，所以不会出现「等 JS 才显示」或闪一下的问题；
+				元素在 JS 前已可见，脚本不可用时页面照常阅读。
+			*/
+			const targets = [...document.querySelectorAll<HTMLElement>('[data-reveal]')];
+			const viewportHeight = window.innerHeight;
+			const pending = targets.filter((el) => el.getBoundingClientRect().top > viewportHeight * 0.9);
+
+			if (pending.length === 0 || !('IntersectionObserver' in window)) {
+				targets.forEach((el) => el.classList.add('is-revealed'));
+			} else {
+				pending.forEach((el) => el.classList.add('reveal-pending'));
+				const observer = new IntersectionObserver(
+					(entries) => {
+						for (const entry of entries) {
+							if (!entry.isIntersecting) continue;
+							entry.target.classList.add('is-revealed');
+							observer.unobserve(entry.target);
+						}
+					},
+					{ rootMargin: '0px 0px -10% 0px', threshold: 0.05 },
+				);
+				pending.forEach((el) => observer.observe(el));
+			}
+		</script>
 	</body>
 </html>

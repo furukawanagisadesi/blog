@@ -13,8 +13,25 @@ type Props = CollectionEntry<'blog'>;
 
 const post = Astro.props;
 const { Content } = await render(post);
+
+/*
+	阅读时长：中文按 350 字/分钟，代码块里的行按 10 行/分钟另计
+	（读代码比读散文慢得多，混在一起算会低估）。
+	只取整到分钟并下限 1 分钟，不必追求精确。
+*/
+const body = post.body ?? '';
+const codeBlocks = [...body.matchAll(/```[\s\S]*?```/g)].map((match) => match[0]);
+const codeLines = codeBlocks.reduce((sum, block) => sum + block.split('\n').length, 0);
+const prose = body.replace(/```[\s\S]*?```/g, '');
+// 中文按字计，西文按 5 个字符≈1 个词折算
+const cjkChars = (prose.match(/[\u3400-\u9fff]/g) ?? []).length;
+const otherChars = prose.replace(/[\u3400-\u9fff]/g, '').replace(/\s+/g, '').length;
+const minutes = Math.max(
+	1,
+	Math.round(cjkChars / 350 + otherChars / 5 / 200 + codeLines / 10),
+);
 ---
 
-<BlogPost {...post.data}>
+<BlogPost {...post.data} readingTime={minutes}>
 	<Content />
 </BlogPost>

@@ -8,40 +8,74 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 <BaseLayout title="标签" description="按标签浏览全部文章">
 	<style>
+		.head {
+			padding: 1em 0 2em;
+			border-bottom: 1px solid var(--hairline);
+		}
+		.head h1 {
+			margin: 0 0 0.35em;
+			font-size: clamp(1.8rem, 4vw, 2.4rem);
+			letter-spacing: -0.02em;
+		}
+		.head p {
+			margin: 0;
+			color: var(--gray);
+		}
 		ul {
 			list-style-type: none;
 			margin: 0;
 			padding: 0;
 		}
 		ul li {
-			padding: 0.8rem 0;
-			border-bottom: 1px solid color-mix(in srgb, var(--gray-light) 70%, transparent);
+			border-bottom: 1px solid var(--hairline);
+			transition: border-color 0.2s var(--ease);
 		}
 		ul li:last-child {
 			border-bottom: none;
 		}
 		ul li a {
+			display: flex;
+			align-items: baseline;
+			justify-content: space-between;
+			gap: 1em;
+			padding: 1.15em 0.5em 1.15em 0.25em;
 			color: var(--black);
 			text-decoration: none;
-			transition: color 0.2s ease;
+			border-radius: 8px;
+			transition:
+				color 0.2s var(--ease),
+				background-color 0.2s var(--ease);
 		}
 		ul li a:hover {
 			color: var(--accent);
+			background-color: color-mix(in srgb, var(--surface) 65%, transparent);
 		}
 		.count {
-			margin-left: 0.5em;
+			flex: none;
+			min-width: 2em;
+			padding: 0.1em 0.55em;
+			border: 1px solid var(--hairline);
+			border-radius: 999px;
 			color: var(--gray);
-			font-size: 0.9rem;
+			font-family: var(--font-mono);
+			font-size: 0.75rem;
+			text-align: center;
+			font-variant-numeric: tabular-nums;
 		}
 	</style>
 	<main>
-		<h1>标签</h1>
+		<div class="head" data-reveal>
+			<h1>标签</h1>
+			<p>{tags.length} 个标签，按文章数排序。</p>
+		</div>
 		<ul>
 			{
 				tags.map((tag) => (
 					<li>
-						<a href={base + '/tags/' + tag.slug + '/'}>{tag.tag}</a>
-						<span class="count">{tag.count}</span>
+						<a href={base + '/tags/' + tag.slug + '/'}>
+							<span>{tag.tag}</span>
+							<span class="count">{tag.count}</span>
+						</a>
 					</li>
 				))
 			}

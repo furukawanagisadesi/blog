@@ -97,15 +97,19 @@ import HeaderLink from './HeaderLink.astro';
 </script>
 <style>
 	header {
+		position: sticky;
+		top: 0;
+		z-index: 10;
 		margin: 0;
 		padding: 0 1em;
-		background: var(--bg);
-		border-bottom: 1px solid var(--gray-light);
-		box-shadow: none;
+		background: color-mix(in srgb, var(--bg) 82%, transparent);
+		backdrop-filter: blur(12px) saturate(140%);
+		border-bottom: 1px solid var(--hairline);
 	}
 	h2 {
 		margin: 0;
 		font-size: 1em;
+		letter-spacing: -0.01em;
 	}
 
 	h2 a,
@@ -120,43 +124,76 @@ import HeaderLink from './HeaderLink.astro';
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		min-height: var(--header-height);
 	}
 	nav a {
 		padding: 1em 0.5em;
-		color: var(--accent);
-		border-bottom: 4px solid transparent;
+		color: var(--gray);
 		text-decoration: none;
-		transition: color 0.2s ease;
+		transition: color 0.2s var(--ease);
+	}
+	nav h2 a {
+		font-weight: 700;
 	}
 	nav a:hover {
-		color: var(--accent-dark);
+		color: var(--black);
 	}
 	nav a.active {
 		text-decoration: none;
 		color: var(--black);
 		font-weight: 700;
-		border-bottom-color: var(--accent);
+	}
+	/* 当前页用一条短横线标示，比整条 4px 边框更克制 */
+	.internal-links a {
+		position: relative;
+	}
+	.internal-links a::after {
+		content: '';
+		position: absolute;
+		left: 0.5em;
+		right: 0.5em;
+		bottom: 0.75em;
+		height: 2px;
+		border-radius: 2px;
+		background-color: var(--accent);
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform 0.25s var(--ease);
+	}
+	.internal-links a.active::after,
+	.internal-links a:hover::after {
+		transform: scaleX(1);
+	}
+	.internal-links a.active::after {
+		background-color: var(--black);
 	}
 	.internal-links {
 		display: flex;
 		align-items: center;
+		gap: 0.25em;
 	}
 	.theme-toggle {
 		display: flex;
 		align-items: center;
-		padding: 1em 0.5em;
-		border: 0;
+		padding: 0.6em;
+		border: 1px solid transparent;
+		border-radius: 8px;
 		background: none;
-		color: var(--accent);
+		color: var(--gray);
 		cursor: pointer;
-		transition: color 0.2s ease;
+		transition:
+			color 0.2s var(--ease),
+			background-color 0.2s var(--ease),
+			border-color 0.2s var(--ease);
 	}
 	.theme-toggle:hover {
-		color: var(--accent-dark);
+		color: var(--black);
+		background-color: var(--surface);
+		border-color: var(--hairline);
 	}
 	.icon {
-		width: 1.1em;
-		height: 1.1em;
+		width: 1.05em;
+		height: 1.05em;
 		display: none;
 	}
 	/* 未设置 data-theme 即「自动」，图标随状态三选一显示 */
@@ -168,18 +205,24 @@ import HeaderLink from './HeaderLink.astro';
 
 	@media (max-width: 480px) {
 		header {
-			padding-top: 0.5em;
+			padding-top: 0.4em;
+			position: static;
 		}
 		nav {
 			flex-direction: column;
 			align-items: flex-start;
+			min-height: 0;
 		}
 		.internal-links {
 			display: flex;
 			flex-wrap: wrap;
+			gap: 0;
 		}
 		nav a {
 			padding: 0.5em;
+		}
+		.internal-links a::after {
+			bottom: 0.4em;
 		}
 		.theme-toggle {
 			padding: 0.5em;

@@ -27,7 +27,6 @@
 	--on-accent: light-dark(#fff, #101418);
 	--danger: light-dark(#b02a2a, #ff8f8f);
 
-	--gray-gradient: color-mix(in srgb, var(--gray-light) 35%, transparent), var(--bg);
 	--content-width: 820px;
 	--list-width: 1000px;
 	/* 暗色下软阴影不可见，改用 1px 描边；浅色时描边为透明 */
@@ -35,6 +34,12 @@
 	--box-shadow:
 		0 2px 6px color-mix(in srgb, var(--gray) 12%, transparent),
 		0 8px 24px color-mix(in srgb, var(--gray) 16%, transparent), 0 0 0 1px var(--ring);
+
+	/* 发丝线：所有分隔线共用一个值，避免各处浓淡不一 */
+	--hairline: color-mix(in srgb, var(--gray-light) 78%, transparent);
+	/* 动效统一用这条曲线，位移与颜色变化的手感才一致 */
+	--ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+	--header-height: 4.2rem;
 }
 
 /*
@@ -48,21 +53,30 @@ html[data-theme='dark'] {
 	color-scheme: dark;
 }
 
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
 body {
 	font-family: var(--font-atkinson);
 	margin: 0;
 	padding: 0;
 	text-align: left;
 	background-color: var(--bg);
-	background-image: linear-gradient(var(--gray-gradient));
-	background-repeat: no-repeat;
-	background-size: 100% 600px;
-	word-wrap: break-word;
-	overflow-wrap: break-word;
 	color: var(--gray-dark);
 	font-size: 18px;
 	line-height: 1.7;
+	font-kerning: normal;
+	text-rendering: optimizeLegibility;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
 }
+
+::selection {
+	background-color: color-mix(in srgb, var(--accent) 24%, transparent);
+	color: var(--black);
+}
+
 main {
 	width: var(--list-width);
 	max-width: calc(100% - 2em);
@@ -78,6 +92,8 @@ h6 {
 	margin: 0 0 0.5rem 0;
 	color: var(--black);
 	line-height: 1.25;
+	letter-spacing: -0.011em;
+	text-wrap: balance;
 }
 .prose h2,
 .prose h3,
@@ -109,22 +125,60 @@ b {
 a {
 	color: var(--accent);
 	text-underline-offset: 3px;
+	text-decoration-thickness: 1px;
+	transition:
+		color 0.2s var(--ease),
+		text-decoration-color 0.2s var(--ease);
 }
 a:hover {
 	color: var(--accent-dark);
 }
 .prose a {
-	text-decoration-thickness: 1px;
+	text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+	transition:
+		color 0.2s var(--ease),
+		text-decoration-color 0.2s var(--ease);
+}
+.prose a:hover {
+	text-decoration-color: currentColor;
 }
 :focus-visible {
 	outline: 2px solid var(--accent);
 	outline-offset: 2px;
+	border-radius: 2px;
 }
 p {
 	margin-bottom: 1em;
 }
 .prose p {
 	margin-bottom: 1.3em;
+}
+/* 正文列表：默认缩进保留，只把项目符号与段距收到与正文同一节奏 */
+.prose li {
+	margin-bottom: 0.4em;
+}
+.prose li::marker {
+	color: var(--accent);
+}
+.prose ul li::marker {
+	font-size: 0.9em;
+}
+.prose hr {
+	margin: 3em 0;
+}
+/* 标题锚点跳转时不要贴到屏幕顶端 */
+.prose :is(h2, h3, h4, h5, h6) {
+	scroll-margin-top: calc(var(--header-height) + 1rem);
+}
+kbd {
+	padding: 0.1em 0.45em;
+	border: 1px solid var(--gray-light);
+	border-bottom-width: 2px;
+	border-radius: 5px;
+	background-color: var(--surface);
+	color: var(--black);
+	font-family: var(--font-mono);
+	font-size: 0.85em;
 }
 textarea {
 	width: 100%;
@@ -135,30 +189,49 @@ input {
 }
 table {
 	width: 100%;
-	margin: 1.5em 0;
+	margin: 1.8em 0;
 	border-collapse: collapse;
 	font-size: 0.95em;
-	line-height: 1.5;
+	line-height: 1.55;
+	/* 只留横线，避免满屏网格抢走正文的注意力 */
+	border-top: 1px solid var(--gray-light);
+	border-bottom: 1px solid var(--gray-light);
 }
 th,
 td {
-	padding: 0.55em 0.8em;
-	border: 1px solid var(--gray-light);
+	padding: 0.7em 0.9em;
+	border: none;
+	border-bottom: 1px solid var(--hairline);
 	text-align: left;
 	vertical-align: top;
 }
-th {
-	background-color: var(--surface);
-	color: var(--black);
-	font-weight: 700;
+tbody tr:last-child td {
+	border-bottom: none;
 }
-tbody tr:nth-child(even) {
-	background-color: color-mix(in srgb, var(--gray-light) 35%, transparent);
+th {
+	background-color: transparent;
+	color: var(--black);
+	font-size: 0.92em;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	border-bottom: 1px solid var(--gray-light);
+	white-space: nowrap;
+}
+tbody tr {
+	transition: background-color 0.2s var(--ease);
+}
+tbody tr:hover {
+	background-color: color-mix(in srgb, var(--surface) 70%, transparent);
 }
 img {
 	max-width: 100%;
 	height: auto;
 	border-radius: 8px;
+}
+/* 正文里的插图：给一点下边距，避免紧贴下文 */
+.prose p > img {
+	display: block;
+	margin: 1.6em auto;
 }
 /* 暗色下压暗图片亮度，避免浅色截图刺眼；手动切换与跟随系统都要生效 */
 html[data-theme='dark'] img {
@@ -173,18 +246,22 @@ code {
 	font-family: var(--font-mono);
 	padding: 0.15em 0.4em;
 	background-color: var(--surface);
-	border: 1px solid var(--gray-light);
+	border: 1px solid var(--hairline);
 	border-radius: 4px;
 	font-size: 0.9em;
 }
 pre {
 	font-family: var(--font-mono);
 	font-size: 0.9em;
-	padding: 1.25em 1.5em;
-	border: 1px solid var(--gray-light);
-	border-radius: 10px;
+	padding: 1.25em 1.4em;
+	border: 1px solid var(--hairline);
+	border-radius: 12px;
 	overflow-x: auto;
 	line-height: 1.6;
+	tab-size: 4;
+	/* 滚动条在暗色下别太扎眼 */
+	scrollbar-width: thin;
+	overscroll-behavior-x: contain;
 }
 pre > code {
 	all: unset;
@@ -205,7 +282,7 @@ pre > code {
 	top: 0.5em;
 	right: 0.5em;
 	padding: 0.3em 0.65em;
-	border: 1px solid var(--gray-light);
+	border: 1px solid var(--hairline);
 	border-radius: 6px;
 	background-color: var(--bg);
 	color: var(--gray);
@@ -214,10 +291,11 @@ pre > code {
 	line-height: 1.4;
 	cursor: pointer;
 	opacity: 0;
+	backdrop-filter: blur(4px);
 	transition:
-		opacity 0.2s ease,
-		color 0.2s ease,
-		border-color 0.2s ease;
+		opacity 0.2s var(--ease),
+		color 0.2s var(--ease),
+		border-color 0.2s var(--ease);
 }
 .code-frame:hover .code-copy,
 .code-copy:focus-visible {
@@ -226,6 +304,9 @@ pre > code {
 .code-copy:hover {
 	color: var(--accent);
 	border-color: var(--accent);
+}
+.code-copy:active {
+	transform: scale(0.96);
 }
 .code-copy[data-state='copied'] {
 	opacity: 1;
@@ -259,16 +340,21 @@ html[data-theme='dark'] pre.astro-code span {
 	}
 }
 blockquote {
-	margin: 1.5em 0;
-	padding: 0.2em 0 0.2em 1.25em;
-	border-left: 3px solid var(--accent);
-	border-radius: 0 6px 6px 0;
-	background-color: color-mix(in srgb, var(--gray-light) 30%, transparent);
-	font-size: 1.05em;
+	margin: 1.8em 0;
+	padding: 0.15em 0 0.15em 1.2em;
+	border-left: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+	color: var(--gray);
+	font-size: 1.02em;
+}
+blockquote > :last-child {
+	margin-bottom: 0;
+}
+blockquote strong {
+	color: var(--black);
 }
 hr {
 	border: none;
-	border-top: 1px solid var(--gray-light);
+	border-top: 1px solid var(--hairline);
 }
 @media (max-width: 720px) {
 	body {
@@ -281,10 +367,48 @@ hr {
 		padding: 1em 1.1em;
 	}
 	table {
+		/* 窄屏下表格在自身盒子内横向滚动；不要用 width:max-content，
+		   否则滚动容器本身会比视口宽，整个页面跟着横向溢出。 */
 		display: block;
-		width: max-content;
-		min-width: 100%;
+		width: 100%;
 		overflow-x: auto;
+		border-top: none;
+		font-size: 0.9em;
+	}
+	th {
+		white-space: normal;
+	}
+}
+
+/*
+	进场动效：脚本只给「首屏之外、进入视口之前」的元素加 .reveal-pending，
+	首屏内容完全不参与，所以既没有「等 JS 才显示」的风险，也不会出现闪一下再淡入。
+	脚本不可用或用户要求减少动效时，元素保持原样可见。
+*/
+[data-reveal].reveal-pending {
+	opacity: 0;
+	transform: translateY(12px);
+	transition:
+		opacity 0.7s var(--ease),
+		transform 0.7s var(--ease);
+}
+[data-reveal].reveal-pending.is-revealed {
+	opacity: 1;
+	transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+	[data-reveal].reveal-pending {
+		opacity: 1;
+		transform: none;
 	}
 }
 

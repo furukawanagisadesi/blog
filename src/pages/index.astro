@@ -4,12 +4,97 @@ import PostList from '../components/PostList.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { sortByRecentActivity } from '../lib/posts';
+import { getAllTags } from '../lib/tags';
 
 const posts = sortByRecentActivity(await getCollection('blog'));
+const tags = await getAllTags();
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
+	<style>
+		.masthead {
+			padding: 2em 0 2.6em;
+			border-bottom: 1px solid var(--hairline);
+		}
+		.kicker {
+			margin: 0 0 1.1em;
+			font-family: var(--font-mono);
+			font-size: 0.72rem;
+			letter-spacing: 0.14em;
+			text-transform: uppercase;
+			color: var(--gray);
+		}
+		.masthead h1 {
+			margin: 0 0 0.35em;
+			font-size: clamp(2rem, 5vw, 2.9rem);
+			line-height: 1.1;
+			letter-spacing: -0.02em;
+		}
+		.lead {
+			margin: 0;
+			max-width: 32em;
+			font-size: 1.05em;
+			color: var(--gray);
+		}
+		.counts {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5em 1.75em;
+			margin: 1.8em 0 0;
+			padding: 0;
+			list-style: none;
+			font-size: 0.85rem;
+			color: var(--gray);
+		}
+		.counts b {
+			color: var(--black);
+			font-weight: 700;
+			font-variant-numeric: tabular-nums;
+		}
+		.section-head {
+			display: flex;
+			align-items: baseline;
+			justify-content: space-between;
+			gap: 1em;
+			margin: 2.6em 0 0.25em;
+		}
+		.section-head h2 {
+			margin: 0;
+			font-size: 0.8rem;
+			font-weight: 700;
+			letter-spacing: 0.12em;
+			text-transform: uppercase;
+			color: var(--gray);
+		}
+		.section-head a {
+			font-size: 0.85rem;
+			text-decoration: none;
+			color: var(--gray);
+			transition: color 0.2s var(--ease);
+		}
+		.section-head a:hover {
+			color: var(--accent);
+		}
+		@media (max-width: 720px) {
+			.masthead {
+				padding: 1.4em 0 2em;
+			}
+		}
+	</style>
 	<main>
+		<section class="masthead" data-reveal>
+			<p class="kicker">技术笔记 / Notes</p>
+			<h1>{SITE_TITLE}</h1>
+			<p class="lead">{SITE_DESCRIPTION}</p>
+			<ul class="counts">
+				<li><b>{posts.length}</b> 篇文章</li>
+				<li><b>{tags.length}</b> 个标签</li>
+			</ul>
+		</section>
+		<div class="section-head">
+			<h2>最近更新</h2>
+			<a href={import.meta.env.BASE_URL.replace(/\/$/, '') + '/tags/'}>按标签浏览</a>
+		</div>
 		<section>
 			<PostList posts={posts} />
 		</section>

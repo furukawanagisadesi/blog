@@ -1,7 +1,7 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
-> 最近更新: 2026-11-16
+> 最近更新: 2026-11-20
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
 > 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查、Fedora 教程扩写、Rime 用户词典延迟修复、ImmortalWrt 文章扩写、zswap 双教程回滚章节补全、Fedora 教程补 librime-lua），供后续 Agent 接力
 
@@ -19,7 +19,7 @@
 
 ## 一、历史会话记录（按时间顺序）
 
-> 以下是按时间顺序保留的会话存档，最新进展在末尾（第 29～36 项）。当前可用信息以「二、当前状态」为准。
+> 以下是按时间顺序保留的会话存档，最新进展在末尾（第 29～43 项）。当前可用信息以「二、当前状态」为准。
 
 ### 1. 发布第一篇博客文章
 - `src/content/blog/template.md`（用户已填内容）→ 重命名为 `blog-launch.md`（《博客建立》）
@@ -420,6 +420,25 @@
 - **验证**：`npm run verify` 全绿（`astro check` 0 error / 0 warning，markdownlint 25 文件 0 issues，build 36 页）。产物核对：`--font-mono` 变量与 `@font-face` 指向 `font-mono-400/700-normal-*.woff2`；`<link rel="preload">` 仍只有正文 Atkinson 两个字重；浅色 / 深色、行内代码、含中文注释的代码块均逐项目检正常，`immortalwrt` 那篇的 `physdiskwrite.exe` 长命令在 `0.9em` 下已完整放下。
 - **故意没做**：不改行内代码的 `0.9em` 与边框、不改 `docs/WRITING.md`、不加 italic 字重（内容里没有 `md` 代码块，Shiki 的 italic 只作用于极少数 scope，正文本身也是合成倾斜）、不给现有 Atkinson 补许可文件（模板遗留，不追改）。
 
+### 43. 全站视觉精修（内容优先）（2026-11-20）
+
+- **背景**：站点功能完备，但视觉停留在模板默认水平。目标是在**保留现有阅读型博客骨架**的前提下，把 token、层级、留白、微交互与动效提升一档；明确**不做** Awwwards 式超大字号、非对称网格、滚动叙事。
+- **约束**：不改 `docs/superpowers/specs/2026-10-28-article-typography-design.md` 已收敛的正文尺度（正文 18px / 行高 1.7 / H1 2em）；不新增 npm 依赖；不请求任何外部资源；保持 tab 缩进；GitHub Pages 子路径 `/blog`。
+- **新增 token**（`global.css`）：`--hairline`（1px 极浅分隔线）、`--ease: cubic-bezier(0.2, 0.7, 0.2, 1)`（全站统一过渡曲线）、`--header-height: 4.2rem`；`scroll-margin-top` 按 `--header-height` 适配新 sticky 头部。
+- **基础排版层**：`body` 去掉 `--gray-gradient` 顶部渐变（改为纯色底）、补 `font-kerning` / `text-rendering`；`::selection` 用 accent 混合色；标题加 `letter-spacing: -0.011em` 与 `text-wrap: balance`；链接的 `text-decoration-color` 半透明、hover 转实；`:focus-visible` 加 2px 圆角描边；`li::marker` 用 accent；新增 `kbd` 样式；`.prose p > img` 居中并加 1.6em 上下距；blockquote 改 2px 左侧细线 + 灰字（去灰底）；`hr` 用 `--hairline`。
+- **代码块**：`pre` 内边距 1.4em、圆角 12px、`tab-size: 4`、`scrollbar-width: thin`、`overscroll-behavior-x: contain`；`.code-copy` 描边改 `--hairline`，加 `backdrop-filter` 与 `:active` 缩放。
+- **首页**（`src/pages/index.astro`）：新增 masthead —— kicker「技术笔记 / NOTES」+ H1（`clamp(2rem, 5vw, 2.9rem)`）+ lead + 「23 篇文章 / 9 个标签」计数；下方「最近更新」段头（右侧「按标签浏览」入口），再接 `PostList`。
+- **列表条目**（`PostList.astro`）：整行 `<a>` 可点（原先是标题链接），hover 整行浅底色 + 标题 `→` 滑入；日期与「更新于」同一行；标签**单独一行**描边胶囊（和日期挤在一起会在行尾留下孤零零的分隔点）；`data-reveal` 挂在每个 `<li>` 上。
+- **文章页**（`BlogPost.astro` + `[...slug].astro`）：标题区留白加大（`margin-bottom: 2.2em`），H1 `2.1em`，日期小字等宽数字，`.title hr` 改 3em 居中短横线，标签改描边胶囊；hero 图下加 2.5em；**新增「约 N 分钟」阅读时长**——按中文 350 字/分、西文 200 词/分、代码 10 行/分合并计算，下限 1 分钟，在 `[...slug].astro` 算好后以 `readingTime` prop 传入（参考值：`debian-zswap` 16 分钟、`immortalwrt` 23 分钟、`nginx-srs` 24 分钟）。
+- **页头**（`Header.astro`）：sticky + `backdrop-filter: blur(12px) saturate(140%)`；导航灰色 hover 转黑；当前页用 2px 短横线（`::after` + `scaleX`）替代原 4px 底边——`HeaderLink.astro` 的 active 下划线已移除，交给 Header 统一控制；主题按钮改描边 pill；**≤480px 改静态定位并两行布局**（标题一行、导航一行）。
+- **标签页**（`tags/index.astro`、`tags/[tag].astro`）：索引页头部「N 个标签，按文章数排序」，列表行 hover 高亮 + 等宽计数胶囊；单标签页改面包屑「标签 /」+ H1 + 「N 篇文章」，列表复用 `PostList`。
+- **页脚**（`Footer.astro`）：两栏（版权 + 首页/标签/关于/RSS），`width: calc(var(--list-width) - 2em)` 与正文左缘对齐。
+- **进场动效**（`BaseLayout.astro`）：JS 只给**首屏之外**的 `[data-reveal]` 加 `.reveal-pending`，再由 IntersectionObserver 淡入；首屏不参与，**无 JS 也照常可见**；`prefers-reduced-motion` 下全关。
+- **表格**：改「只留横线」的轻量样式（去掉满格网格与斑马纹），移动端在自身盒子内横向滚动。
+- **过程中修掉一个自己引入的问题**：窄屏表格原本用 `width: max-content; min-width: 100%`，滚动容器自身就比视口宽，导致整页横向溢出（实测 `immortalwrt` 页 `docOverflow: 930`、`debian-zswap` 页 `596`）。改为 `width: 100%` + 自身 `overflow-x: auto` 后两页 `docOverflow: 0`。注意：代码块内部 `CODE`/`SPAN.line` 超出视口是 `pre` 自身横向滚动的预期行为，不算页面溢出；检测应看 `document.documentElement.scrollWidth - clientWidth`。
+- **验证**：`npm run verify` 全绿（`astro check` 24 文件 0 error / 0 warning / 0 hint，markdownlint 0 issues，build 36 页）。目检覆盖：首页浅色/深色、文章页浅色/深色、含表格文章、含列表文章、标签索引页/单标签页、About、404、移动端首页/文章页、列表 hover 态；另外脚本校验了 `[data-reveal]` 首屏不隐藏、滚动后全部可见、各页 `docOverflow: 0`。
+- **故意没做**：不改正文字号/行高与 `article-typography-design.md` 结论；不加自定义调色板（沿用原 accent）；不加动画库、不加字体、不加依赖；不做暗色下的额外配色微调；不重排文章内容。
+
 ---
 
 ## 二、当前状态
@@ -436,7 +455,7 @@
 | About 页 | 个人简介 + 邮箱 |
 | 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
 | 最新提交 | 手动主题切换（本次提交）+ 视觉改版 `3a0c445` / `7beaaf6` / `7f2750e`；内容提交 `a713385`（第 37 项）；本文档更新提交以 `git log -1` 为准 |
-| 视觉主题 | 极简精修：浅色 `#fdfdfc` 底 / 深靛蓝 `#1f4e8c` 强调色；**主题三态**（跟随系统 / 浅色 / 深色），页头按钮切换并存入 `localStorage.theme`，`<head>` 内联脚本防白闪，移动端 `theme-color` 同步；代码块 Shiki 明暗双主题 + 悬停复制按钮；表格有边框 + 表头底色 + 斑马纹，≤720px 可横向滚动 |
+| 视觉主题 | 极简精修（2026-11-20 全站视觉精修，见第 43 项）：浅色 `#fdfdfc` 底 / 深靛蓝 `#1f4e8c` 强调色；**主题三态**（跟随系统 / 浅色 / 深色），页头按钮切换并存入 `localStorage.theme`，`<head>` 内联脚本防白闪，移动端 `theme-color` 同步；首页 masthead + 「最近更新」列表（整行可点、标题箭头、标签胶囊）；页头 sticky 毛玻璃（≤480px 两行静态）；文章页显示「约 N 分钟」阅读时长；表格只留横线、≤720px 在自身盒子内横向滚动；代码块 Shiki 明暗双主题 + 悬停复制按钮；首屏外元素用 IntersectionObserver 淡入，`prefers-reduced-motion` 下全关 |
 | 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
 
 ### 文章目录结构

@@ -26,6 +26,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 	.code {
 		margin: 0 0 0.2em;
 		color: var(--accent);
+		font-family: var(--font-mono);
 		font-size: clamp(3.5rem, 12vw, 6rem);
 		font-weight: 700;
 		letter-spacing: -0.03em;
@@ -51,9 +52,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 		border-radius: 999px;
 		text-decoration: none;
 		transition:
-			color 0.2s ease,
-			border-color 0.2s ease,
-			background-color 0.2s ease;
+			color 0.2s var(--ease),
+			border-color 0.2s var(--ease),
+			background-color 0.2s var(--ease);
 	}
 	.actions a:hover {
 		border-color: var(--accent);

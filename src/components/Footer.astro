@@ -1,17 +1,58 @@
 ---
 const today = new Date();
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <footer>
-	&copy; {today.getFullYear()} furukawanagisadesi. 保留所有权利。
+	<div class="inner">
+		<p class="site">&copy; {today.getFullYear()} furukawanagisadesi. 保留所有权利。</p>
+		<nav class="links" aria-label="页脚导航">
+			<a href={base + '/'}>首页</a>
+			<a href={base + '/tags/'}>标签</a>
+			<a href={base + '/about/'}>关于</a>
+			<a href={base + '/rss.xml'}>RSS</a>
+		</nav>
+	</div>
 </footer>
 <style>
 	footer {
-		padding: 2em 1em 4em 1em;
-		border-top: 1px solid var(--gray-light);
-		background: none;
+		margin-top: 5em;
+		padding: 2.5em 1em 3.5em;
+		border-top: 1px solid var(--hairline);
 		color: var(--gray);
-		text-align: center;
-		font-size: 0.9em;
+		font-size: 0.85rem;
+	}
+	.inner {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 1em;
+		/* 与 main 的文字左缘对齐（main 宽 1000，内边距各 1em） */
+		width: calc(var(--list-width) - 2em);
+		max-width: 100%;
+		margin: 0 auto;
+	}
+	.site {
+		margin: 0;
+	}
+	.links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1.25em;
+	}
+	.links a {
+		color: var(--gray);
+		text-decoration: none;
+		transition: color 0.2s var(--ease);
+	}
+	.links a:hover {
+		color: var(--black);
+	}
+	@media (max-width: 720px) {
+		footer {
+			margin-top: 3em;
+			padding: 2em 1em 3em;
+		}
 	}
 </style>

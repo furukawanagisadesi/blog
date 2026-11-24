@@ -1,7 +1,7 @@
 # 博客个性化 + 文章管理与发布 — 交接文档
 
 > 生成时间: 2026-08-09
-> 最近更新: 2026-11-20
+> 最近更新: 2026-11-23
 > 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
 > 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查、Fedora 教程扩写、Rime 用户词典延迟修复、ImmortalWrt 文章扩写、zswap 双教程回滚章节补全、Fedora 教程补 librime-lua），供后续 Agent 接力
 
@@ -615,6 +615,17 @@ npm run verify                   # check + lint:md + build
 - 处理：用内建 `lzo`（推荐，开机即用不会回退）；或开机后 `modprobe zstd` → `enabled=0` → `compressor=zstd` → `enabled=1`（需池为空）；彻底方案是编译内核时把 zstd 设为默认算法（个人机器不划算）
 - 排查命令：`for f in /sys/module/zswap/parameters/*; do echo "$(basename $f)=$(cat $f)"; done`、`grep -E "zstd" /proc/crypto`（无输出即未加载）
 
+### 坑 9: NTFS 盘的 `ads` 挂载选项让 astro 构建和预览全部失败（仅 Linux 侧）
+- 现象：仓库放在 NTFS 分区（如 `/mnt/软件/Syncthing/blog`）时，`npm run build` 报 `MISSING_EXPORT "loadDevToolbarApps" is not exported by "node_modules/astro:toolbar:internal/dist/index.js"`，`astro check` 同样失败；`npm run dev` 启动即退出，`.astro/dev.log` 里写的是 `createAstroServerApp is not a function`
+- 原因：ntfs3 挂载默认带 `ads` 选项，冒号被当作「文件 : 数据流」分隔符。astro 的虚拟模块 id（`astro:toolbar:internal`、`astro:content`、`astro:server-app`）因此被解析成 `node_modules/astro` 加子路径，加载到了错误的文件。同一份代码、同一个 lockfile 在 ext4 上构建完全正常，说明与依赖版本无关
+- 判断方法：`mount | grep 软件` 看挂载参数是否含 `ads`；`ls -d node_modules/astro:content` 若存在即命中（正常系统上该路径不存在）
+- 解决方案（任选其一）：
+  1. 关闭 ADS 访问：`sudo mount -o remount,ads=0 /mnt/软件`，确认构建正常后再把 `ads=0` 写进 `/etc/fstab` 的 `/mnt/软件` 那一行（注意：ntfs3 **不支持** `noads` 写法，写了会报 `unknown option` 并挂载失败）
+  2. 不在 NTFS 上构建：把仓库复制到 ext4 路径（如 `~/workspace/blog`）再 `npm run verify`
+  3. 只依赖 CI：push 后由 GitHub Actions 构建部署（runner 是 ext4，不受影响）
+- 影响范围：只在 Linux 侧；Windows 编辑、Windows 上构建都不受影响。`ads=0` 只关掉 Linux 用 `文件:流名` 读 NTFS 数据流的能力，不会删除已有数据
+- 验证：修好后 `npm run verify` 应全绿（`astro check` 0 errors、构建 36 页）。2026-11-23 已在 ext4 副本上验证通过，NTFS 原路径未改动
+
 ---
 
 ## 七、日常操作速查
@@ -622,6 +633,7 @@ npm run verify                   # check + lint:md + build
 ```bash
 # 本地开发
 cd "D:\Syncthing\blog" && npm run dev   # 默认 http://localhost:4321/blog/
+# Linux 侧若仓库在 NTFS 盘（/mnt/软件），dev/build 会因 ads 挂载选项失败，处理见「坑 9」
 
 # 构建验证
 npm run build

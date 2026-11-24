@@ -620,11 +620,11 @@ npm run verify                   # check + lint:md + build
 - 原因：ntfs3 挂载默认带 `ads` 选项，冒号被当作「文件 : 数据流」分隔符。astro 的虚拟模块 id（`astro:toolbar:internal`、`astro:content`、`astro:server-app`）因此被解析成 `node_modules/astro` 加子路径，加载到了错误的文件。同一份代码、同一个 lockfile 在 ext4 上构建完全正常，说明与依赖版本无关
 - 判断方法：`mount | grep 软件` 看挂载参数是否含 `ads`；`ls -d node_modules/astro:content` 若存在即命中（正常系统上该路径不存在）
 - 解决方案（任选其一）：
-  1. 关闭 ADS 访问：`sudo mount -o remount,ads=0 /mnt/软件`，确认构建正常后再把 `ads=0` 写进 `/etc/fstab` 的 `/mnt/软件` 那一行（注意：ntfs3 **不支持** `noads` 写法，写了会报 `unknown option` 并挂载失败）
+  1. 关闭 ADS 访问：`sudo mount -o remount,ads=0 /mnt/软件` 热生效（不用 umount，`/proc/mounts` 里 `ads` 立即消失、其余选项保留），再把 `,ads=0` 追加到 `/etc/fstab` 的 `/mnt/软件` 那一行的选项列，然后 `sudo systemctl daemon-reload`（注意：ntfs3 **不支持** `noads` 写法，写了会报 `unknown option` 并挂载失败）。**本机已于 2026-11-24 按此完成，`/mnt/影视` 未改动；重启后由 fstab 生效**
   2. 不在 NTFS 上构建：把仓库复制到 ext4 路径（如 `~/workspace/blog`）再 `npm run verify`
   3. 只依赖 CI：push 后由 GitHub Actions 构建部署（runner 是 ext4，不受影响）
 - 影响范围：只在 Linux 侧；Windows 编辑、Windows 上构建都不受影响。`ads=0` 只关掉 Linux 用 `文件:流名` 读 NTFS 数据流的能力，不会删除已有数据
-- 验证：修好后 `npm run verify` 应全绿（`astro check` 0 errors、构建 36 页）。2026-11-23 已在 ext4 副本上验证通过，NTFS 原路径未改动
+- 验证：修好后 `npm run verify` 应全绿。2026-11-23 在 ext4 副本上验证通过；2026-11-24 在 **NTFS 原路径** `/mnt/软件/Syncthing/blog` 上完成 `ads=0` 热改 + fstab 持久化后验证通过：`astro check` 0 errors / 0 warnings / 0 hints、`markdownlint` 0 issues、`astro build` 37 页（本段此前记 36 页，差异未核实）。`ls -d node_modules/astro:content` 现在返回 `没有那个文件或目录`
 
 ---
 

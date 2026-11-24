@@ -2,7 +2,7 @@
 title: 'Fedora 安装后设置教程'
 description: 'Fedora 45 GNOME 的换源与常用设置'
 pubDate: '2026-11-04'
-updatedDate: '2026-11-16'
+updatedDate: '2026-11-23'
 tags: ['Linux', 'VMware']
 ---
 
@@ -25,7 +25,7 @@ sudo dnf clean all
 sudo dnf makecache
 ```
 
-执行更新命令并清理缓存，然后检查是否有需要重启的软件。
+执行更新并清理无用依赖，然后检查是否有需要重启的软件。
 
 ```bash
 sudo dnf upgrade
@@ -74,20 +74,12 @@ proxy = http://your_ip:port
    - 在“输入源”部分点击 **“+”** 号。
    - 选择 **“汉语 (中国)”**，然后找到并添加 **“中文 (Rime)”**。
 
-4. 安装雾凇拼音/白霜拼音（两个方案二选一，Rime 的配置目录 `~/.config/ibus/rime/`）：
+4. 安装雾凇拼音（Rime 的配置目录 `~/.config/ibus/rime/`）：
 
    ```bash
    # 雾凇拼音
    git clone --depth 1 https://github.com/iDvel/rime-ice.git /home/fedora/下载/rime-ice
    cp -r /home/fedora/下载/rime-ice/* ~/.config/ibus/rime/
-   ```
-
-   或：
-
-   ```bash
-   # 白霜拼音
-   git clone --depth 1 https://github.com/iDvel/rime-frost.git /home/fedora/下载/rime-frost
-   cp -r /home/fedora/下载/rime-frost/* ~/.config/ibus/rime/
    ```
 
 5. 自定义拼音方案：
@@ -105,15 +97,6 @@ proxy = http://your_ip:port
      menu/page_size: 9 # 候选词数量
    ```
 
-   或
-
-   ```yml
-   patch:
-     schema_list:
-       - schema: rime_frost # 白霜拼音
-     menu/page_size: 9 # 候选词数量
-   ```
-
 ## 5. 更换 flatpak 仓库
 
 1. 检查当前 flatpak 仓库：
@@ -128,7 +111,7 @@ proxy = http://your_ip:port
    flatpak remote-modify --no-filter --disable fedora
    ```
 
-   > 很多人打开 gnome-software 一直显示正在加载就是因为访问不到 Fedora Flatpaks 仓库，禁用即可进入。
+   > 很多人打开 gnome-software 一直显示正在加载，就是因为访问不到 Fedora Flatpaks 仓库，禁用即可进入。
 
 3. 修改 flathub 仓库：
 
@@ -149,21 +132,21 @@ proxy = http://your_ip:port
 1. 安装 ExtensionManager：
 
    ```bash
-   # 用户级
-   flatpak install --user flathub com.mattjakeman.ExtensionManager
+   # 系统级
+   flatpak install flathub com.mattjakeman.ExtensionManager
    ```
 
    或者：
 
    ```bash
-   # 系统级
-   flatpak install flathub com.mattjakeman.ExtensionManager
+   # 用户级
+   flatpak install --user flathub com.mattjakeman.ExtensionManager
    ```
 
-2. 安装 dash to dock：
+2. 安装 Dash to Dock：
 
    ```text
-   ExtensionManager 浏览中搜索 Dash to Dock
+   在 ExtensionManager 的「浏览」中搜索 Dash to Dock
    ```
 
 3. 安装 gnome-tweaks：
@@ -173,9 +156,38 @@ proxy = http://your_ip:port
    sudo dnf install gnome-tweaks
    ```
 
+4. 推荐扩展组合（按需装）：
+
+   > 原则：只装明确声明支持当前 GNOME Shell 版本（`gnome-shell --version`）的扩展，宁缺毋滥。本文环境是 GNOME 51.1。
+
+   | 扩展 | UUID | 作用 | 额外依赖 |
+   | --- | --- | --- | --- |
+   | Tiling Assistant | `tiling-assistant@leleat-on-github` | 半屏 / 四分之一平铺、窗口组 | 无 |
+   | Vitals | `Vitals@CoreCoding.com` | 顶栏显示 CPU、内存、网速、温度 | `lm_sensors` |
+   | Clipboard Indicator | `clipboard-indicator@tudmotu.com` | 剪贴板历史，支持图片、搜索、置顶 | 无 |
+
+   在 ExtensionManager 的「浏览」里按名字搜索即可安装
+
+5. Vitals 的依赖：
+
+   ```bash
+   sudo dnf install lm_sensors
+   ```
+
+   > 温度不显示时先跑 `sudo sensors-detect --auto`，再注销或重启。
+
+6. 限制剪贴板历史条数（默认只有 15 条）：
+
+   ```bash
+   GSETTINGS_SCHEMA_DIR=~/.local/share/gnome-shell/extensions/clipboard-indicator@tudmotu.com/schemas \
+     gsettings set org.gnome.shell.extensions.clipboard-indicator history-size 50
+   ```
+
+   > 历史以明文 JSON 保存在 `~/.cache`，复制过密码、验证码之类的内容建议随手点一下清空。
+
 ## 7. 代理设置（可选）
 
-> IP 地址和端口号需自行修改，文章内只做演示
+> IP 地址和端口号需自行修改，下文只做演示
 > 可开关式代理和全局代理按需二选一
 
 1. 可开关式代理（环境变量只影响当前 Shell 及其子进程）：
@@ -185,7 +197,7 @@ proxy = http://your_ip:port
 
    _PROXY_HTTP="http://127.0.0.1:17897"
    _PROXY_SOCKS="socks5://127.0.0.1:17897"
-   _PROXY_NOPROXY="localhost,127.0.0.1,::1,192.168.1.0/24,.local"
+   _PROXY_NOPROXY="localhost,127.0.0.0/8,::1"
 
    proxon() {
        export http_proxy="$_PROXY_HTTP"  https_proxy="$_PROXY_HTTP"  all_proxy="$_PROXY_SOCKS"
@@ -227,7 +239,7 @@ proxy = http://your_ip:port
    HTTP_PROXY=${http_proxy}
    HTTPS_PROXY=${https_proxy}
    ALL_PROXY=${all_proxy}
-   no_proxy=localhost,127.0.0.1,::1,192.168.1.0/24,.local
+   no_proxy=localhost,127.0.0.0/8,::1
    NO_PROXY=${no_proxy}
    EOF
    ```

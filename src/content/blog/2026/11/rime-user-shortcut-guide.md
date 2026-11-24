@@ -109,11 +109,280 @@ yield(cand)
 
 这样新词上屏一次就能立刻用简拼，不需要重新部署。用 group 1 是为了排在主方案 `Memory::OnCommit` 之后，避免在事务提交途中重建。
 
+### 4.6 完整代码
+
+`lua/user_shortcut.lua` 全文如下，上面几节都是从中摘出的片段：
+
+```lua
+-- 用户词简拼（首字母）输入
+--
+-- 背景：librime 的 script_translator 是用词库 prism 生成音节图后再查用户词典的，
+--       用户词典里的词不在 prism 里，所以「我们公司」上屏过也敲不出 wmgs。
+--       原生逻辑无解（见 rime/librime#72）。
+--
+-- 做法：自己拿一个 Memory，直接遍历用户词典，读 DictEntry.custom_code
+--       （形如 "wo men gong si"，就是当初上屏时记下的真实编码），
+--       在 Lua 层做「每个音节取前缀」的匹配：
+--         全拼  womengongsi  → 交给原生 script_translator，本插件不产出（避免重复）
+--         简拼  wmgs         → 本插件产出
+--         混输  womengs      → 本插件产出
+--       命中的候选 type 为 user_phrase，注释由 user_dict_mark 标 *，选词次数照常累加。
+--
+-- 索引：首次输入时构建（几千条量级下耗时 1~2 ms），上屏/删词后标脏，下一次
+--       按键重建，所以新词立刻能用简拼，不需要重新部署。
+--
+-- 挂载：
+--   engine/translators/+:
+--     - lua_translator@*user_shortcut
+-- 配置（可选）：
+--   user_shortcut/quality: 1          # 候选权重，需低于 user_phrase_order 的 fixed_quality(90)
+--   user_shortcut/max_candidates: 10  # 单次最多产出几个
+
+local M = {}
+
+local MAX_SYLLABLES = 16
+
+local function split_code(code)
+    local syls = {}
+    for s in code:gmatch("%S+") do
+        syls[#syls + 1] = s
+    end
+    return syls
+end
+
+local function utf8len(s)
+    local ok, n = pcall(function()
+        return utf8.len(s)
+    end)
+    if ok and n then
+        return n
+    end
+    return #s
+end
+
+-- 依次构建索引；返回条目数组（按选词次数降序）
+local function build_index(env)
+    local mem = env.mem
+    local index = {}
+    local by_text = {}
+    if not mem then
+        return index
+    end
+
+    pcall(function()
+        -- iter_user() 遍历的是「上一次 user_lookup 的结果」，空串前缀就是全量
+        if not mem:user_lookup("", true) then
+            return
+        end
+        for entry in mem:iter_user() do
+            local text = entry.text
+            local code = entry.custom_code
+            if type(text) == "string" and type(code) == "string" then
+                code = code:gsub("^%s+", ""):gsub("%s+$", "")
+                -- 只接受纯拼音编码，别的语种（英文等）跳过
+                if code:match("^[a-z ]+$") then
+                    local syls = split_code(code)
+                    local n = #syls
+                    -- 音节数必须等于字数，对不齐的（多音字编码异常等）跳过
+                    if n >= 2 and n <= MAX_SYLLABLES and utf8len(text) == n then
+                        local initials = {}
+                        local total_len = 0
+                        for i = 1, n do
+                            initials[i] = syls[i]:sub(1, 1)
+                            total_len = total_len + #syls[i]
+                        end
+                        local item = {
+                            text = text,
+                            sylls = syls,
+                            initials = table.concat(initials),
+                            total_len = total_len,
+                            count = entry.commit_count or 0,
+                            entry = entry,
+                        }
+                        local old = by_text[text]
+                        if old then
+                            -- 同一个词可能有多个编码（不同读音），留次数高的
+                            if item.count > old.count then
+                                index[old.idx] = item
+                                item.idx = old.idx
+                                by_text[text] = item
+                            end
+                        else
+                            index[#index + 1] = item
+                            item.idx = #index
+                            by_text[text] = item
+                        end
+                    end
+                end
+            end
+        end
+    end)
+
+    table.sort(index, function(a, b)
+        if a.count ~= b.count then
+            return a.count > b.count
+        end
+        return a.text < b.text
+    end)
+    for i = 1, #index do
+        index[i].idx = i
+    end
+    return index
+end
+
+-- 输入能否拆成「每个音节的某个前缀」；成功时返回每个音节消耗的字符数
+local function match_pieces(sylls, input)
+    local n = #sylls
+    local m = #input
+    if m < n then
+        return nil
+    end
+
+    local pieces = {}
+
+    local function dfs(i, pos)
+        if i > n then
+            return pos > m
+        end
+        local remaining = m - pos
+        if remaining < (n - i + 1) then
+            return false
+        end
+        local syl = sylls[i]
+        local maxlen = #syl
+        if maxlen > remaining then
+            maxlen = remaining
+        end
+        for len = 1, maxlen do
+            if input:sub(pos + 1, pos + len) == syl:sub(1, len) then
+                pieces[i] = len
+                if dfs(i + 1, pos + len) then
+                    return true
+                end
+            end
+        end
+        pieces[i] = nil
+        return false
+    end
+
+    if dfs(1, 0) then
+        return pieces
+    end
+    return nil
+end
+
+local function refresh_if_needed(env)
+    if env.dirty or not env.index then
+        env.index = build_index(env)
+        env.dirty = false
+    end
+end
+
+function M.init(env)
+    env.name_space = env.name_space:gsub("^%*", "")
+    local ns = env.name_space
+    local config = env.engine.schema.config
+
+    env.quality = config:get_double(ns .. "/quality") or 1.0
+    env.max_candidates = config:get_int(ns .. "/max_candidates")
+    if env.max_candidates == nil or env.max_candidates < 1 then
+        env.max_candidates = 10
+    end
+
+    env.index = nil
+    env.dirty = true
+    env.conns = {}
+
+    -- 与方案共用同一个 UserDictionary；这个 Memory 没有 memorize 回调，
+    -- 因此不会重复写用户词（LuaMemory::Memorize 在无回调时直接返回 false）。
+    pcall(function()
+        env.mem = Memory(env.engine, env.engine.schema, "translator")
+    end)
+
+    pcall(function()
+        local ctx = env.engine.context
+        env.conns[#env.conns + 1] = ctx.commit_notifier:connect(function()
+            env.dirty = true
+        end, 1)
+        env.conns[#env.conns + 1] = ctx.delete_notifier:connect(function()
+            env.dirty = true
+        end, 1)
+    end)
+end
+
+function M.func(input, seg, env)
+    if type(input) ~= "string" or not input:match("^[a-z]+$") then
+        return
+    end
+    local ok_tag, has_tag = pcall(function()
+        return seg:has_tag("abc")
+    end)
+    if ok_tag and not has_tag then
+        return
+    end
+
+    refresh_if_needed(env)
+    local index = env.index
+    if not index or #index == 0 then
+        return
+    end
+
+    local m = #input
+    local first = input:sub(1, 1)
+    local yielded = 0
+
+    for _, item in ipairs(index) do
+        local n = #item.sylls
+        if m >= n and m <= item.total_len and item.initials:sub(1, 1) == first then
+            local pieces = match_pieces(item.sylls, input)
+            if pieces then
+                -- 至少有一个音节是缩写；全是完整拼写就交给原生 translator
+                local has_abbrev = false
+                for i = 1, n do
+                    if pieces[i] < #item.sylls[i] then
+                        has_abbrev = true
+                        break
+                    end
+                end
+                if has_abbrev then
+                    local cand = Phrase(env.mem, "user_phrase",
+                        seg.start, seg._end, item.entry):toCandidate()
+                    cand.quality = env.quality
+                    yield(cand)
+                    yielded = yielded + 1
+                    if yielded >= env.max_candidates then
+                        break
+                    end
+                end
+            end
+        end
+    end
+end
+
+function M.fini(env)
+    for _, conn in ipairs(env.conns or {}) do
+        pcall(function()
+            conn:disconnect()
+        end)
+    end
+    env.conns = nil
+    env.index = nil
+    if env.mem then
+        pcall(function()
+            env.mem:disconnect()
+        end)
+        env.mem = nil
+    end
+end
+
+return M
+```
+
 ## 5. 配置与部署
 
 ### 5.1 放好 lua 文件
 
-把 `user_shortcut.lua` 放进用户目录的 `lua/` 下：
+把上面这份 `user_shortcut.lua` 放进用户目录的 `lua/` 下：
 
 ```text
 Windows  %APPDATA%\Rime\lua\user_shortcut.lua

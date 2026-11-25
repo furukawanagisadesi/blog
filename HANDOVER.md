@@ -1,658 +1,94 @@
-# 博客个性化 + 文章管理与发布 — 交接文档
+# 博客交接文档
 
-> 生成时间: 2026-08-09
-> 最近更新: 2026-11-23
-> 前序文档: `F:\Applications\GenericAgent-main\temp\blog_deploy_handover.md`（部署 + 修复阶段）
-> 本文档: 会话总结（文章发布、格式化、主页重构、敏感信息清理、VMware 系列、IE 慢加载排查、站点样式调整、Twikoo 评论系统集成、中文一致化与公共布局重构、中文字体栈、Twikoo 延迟加载、标签功能、修改日期与排序、删除《博客建立》、Fedora 系列重组与 Rime Caps 排查、Fedora 教程扩写、Rime 用户词典延迟修复、ImmortalWrt 文章扩写、zswap 双教程回滚章节补全、Fedora 教程补 librime-lua），供后续 Agent 接力
+> 最后更新：2026-11-25
+> 本文件只记**现状与运维**，不记历史流水账（变更过程查 `git log`）。
+> 格式规范 [`docs/WRITING.md`](docs/WRITING.md)（唯一来源）｜发布流程 [`docs/PUBLISH.md`](docs/PUBLISH.md)｜设计取舍 [`docs/DECISIONS.md`](docs/DECISIONS.md)
 
-## 目录
-
-- [一、历史会话记录（按时间顺序）](#一历史会话记录按时间顺序)
-- [二、当前状态](#二当前状态)
-- [三、待办事项（供后续 Agent）](#三待办事项供后续-agent)
-- [四、文章检查流程（新增/修改文章照此执行）](#四文章检查流程新增修改文章照此执行)
-- [五、约定：博客 markdown 统一规范（重要，新文章遵守）](#五约定博客-markdown-统一规范重要新文章遵守)
-- [六、踩坑记录](#六踩坑记录)
-- [七、日常操作速查](#七日常操作速查)
-
----
-
-## 一、历史会话记录（按时间顺序）
-
-> 以下是按时间顺序保留的会话存档，最新进展在末尾（第 29～43 项）。当前可用信息以「二、当前状态」为准。
-
-### 1. 发布第一篇博客文章
-- `src/content/blog/template.md`（用户已填内容）→ 重命名为 `blog-launch.md`（《博客建立》）
-- 提交 `9d13e3f`，线上验证 https://furukawanagisadesi.github.io/blog/blog-launch/ 正常
-- 顺带提交了工作区中已删除的 `CLAUDE.md` 符号链接
-
-### 2. 文章封面图
-- 第一篇博客封面：`src/assets/blog-post-ai-setup.jpg`（Pexels 免费图，写代码工作台主题）
-- ImmortalWrt 文章封面：`src/assets/blog-router-network.jpg`（Pexels 免费图，网络/路由主题）
-- 提交 `a1425c5`、`be06484`
-
-### 3. 主页改为纯文字文章列表
-- **问题**：新增文章后主页错位。原因：`index.astro` 原布局把第一篇设为通栏 featured 卡片（需 hero 图），无图则错位
-- **方案**：`src/pages/index.astro` 重写为纯文字列表（标题 + 描述 + 日期 + 分隔线），彻底移除首页图片，提交 `c70f961`
-- 排序逻辑：见第 22 项，现按「最近活动」日期（更新日期优先，否则发布日期）降序；同一天按发布日期降序、文章 `id` 升序，如需精确控制可在 pubDate 加时间
-
-### 4. 新增 8 篇文章并整理目录结构
-- 用户将文章按日期归档：`src/content/blog/2026/08/`
-- 新增文章（Docker 自部署系列 + RouterOS）：
-  | 文件 | 标题 |
-  |------|------|
-  | `routeros-setup-guide.md` | RouterOS 配置流程 |
-  | `Docker/easytier-docker-guide.md` | Easytier Docker 设置教程 |
-  | `Docker/nginx-srs-live-streaming-guide.md` | Nginx-SRS 直播推流设置教程 |
-  | `Docker/rustdesk-docker-guide.md` | RustDesk Docker 设置教程 |
-  | `Docker/srs-docker-guide.md` | SRS Docker 设置教程 |
-  | `Docker/syncclipboard-docker-guide.md` | SyncClipboard Docker 设置教程 |
-  | `Docker/syncthing-docker-guide.md` | Syncthing Docker 设置教程 |
-  | `Docker/webdav-docker-guide.md` | WebDAV Docker 设置教程 |
-- 中文文件名 → 英文 slug（避免 URL 乱码），提交 `cd5d61c`
-- **为 8 篇新文章补 frontmatter**（title/description/pubDate）——schema 强制要求，缺失会构建失败
-- 文章 URL 现带日期路径，如 `/blog/2026/08/docker/easytier-docker-guide/`
-
-### 5. 统一 markdown 格式（10 篇）
-提交 `4f56d7f`，统一规范：
-- 代码块带语言标记（`bash`/`yml`/`nginx`/`json`/`javascript`/`dockerfile`/`text`）
-- 路径/命令/端口/IP 用反引号行内代码
-- 中英文之间加空格；加粗内不留多余空格（`**xxx**`）
-- Docker 系列统一结构：1 创建文件夹 → 2 开放端口 → 3 创建文件 → 4 启动服务 → 5+ 后续配置
-- 清理模板注释、多余空行
-- 修正 bug：rustdesk 文章启动命令 `cd /home/admin/webdav` → `/home/admin/rustdesk`
-
-### 6. 单篇深排版：RouterOS 文章（提交 `5c0fbeb`、`2b4efac`）
-- 去掉正文重复 H1（页面布局已用 frontmatter title 渲染标题）
-- 菜单路径用引用块；配置值用「字段/值」表格；接口改名用表格；`ipconfig` 输出用代码块
-- 加目录（TOC 锚点）；标题 `①②③` → `1. 2. 3.` 并同步锚点
-- 已验证：H1 仅 1 个、6 个表格、目录锚点可用
-
-### 7. About 页面（提交 `a16a3cb`、`79ec6ad`）
-- 重写为个人简介版（定位：个人简介，无社交图标）
-- 内容含：你好我是 furukawanagisadesi / 我在写什么 / 为什么写博客
-- 加入邮箱链接 `mailto:furukawanagisadesi@protonmail.com`
-
-### 8. 敏感信息清理（提交 `e2ebd2d`）
-统一替换为占位符：
-| 文件 | 原内容 | 替换为 |
-|------|--------|--------|
-| webdav-docker-guide.md | `username: admin` / `password: wby999` | `your_username` / `your_password` |
-| rustdesk-docker-guide.md | `RELAY=公网服务器ip:21117` | `RELAY=your_ip:21117` |
-| srs-docker-guide.md | `你的服务器IP`（4处） | `your_ip` |
-| nginx-srs-live-streaming-guide.md | `你的服务器IP`（4处）、htpasswd 用户名 `admin` | `your_ip` / `your_username` |
-| syncthing-docker-guide.md | `你的服务器IP:8384` | `your_ip:8384` |
-
-### 9. 新增 VMware 系列文章
-- `vmware-ubuntu-setup-guide.md`（《VMware Ubuntu 安装流程》）：VMware 17 下载、Ubuntu 26.04 镜像下载、安装步骤、VMware Tools 安装、SSH 配置
-  - 提交 `7dfc657`（新增）、`ffbf716`（新增 VMware Tools 章节）、`46aeb4f`（新增 SSH 章节 + 同步 HANDOVER）
-- `vmware-ubuntu-virtual-audio-bug-fix.md`（《VMware Ubuntu 虚拟音频设备离线解决方案》）：Voicemeeter 虚拟音频导致声卡离线的排查与解决（安装 pavucontrol、改配置），提交 `796c1f2`
-  - 中文文件名 → 英文 slug；文中两张截图从 `content/blog/2026/08/` 移到 `src/assets/` 并重命名
-    - `image.png` → `src/assets/vmware-virtual-audio-offline.png`
-    - `image-1.png` → `src/assets/vmware-virtual-audio-config.png`
-  - 图片用相对路径 `../../../../assets/...` 引用（从 `2026/08/` 到 `src/assets/` 需 4 层）
-- `vmware-fedora-mirror-update-guide.md`（《VMware Fedora 换源并更新教程》）：Fedora 换 USTC 中科大源 + dnf 更新，提交 `0d9b29c`
-  - 中文文件名 → 英文 slug
-
-### 10. 新增 IE 慢加载排查文章 + 站点样式调整（2026-08-18 会话）
-- `ie-slow-loading-troubleshoot-guide.md`（《IE 网页加载缓慢异常查询与解决》）：记录 `ebaolife.net` 登录页在 IE 下加载约 2 分钟、Chrome 秒开的排查过程，中文文件名 → 英文 slug，提交 `3b2ee23`
-  - 根因：网络无法访问 DigiCert 的 OCSP 服务 `ocsp.digicert.com:80`，导致 Windows Schannel 证书吊销检查超时约 105 秒
-  - 按博客规范重排（去掉小数子标题 `2.1/3.1`、新增结论章节、引用块加 emoji 标注），提交 `8fce155`
-  - 补充 IE/Chrome 证书验证差异分析，并修正 CRL（证书吊销列表）/ OCSP（在线证书状态协议）表述，提交 `7ee9de2`、`eef973f`
-- **全量 markdown 统一**：用户自行格式化全部 14 篇文章（含 Docker 系列），提交 `9254390`
-- **站点样式调整**：`src/styles/global.css` 给 `.prose` 内 `h2~h6` 增加 `margin-top: 1.5em`，解决 `##` 紧贴 `###` 的问题，提交 `8fce155`
-
-### 11. 新增 SQL 文章（2026-08-18 会话）
-- `SQL/sql-in-vs-exists-guide.md`（《SQL IN 与 EXISTS 的理解》）：记录对 SQL `IN` 与 `EXISTS` 子查询执行逻辑与复杂度的理解，中文文件名 → 英文 slug，提交 `f8a7d3d`
-  - 修正：`EXISTSS` 拼写错误（4 处）、EXISTS 查询列名不一致（`c.custkey = o.custkey` → `c.c_custkey = o.o_custkey`）、说明性代码块补 `text` 语言标记
-   - 文章放新增 `SQL/` 子目录；代码块语言标记规范新增 `sql`（见第五节）
-
-### 12. 新增 VMware Debian 文章（2026-08-25）
-- `vmware-debian-setup-guide.md`（《VMware Debian 安装后设置教程》）：Debian 换源（USTC/官方）、安装 vmtools + openssh、terminal 代理配置、uv 安装，提交 `92ca238`
-  - sources.list 内容代码块语言标记 `bash` → `text`；段落补句号
-  - 后续集成 `debian设置.md` 内容（2026-08-31）：新增「为 root 用户增加补全功能」「将用户添加至 sudo」「将用户从 sudo 删除」三节（apt 全局代理原已有，合并去重），并删除源文件 `debian设置.md`
-
-### 13. 新增 VMware 双虚拟机隔离上网教程（2026-08-26）
-- `vmware-dual-vm-isolation-guide.md`（《VMware 双虚拟机隔离上网教程》）：双虚拟机通过 HOST-ONLY 网络 + Clash Verge 代理实现隔离上网，中文文件名 → 英文 slug，提交 `f72ad69`
-  - 7 张截图从 `src/content/blog/2026/08/` 移至 `src/assets/` 并重命名（如 `vm-a-network-config.png`、`clash-verge-settings.png`）
-  - 修正 typo（"上午"→"上网"、"B虚拟"→"B 虚拟机"）；中英文加空格；图片引用改相对路径
-  - 补充「修改 DNS 覆写配置」小节（Google DOH `https://dns.google/dns-query` 防 DNS 泄露）；新增截图重命名 `dns覆写-域名服务器.png` → `vm-b-dns-overwrite.png`；`clash-verge-settings.png` 更新过
-
-### 14. 集成 Twikoo 评论系统（2026-08-27）
-- **方案**：采用 Twikoo 官方推荐的云函数部署（Vercel + MongoDB Atlas 免费库），免服务器、免证书。私有 Docker 部署（★）需自申请证书，未采用
-- **云端**：
-  - MongoDB Atlas 免费 M0 集群 + `mongodb+srv://` 连接串 + Network Access 放行 `0.0.0.0/0`
-  - Vercel 部署 Twikoo 云函数（模板 `src/server/vercel-min`），环境变量 `MONGODB_URI`，envId = `https://vercel-69q075mt0-furukawanagisadesi.vercel.app`
-  - ⚠️ **必须**在 Vercel Settings → Deployment Protection 把 Vercel Authentication 设为 Disabled，否则 preflight/cors 请求被重定向到 `vercel.com/login` 导致"评论失败：0"
-- **博客端**：`src/layouts/BlogPost.astro` 集成，提交 `8d27a54`（首次）、`9d3bdcb`（修复初始化逻辑）、`41f98be`（About 页隐藏评论）
-  - 用 `window.addEventListener('load')` 初始化（`astro:page-load` 首次加载不触发）
-  - 引入 `twikoo.css`；脚本主用 unpkg，失败回退 jsdelivr
-  - `showComments` prop 控制是否显示评论（默认 true），About 页传 `false`
-- **踩坑**：
-  - `评论失败：0` = HTTP 状态 0，原因就是 Vercel Deployment Protection 未关闭导致 preflight 重定向被 CORS 拦截
-  - 未绑定自定义域名，目前直接用 Vercel 的 `.vercel.app`（CORS 已放行 `*`，可正常跨域）
-- 验证：文章页评论区正常，无需登录即可留言
-
-### 15. 拆分下载章节 + 新增音频卡顿文章（2026-09-17）
-- 从 `vmware-ubuntu-setup-guide.md` 拆出「VMware 17 下载」章节，新建 `2026/09/vmware-download-guide.md`（《VMware 下载流程》），Ubuntu 文章的章节重新编号 1~3
-- 新增 `2026/09/vmware-pipewire-audio-stutter-fix.md`（《VMware Linux PipeWire 音频卡顿解决方案》）：改 WirePlumber 配置扩大 ALSA 缓冲区，再关闭 Firefox 阅读模式与网页语音合成
-  - 中文文件名 `vmware pipewire音频卡顿解决方案.md` → 英文 slug
-- `vmware-debian-setup-guide.md`：把「将用户添加至 sudo」提前到第 1 节，代理设置改为写 `/etc/environment`（原为 apt 专用代理），新增 fcitx5-rime 输入法章节
-- 格式检查：补代码块语言标记（配置与 GUI 步骤用 `text`）、行内代码（`pw-top`、`speech-dispatcher-*`、`about:config`）、缺失句号、末尾换行；修正 `linux`→`Linux`、`pipewire`→`PipeWire`，并改写 Firefox Reader 与语音合成混淆的表述
-- `vmware-downloadguide.md` → `vmware-download-guide.md`（文件名统一为 `xxx-guide.md`）
-- `vmware-debian-setup-guide.md` 追加 fcitx5 配置：安装 `fcitx5-module-cloudpinyin`，新增 `default.custom.yaml`（默认 `luna_pinyin_simp`、候选词 9 个），步骤 5 的连字符分隔改为完整句子；`sources.list` 两个代码块语言标记 `bash` → `text`
-- 构建通过（21 页）；已提交并推送（`9665f11`），工作区另有未跟踪的 `CLAUDE.md`（指向 `AGENTS.md` 的符号链接，未纳入版本控制）
-
-### 16. 站点设计优化：中文一致化 + 抽公共布局（2026-10-13）
-- **问题**：文章页/About 页 `lang="en"`（首页却是 `zh-CN`）；日期显示英文 `Sep 17, 2026`；导航 `Home/About`、页脚 `All rights reserved.`、`Last updated on` 均为英文；About 页顶部出现「发布日期」和空封面块；首页文章标题用 `h4`（层级从 `h2` 直接跳 `h4`）；`a:hover` 与 `a` 同色（无 hover 反馈）；`index.astro` 重复声明 `main { width: 720px }`。
-- **改动**：
-  - 新增 `src/layouts/BaseLayout.astro`（公共外壳：`<html lang="zh-CN">` + `BaseHead` + `Header` + `<slot />` + `Footer`；接收 `title / description / image / ogType`）
-  - `index.astro`、`BlogPost.astro` 改走 `BaseLayout`，删除各自重复的 `html/head/body`
-  - `BlogPost.astro`：Props 改为显式接口（`pubDate / updatedDate / heroImage` 可选，补 `showComments?: boolean`、`ogType?: 'website' | 'article'`，默认 `article`）；无 `pubDate` 不渲染日期区；无 `heroImage` 不渲染空 `.hero-image`；`Last updated on` → `最后更新于`
-  - `about.astro`：去掉 `pubDate`，About 页不再显示日期和空封面
-  - `index.astro`：删掉重复的 `main` 宽度；文章标题 `h4` → `h3`
-  - `BaseHead.astro`：新增 `ogType` 参数（文章页传 `article`）；补 `twitter:title / description / image`；文章页用 `heroImage` 作 `og:image`（无则回退占位图）
-  - `Header.astro`：`Home` → `首页`、`About` → `关于`
-  - `Footer.astro`：`All rights reserved.` → `保留所有权利。`
-  - `FormattedDate.astro`：`en-us` → `zh-CN`（显示如 `2026年9月17日`）
-  - `global.css`：`a:hover` 改用 `--accent-dark`
-- **验证**：`npm run build` 通过（21 页）；对 `dist/` 全量断言（`lang` / 中文日期 / 导航页脚文案 / 文章页 `og:type=article` / 无空封面 / 首页无 `h4`）全部通过。
-- **未做（后续可排期）**：分类/标签与首页分页、Twikoo 延迟加载。（中文正文字体已在第 17 项处理）
-
-### 17. 中文字体：系统字体栈（2026-10-15）
-- **问题**：`body` 用 `--font-atkinson`，而 Atkinson 无中文字形，中文回退到浏览器默认 `sans-serif`（各系统不一致、不可控）。
-- **踩坑**：Astro 的字体 `fallbacks` 会**始终**在 `--font-atkinson` 末尾补 `sans-serif`（即使删掉 `fallbacks` 也一样），因此不能靠在 `global.css` 里写 `var(--font-atkinson), "PingFang SC", ...` 来追加中文栈——会被中间的 `sans-serif` 截断而失效（浏览器遇到 `sans-serif` 就停住，不再往后的字体找）。
-- **方案**：把中文栈写进 `astro.config.mjs` 的 `fallbacks`：
-  `fallbacks: ['PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', 'sans-serif']`
-  生成的 `--font-atkinson` 为 `Atkinson-xxx, "…fallback: Arial", "…fallback: Arial Bold", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif`（中文栈在通用兜底之前；`fallback: Arial` 两个面仅用于拉丁字的 CLS，无 CJK 字形，不影响中文）。
-- **改动**：`astro.config.mjs`（`fallbacks`）。`src/styles/global.css` 的 `body { font-family: var(--font-atkinson); }` 保持不变。
-- **验证**：`npm run build` 通过（21 页）；断言 `--font-atkinson` 含 `"PingFang SC"` 且位于 `sans-serif` 之前。
-
-### 18. Twikoo 评论延迟加载（2026-10-15）
-- **问题**：文章页首屏无条件从 unpkg 加载 Twikoo 的 CSS + JS（第三方、境外 CDN），拖慢首屏。
-- **方案**：改为滚动到评论区附近再加载。`BlogPost.astro` 用 `IntersectionObserver` 监听 `#twikoo` 容器，提前 200px（`rootMargin: '200px 0px'`）触发；触发时才动态插入 `twikoo.css`（`document.head`）与 `twikoo.min.js`（`document.body`），加载完调用 `window.twikoo.init`。保留 unpkg → jsdelivr 回退、`loaded` 去重、envId、版本号（1.7.20）不变。兜底：不支持 `IntersectionObserver` 或找不到容器时，退回 `load` 后立即加载。
-- **改动**：`src/layouts/BlogPost.astro`（去掉常驻 `<link rel="stylesheet" …twikoo.css>`，脚本改为 IIFE + IntersectionObserver）。
-- **验证**：`npm run build` 通过（21 页）；断言文章页初始 HTML 无 `twikoo.css` 的 `<link>`、含 `IntersectionObserver`；About 页无任何 Twikoo 内容。
-- **注意**：评论能否真正渲染依赖 Vercel 云函数与网络，本地只验证了「延迟加载逻辑与产物」，完整效果需在浏览器滚到评论区确认。
-
-### 19. 标签功能（2026-10-15）
-- **范围**：本轮只做标签，首页分页未做。
-- **方案**：文章 frontmatter 增加 `tags`（英文标签、可选、默认空数组）；生成 `/blog/tags/` 索引页与 `/blog/tags/<slug>/` 列表页；文章页标题下显示标签；导航加「标签」。
-- **改动**：
-  - `src/content.config.ts`：schema 加 `tags: z.array(z.string()).default([])`
-  - 新增 `src/lib/tags.ts`：`slugifyTag`（去空白、转小写、空格转 `-`）、`getAllTags`（标签 + 篇数，按篇数降序、同篇数按名升序）、`getPostsByTag`
-  - 新增 `src/components/PostList.astro`：从 `index.astro` 抽出的文章列表（标题 + 描述 + 日期），首页与标签页共用
-  - 新增 `src/pages/tags/index.astro`（`/tags/`）与 `src/pages/tags/[tag].astro`（`/tags/<slug>/`，`getStaticPaths` 由 `getAllTags` 生成）
-  - `src/pages/index.astro`：改用 `PostList`（行为不变）
-  - `src/layouts/BlogPost.astro`：加 `tags?: string[]` prop，`<h1>` 下渲染标签链接（无标签则不渲染，About 页不受影响）
-  - `src/components/Header.astro`：导航改为「首页 / 标签 / 关于」
-  - 19 篇文章 frontmatter 各补一行 `tags`
-- **标签表（9 个，截至 2026-10-15）**：`Docker`(7)、`VMware`(7)、`Linux`(5)、`Network`(5)、`RouterOS`(1)、`ImmortalWrt`(1)、`SQL`(1)、`Browser`(1)、`Meta`(1)
-  - 2026-10-27 删除 `blog-launch.md` 后，`Meta` 标签消失，现为 8 个标签
-- **提交**：`5f4ac33`（schema + 回填）、`4c3b6d2`（抽 PostList）、`50cb206`（标签页）、`ff30500`（文章页 + 导航）
-- **验证**：`npm run build` 通过（21 → 31 页）；产物全量断言通过（新增：`/tags/index.html` 存在且含全部 9 个标签名、9 个标签页存在、文章页含 `/blog/tags/<slug>/` 链接、About 页无标签区）
-- **注意**：标签用英文（直接作 URL slug），新增/修改文章记得补 `tags`；同一标签请保持大小写一致（`getAllTags` 已按 slug 聚合，`Docker` 与 `docker` 会合并到同一页，但索引显示名取首次出现的写法）；设计与计划文档见 `docs/superpowers/specs/2026-10-15-tags-design.md`、`docs/superpowers/plans/2026-10-15-tags.md`
-- **踩坑**：计划的产物断言 `-match '<ul>'` 不成立——Astro 会给作用域样式元素注入 `data-astro-cid-*` 属性，`<ul>` 实际是 `<ul data-astro-cid-xxx>`；断言应匹配前缀 `<ul` / `<li data-astro-cid`（并注意 `<li` 会误匹配 `<link`）
-
-### 20. Docker 文章修订：EasyTier 与 RustDesk（2026-10-20）
-- **`easytier-docker-guide.md`**：原来是单个 `easytier` 容器，用 `entrypoint: /bin/sh` 在一个进程里先后起 `easytier-web-embed` 和 `easytier-core`；现在拆成两个服务，都跑在同一份 `./easytier:/root` 挂载上：
-  - `easytier-web`：`entrypoint: ["/sbin/tini", "--", "easytier-web-embed"]`，参数 `--api-server-port 11211`、`--api-server-addr 127.0.0.1`、`--config-server-port 22020`、`--config-server-protocol udp`、`--db /root/et.db`（数据库落盘）
-  - `easytier-core`：`container_name: easytier` 保持原名（`docker exec` 习惯不变），命令简化为 `--config-server udp://127.0.0.1:22020/admin`
-  - 镜像从 `easytier/easytier:latest` 固定到 `easytier/easytier@sha256:91d6732ea5ff71542fdb99333d2ee7b168e973443114db84db061e452427d91e`
-  - 端口表：UDP 22020 标注「不用开放，已指向本地」，UDP 11011 标注 WireGuard 可选；代码块语言标记 `text`
-  - 两个服务都加 `logging: json-file`（`max-size: 10m`、`max-file: 3`）
-- **`rustdesk-docker-guide.md`**：去掉 `version: "3"`；21118/21119 改为可选并注释掉对应端口映射；新增 `TZ=Asia/Shanghai`、`./appdata:/app/data` 挂载和日志轮转；客户端第 2 步文案改为「ID / 中继服务器」
-- **提交**：`b54c71c`（2 个文件，+58 / −29）
-- **验证**：`npm run build` 通过，31 页
-- **注意**：本地仓库路径为 `D:\Syncthing\blog`（旧的 `D:\Syncthing\Self\GitHub\blog`、`D:\GitHub\blog` 均已失效）
-
-### 21. 文章「修改日期」（2026-10-27）
-- **方案**：手填 frontmatter `updatedDate`；详情页显示「最后更新于 …」，首页/标签列表在发布日期后显示「· 更新于 …」；仅当更新日期晚于发布日期才显示。
-- **改动**：
-  - 新增 `src/lib/dates.ts`：`isUpdatedAfterPublished(pubDate?, updatedDate?)`，按 UTC 日期部分（`toISOString().slice(0, 10)`）比较，忽略时间
-  - `src/content.config.ts`：`superRefine` 校验 `updatedDate` 不能早于 `pubDate`，写反直接构建失败
-  - `src/layouts/BlogPost.astro`、`src/components/PostList.astro`：改用该函数决定是否渲染更新日期
-  - 3 篇 Docker 文章（SRS / Syncthing / Nginx-SRS）补 `updatedDate: "2026-10-27"`
-- **注意**：改完已发布文章记得补/更新 `updatedDate`；不要改成读取文件 mtime 或 git 时间自动生成（Syncthing 同步、checkout、浅克隆都会让日期失真）。
-- **文档**：`docs/superpowers/specs/2026-10-27-blog-updated-date-design.md`、`docs/superpowers/plans/2026-10-27-blog-updated-date.md`
-
-### 22. 列表按「最近更新」排序（2026-10-27）
-- **方案**：列表排序键改为「`updatedDate` 晚于 `pubDate` 时取 `updatedDate`，否则取 `pubDate`」降序；同一天按 `pubDate` 降序，再按文章 `id` 升序，保证构建间顺序稳定。首页、标签页、RSS 共用同一函数。
-- **改动**：
-  - `src/lib/dates.ts` 新增 `activityDateKey(pubDate, updatedDate)`
-  - 新增 `src/lib/posts.ts`：`sortByRecentActivity(posts)`
-  - `src/pages/index.astro`、`src/lib/tags.ts`、`src/pages/rss.xml.js` 改用该函数
-- **后果**：批量修订会让多篇旧文同时上浮（例如 3 篇 Docker 文章会排在首页最前，直到有更新的文章或修改）。这是手动维护 `updatedDate` 的预期代价。
-- **验证**：`npm run build` 通过，31 页；产物顺序检查：首页、`/tags/docker/`、`rss.xml` 前三篇均为 `2026-10-27` 更新的 Docker 文章，其后按发布日期降序。
-- **文档**：`docs/superpowers/specs/2026-10-27-blog-recent-activity-sorting-design.md`
-
-### 23. 删除《博客建立》文章（2026-10-27）
-- **操作**：用户删除 `src/content/blog/2026/08/blog-launch.md`（《博客建立》，原第一篇、唯一带 `Meta` 标签的文章）
-- **影响**：
-  - 文章总数 19 → 18（`2026/08` 17 → 16）
-  - 标签 `Meta` 随之消失，标签数 9 → 8；`/blog/tags/meta/` 不再生成，`/blog/blog-launch/` 线上路由在下次部署后消失
-  - `src/assets/blog-post-ai-setup.jpg`（原为该文封面）已无任何引用，相关占位图已在第 28 项统一清理
-- **验证**：`npm run build` 通过，18 篇；产物中无 `blog-launch` 与 `Meta` 标签页
-- **注意**：旧链接（如第 1 项中线上验证地址）会 404；历史记录（第 1、19 项、`docs/` 下的设计/计划文档）保留原文，不回改
-
-### 24. 布局加宽（2026-10-28）
-- **问题**：正文列固定 720px，1920px 宽屏下每侧空白约 600px；首页列表同样偏窄；文章封面却通栏，形成「图宽字窄」。
-- **方案**：适度加宽。`global.css` 的 `:root` 新增 `--content-width: 820px`、`--list-width: 1000px`；`main` 宽度改为 `var(--list-width)`；`BlogPost.astro` 的 `.prose` 改为 `var(--content-width)`；`.hero-image` 改为 `max-width: var(--content-width)` + 居中。移动端 `max-width: calc(100% - 2em)` 与 720px 断点不变。
-- **改动**：`src/styles/global.css`、`src/layouts/BlogPost.astro`；设计文档 `docs/superpowers/specs/2026-10-28-layout-width-design.md`。
-- **验证**：`npm run build` 通过（29 页 = 18 篇 + 首页 + 关于 + 标签索引 + 8 个标签页）；dev server + Edge CDP 实测 390px 与 1920px 均无横向溢出（首页 `main` 外宽 1040px、文章正文 860px 含内边距、文本宽 820px）。
-
-### 25. 评论区加载兜底 + Twikoo 资源自托管（2026-10-28）
-- **问题**：① `unpkg.com` + `*.vercel.app` 均为境外依赖，大陆直连时接口约 16～27s 才报错，期间一直转圈；② Twikoo 1.7.20 请求失败时 `reject(xhr.status)` 抛数字 `0`，上层取 `e.message` 得 `undefined`，错误被吞掉，显示「没有评论」；`showExpand` 初始为 `true`，于是「查看更多」同时出现，点击无效。
-- **方案**：Twikoo JS/CSS 改为同源自托管（`public/vendor/twikoo/1.7.20/`）；用 `onCommentLoaded` 作成功信号，15s 无成功显示「加载较慢」，DOM 出现「没有评论 + 查看更多」或错误文本时判定失败，隐藏 Twikoo 并显示「重新加载评论」；重试通过清空容器重新 `init`，用递增 `attempt` 忽略旧实例的迟到回调。
-- **改动**：`src/layouts/BlogPost.astro`（资源地址、状态面板、守卫/重试逻辑）；新增 `public/vendor/twikoo/1.7.20/{twikoo.min.js,twikoo.css,LICENSE,README.md}`；设计文档 `docs/superpowers/specs/2026-10-28-twikoo-resilience-design.md`。
-- **验证**：`npm run build` 通过（29 页），产物不再引用 unpkg/jsdelivr；自托管资源加载 8～39ms；正常网络约 4.6s 显示「没有评论」且无「查看更多」；CDP 立即失败时 1.84s 出错误提示，重试后面板收起并在 0.35s 后再次提示；挂起请求 16.76s 显示「加载较慢」；390px 无横向溢出。
-- **注意**：Vercel 域名可达性未变，大陆直连仍会失败，需代理或后续绑自定义域名/迁后端；升级 Twikoo 时同步替换资源目录、README 哈希和 `BlogPost.astro` 中的版本号。
-- **未做**：Twikoo 升级 2.x、绑域名、迁后端；非空评论列表点「查看更多」失败时暂无提示（本轮只处理空列表假状态）。
-
-### 26. 文章页字号 / 排版按通行建议收敛（2026-10-28）
-- **问题**：正文 20px 偏大，`h1` 3.052em(61px)、`h2` 2.441em(48.8px)、`.prose p` 段距 2em，整页显得笨重、占地方（用户反馈「字体太大」）。
-- **依据（通行建议）**：中文正文 14–18px（长文 16–18）、行高 1.5–1.8（CJK 约 1.7，WCAG 下限 1.5）、每行 30–45 字（W3C《中文排版需求》横排 ≤48）、段距接近一个行高；桌面标题 H1 32–48 / H2 24–32 / H3 20–24px。
-- **改动**：`src/styles/global.css`：`body` 20 → 18px（行高保持 1.7）；`h1` 3.052 → 2em(36px)、`h2` 2.441 → 1.5em(27px)、`h3` 1.953 → 1.25em(22.5px)、`h4` 1.563 → 1.1em、`h5` 1.25 → 1em；`.prose p` 下边距 2em → 1.3em；`blockquote` 1.333 → 1.1em；`≤720px` 的 `body` 18 → 17px。**列宽未动**（仍 820px，18px 下约 45 字/行，仍在 W3C ≤48 内，故不改布局）。
-- **验证**：`npm run build` 通过（29 页）；dist 产物 HTML 中 `body` 18px、`h1 2em`、`h2 1.5em`、`h3 1.25em`、`h5 1em`、段距 `1.3em`、移动端 `17px` 全部命中。
-- **文档**：`docs/superpowers/specs/2026-10-28-article-typography-design.md`；对比预览曾用 brainstorming visual companion 的临时 HTML（`.superpowers/`，已加入 `.gitignore`）。
-- **未做**：列宽/布局、Twikoo 评论、字体栈未动；如仍觉偏大可再把 `body` 降到 17px（单值改动，布局不受影响）。
-
-### 27. 暂时关闭评论区（2026-10-28）
-- **背景**：评论后端（Vercel + MongoDB Atlas）在大陆直连不可达，接口约 16–27s 超时；用户暂不购买域名，当前无法自建可用的 HTTPS 后端（大陆服务器需备案域名，香港可免备案，或用 Cloudflare 前置；方案见会话讨论，未实施）。故先关闭评论区。
-- **改动**：`src/consts.ts` 新增 `COMMENTS_ENABLED = false`（含注释说明原因与恢复方式）；`src/layouts/BlogPost.astro` 引入该常量，用 `const commentsEnabled = COMMENTS_ENABLED && showComments` 同时控制评论区 DOM 与 Twikoo 脚本，关闭时二者都不渲染。
-- **保留**：`public/vendor/twikoo/1.7.20/` 资源、原兜底/重试逻辑、`.comments-area`/`.twikoo-status` 样式均保留（不启用即惰性、无副作用）；恢复时把 `COMMENTS_ENABLED` 改回 `true` 即可。
-- **验证**：`npm run build` 通过（29 页）；产物文章页不再含 `twikoo.min.js`、`#twikoo`、`data-twikoo`、`IntersectionObserver`、`onCommentLoaded`、「重新加载评论」。
-
-### 28. 架构体检后的基础设施加固（2026-10-29）
-- **A（已做）**
-  - `.gitignore` 增加 `.stversions/`、`CLAUDE.md`（此前 `git status` 一直有噪音、易误提交；`.superpowers/` 之前已加）。
-  - CI 增加类型闸门：devDeps 加 `@astrojs/check`、`typescript`，`package.json` 加 `"check": "astro check"`；`deploy.yml` 新增 `check` 作业（`npm ci` + `npm run check`），`build` 作业 `needs: check`，类型不过就不部署。
-  - `deploy.yml` 两个作业显式 `node-version: 22`（对齐 `engines >=22.12`，避免默认 node 版本不一致）。
-  - 删除 `src/assets` 下 8 张未引用图片（`blog-placeholder-2/3/4/5`、`blog-placeholder-about`、`blog-post-ai-setup`、`blog-router-network`、`vm-dual-setup-unreferenced`）；**保留 `blog-placeholder-1.jpg`**（`BaseHead` 默认兜底仍在用）。
-- **B（已做）**
-  - 新增 `src/pages/404.astro`（基于 `BaseLayout`，含返回首页链接）。
-  - 新增 `public/robots.txt`（`Allow: /` + `Sitemap` 指向 `/blog/sitemap-index.xml`）。
-- **验证**：`npm run check` 0 错误/警告/hint（21 文件）；`npm run build` 通过（**30 页** = 29 + 404）；`dist` 含 `404.html`、`robots.txt`。
-- **提交**：`af55323`（A）、`2c3a6a9`（B）。
-- **未做/延后**：首页分页、全局 CSS 与布局解耦（收益小、回归风险大，暂缓）。
-
-### 29. 新增 zswap 教程 + Debian 安装后设置修订（2026-11-03）
-- **新增** `src/content/blog/2026/11/debian-zswap-setup-guide.md`（《Debian 设置 zswap 教程》，tags `Linux`）：记录 Debian 13 上把 swap 从 1.86 GiB（`/dev/sda2`）扩到约 3.9 GiB（+2 GiB `/swapfile`），再启用内建 zswap 的全过程
-  - 中文文件名 `Debian 设置 zswap 教程.md` → 英文 slug；`description` 重写为摘要（不再照抄 `title`）
-  - 修复原稿问题：章节编号断档（`2 → 4`）、参数表缺管道符（渲染成一整行）、与 lzo 选择矛盾的 `modprobe zstd`、fstab 配置行混在 `bash` 块里、缺验证与回滚章节
-  - 关键结论写成独立小节「为什么最终用 lzo 而不是 zstd」（详见坑 8）
-  - 实测环境：Debian 13 / 内核 `6.12.94+deb13-amd64` / 内存 3.8 GiB / 磁盘 20 GiB；swap 分区与根分区相邻、磁盘无空闲空间，故用 swapfile 而非扩分区
-  - 最终参数：`compressor=lzo`、`zpool=zsmalloc`、`max_pool_percent=25`、`accept_threshold_percent=90`、`shrinker_enabled=1`；持久化写 GRUB 内核命令行（`zswap` 内建，`/etc/modprobe.d` 无效）
-- **修订** `vmware-debian-setup-guide.md`（`updatedDate: 2026-11-03`，用户改）：注释掉 `deb-src` 行；代理补充大写环境变量与 `no_proxy` 网段、新增 `/etc/sudoers.d/proxy` 的 `env_keep`；「代理设置」「gnome-shell-extensions」「input method panel」标注可选；fcitx5 步骤改为在配置中添加`中州韵`后等待部署完成
-- **验证**：`npm run build` 通过（**31 页** = 30 + 1 新文章）；产物含 `/2026/11/debian-zswap-setup-guide/`，参数表与回滚表渲染为 `<table>`
-
-### 30. 新增 Debian VS Code 文章 + 雾凇拼音章节 + 首次在 Linux 环境构建（2026-11-03）
-- **新增** `src/content/blog/2026/11/debian-vscode-install-guide.md`（《Debian 安装 VS Code 教程》，tags `Linux`）：按 Debian Wiki 推荐方法添加微软 apt 仓库并安装 `code`
-  - 中文文件名 `debian安装VS Code.md` → 英文 slug（Agent 改）
-  - 实测环境：Debian 13 / `arm64` 仓库源同样可用（frontmatter 内含 amd64/arm64/armhf）
-- **修订** `vmware-debian-setup-guide.md`（用户改，Agent 补句号）：新增「6. 安装雾凇拼音（可选）」章节——备份 rime.bak、浅克隆 `rime-ice` 仓库、复制方案文件、`default.custom.yaml` 改用 `rime_ice`；第 5 节末尾步骤 5 改写为「点击 Rime 托盘图标 → 重新部署」并顺延为步骤 6
-- **修订** `debian-zswap-setup-guide.md`（用户改）：删去「1.1 为什么用 swapfile 而不是扩分区」，1.x 编号前移；同日修改，`updatedDate` 按规则未加
-- **换行符**：Syncthing 同步使 3 篇文章（vmware-debian / fedora / ubuntu）变为 CRLF，已统一回 LF（无内容差异，仅消除假 diff）
-- **环境变化**：本次构建首次在 Linux（Debian）环境完成，Node `v26.13.0`（nvm）、npm `v11.20.0`
-  - Windows 下同步来的 `node_modules` 不可用（rolldown 原生绑定缺失），须 `rm -rf node_modules && npm ci` 重装
-  - npm 安全机制会拦截 esbuild 的 postinstall，需 `npm install-scripts approve esbuild`（`npm ci` 后要重新 approve）
-  - 切换环境后跨平台改文章请注意编辑器换行符设置
-- **验证**：`npm run build` 通过（**32 页** = 31 + 1 新文章）、`npm run check` 0 错误/警告/hint；产物含 `dist/2026/11/debian-vscode-install-guide/index.html` 且含标题、微软仓库地址与 `linux` 标签链接
-
-### 31. Fedora 系列重组 + Rime Caps 排查 + 格式修复（2026-11-04）
-- **重组 Fedora 文章**：删除 `2026/08/vmware-fedora-mirror-update-guide.md`，新增 `2026/11/vmware-fedora-setup-guide.md`（《VMware Fedora 安装后设置教程》，tags `VMware`/`Linux`）。在换源/更新基础上补充 ssh 开机自启、git 代理、ibus-rime（含雾凇拼音）、`/etc/environment` 与 dnf 代理设置
-  - 旧文 `pubDate` 为 2026-08-09，新文改为 2026-11-04；旧路由 `/blog/2026/08/vmware-fedora-mirror-update-guide/` 上线后将 404
-  - 同日用户改为 Fedora 45 GNOME + NYIST（南阳理工学院）镜像 + `ibus-rime`；Agent 修正镜像文案、步骤重复编号、列表缩进与配置代码块语言标记
-- **新增** `2026/11/fedora-zswap-setup-guide.md`（《Fedora 设置 zswap 教程》，tags `Linux`）：禁用 zram → btrfs 创建 swapfile → 写入 fstab → 运行时启用 zswap → `grubby` 持久化 → 重启验证
-- **新增** `2026/11/debian-rime-caps-lock-fix.md`（《Debian 13 GNOME 桌面 Rime 开启 Caps 无法输入大写字母的解决方法》，tags `Linux`）：`im-config` 选择 fcitx5 + `environment.d` 环境变量 + 完整重启
-  - 原中文文件名 `debian-fcitx5输入法状态caps无法大写输入的解决方案.md` → 英文 slug（构建曾出现 URL 乱码，坑 3）
-- **修订** `vmware-debian-setup-guide.md`：第 5、6 节的「重新部署」改为「重新启动」，`updatedDate` 更新为 `2026-11-04`
-- **按第四节检查并修复格式**：`description` 不再照抄 `title`；配置内容代码块 `bash` → `text`；`### 5.` → `## 5.`；补句末句号；代理占位符统一 `your_ip:port`；`fedora-zswap` 的 CRLF → LF，子标题 `0.`～`6.` → `1.1`～`1.7`
-- **验证**：`npm run build` 通过（**34 页** = 22 篇 + 首页 + 关于 + 标签索引 + 8 个标签页 + 404）；产物含英文 slug 路由，`debian-rime-caps-lock-fix` 渲染为单个 `<ol>`（3 个 `<li>`），`vmware-fedora` 第 5 节为 `<h2>`
-- **提交**：`dd713c6`（6 个文件，+293 / −50；含删除旧文与重命名新文）
-
-### 32. Fedora 教程合并扩写 + flatpak / 插件 / 代理章节（2026-11-05）
-- **重命名** `2026/11/vmware-fedora-setup-guide.md` → `2026/11/fedora-setup-guide.md`，标题改为《Fedora 安装后设置教程》，`updatedDate: 2026-11-05`；旧路由 `/blog/2026/11/vmware-fedora-setup-guide/` 上线后将 404
-- **扩写**：新增「5. 更换 flatpak 仓库」（禁用 Fedora Flatpaks、flathub 换 USTC、添加用户级仓库）、「6. 安装插件」（ExtensionManager、Dash to Dock、gnome-tweaks）、「7. 代理设置（可选）」（`proxon` / `proxoff` 开关式代理、dnf 代理、`/etc/environment.d/99-proxy.conf` 全局代理）
-- **修订** `fedora-zswap-setup-guide.md`：`updatedDate: 2026-11-05`；去掉「现在只用了 12K」注释、swapfile 命令补「大小自行修改」、ASCII 冒号改中文冒号
-- **格式修复**（按第四节检查）：5/6/7 节编号列表统一缩进（渲染为单个 `<ol>`）；重复的 `## 6.` → `## 7.`；配置代码块拆分 `bash` + `text` / `yml`；引言改为完整句子并去掉 frontmatter 多余空行
-- **验证**：`npm run build` 通过（**34 页**）；产物标题 1～7 连续，共 4 个 `<ol>`，无行尾空格，LF
-- **提交**：`e6642d2`（4 个文件，+227 / −137；含重命名）
-
-### 33. Fedora 教程补充白霜拼音方案（2026-11-06）
-- **修订** `fedora-setup-guide.md`：第 4 步增加白霜拼音（`rime-frost`）与雾凇拼音二选一；第 5 步增加 `rime_frost` 的 `default.custom.yaml` 示例
-- **格式修复**：两个方案之间补「或：」；`rime_frost` 示例注释 `雾凇拼音` → `白霜拼音`；`updatedDate` → `2026-11-06`
-- **验证**：`npm run build` 通过（**34 页**）；第 4/5 节仍为同一 `<ol>`，`yml` 代码块 2 个
-- **提交**：`983d780`（2 个文件，+27 / −4）
-
-### 34. 新增 Rime 用户词典延迟文章（2026-11-06）
-- **新增** `src/content/blog/2026/11/rime-user-dictionary-lag-fix.md`（《Rime 输入法词汇不跟手解决方案》，tags `Rime`）：用 lua 补丁在每次上屏后切换用户词典事务，解决选词后用户词不立即生效、需按 Esc 才出现的问题
-  - 中文文件名 `rime输入法词汇不跟手解决方案.md` → 英文 slug
-  - 按第四节检查修复：`description` 不再照抄 `title`；`### 5.2` → `### 4.2`，后续章节顺延为 5/6；代码块 `yaml` → `yml`；三平台路径补全文件名并改为列表；补句末标点；去掉「路线一」表述
-- **修订** `fedora-setup-guide.md`（用户改）：第 5 节的用户级 flathub 仓库改为与系统级并列的「或」选项，不再单独占一个编号
-- **环境**：本次在 Fedora 45 上用 Node `v26.3.1` / npm `11.16.0` 构建，同步来的 `node_modules` 可直接使用
-- **验证**：`npm run build` 通过（**36 页** = 23 篇 + 首页 + 关于 + 标签索引 + 9 个标签页 + 404）；`npm run check` 0 错误/警告/hint；线上文章页与 `/blog/tags/rime/` 均返回 200
-- **提交**：`77105ac`（2 个文件，+125 / −1）
-
-### 35. ImmortalWrt 文章扩写：AdGuard Home 架构调整 + UPnP + 常见问题（2026-11-07）
-- **修订** `src/content/blog/2026/08/immortalwrt-soft-router-guide.md`（`updatedDate: 2026-11-07`，`description` 重写）：
-  - 第 8 节「安装 AdGuard Home」重写：8.1 安装初始化、8.2 DNS 工作模式对比（方案 A：AdGuard Home 独占 `53`，可看真实客户端 IP；方案 B：dnsmasq 转发，来源全是 `127.0.0.1`）、8.3 yaml 配置、8.4 dnsmasq 调整（`5353` / `noresolv` / `min_cache_ttl=60` / `dns_redirect=0` / DHCP option 6）、8.5 显式 DNAT DNS 劫持（IPv4 + IPv6）、8.6 验证
-  - 新增第 9 节「配置 UPnP（可选）」：CGNAT 判断（`100.64.0.0/10`）、`miniupnpd-nftables` 安装与配置、`secure_mode`、验证、`miniupnpc` 测试、关闭方法
-  - 新增第 10 节「常见问题」：DHCP 租约到期不返还旧 IP 的原因与静态租约、AdGuard Home 客户端显示 `127.0.0.1`、IPv6 连通性排查
-  - 新增第 11 节「安全建议」：SSH 密码登录、full-cone NAT、无用 WAN 放行、UPnP、`min_cache_ttl`
-  - 修正旧文错误：`mount --bind //tmp/introot` → `mount --bind / /tmp/introot`；LAN 网桥端口 `eth1、eth2、eth3` → `eth1、eth2`（eth3 留给 WAN）；distfeeds 代码块补 `text` 语言标记；配置路径 `/etc/adguardhome/adguardhome.yaml` → `/etc/adguardhome.yaml`；统一「AdGuard Home」写法
-- **背景**：本轮内容来自实际路由器会话（ImmortalWrt 24.10.5 x86_64 / fw4）：确认 UPnP 未安装并完成配置；把 AdGuard Home 调到 `53` 解决客户端归属；发现 `dns_redirect` 会跟随 dnsmasq 端口导致绕过 AdGuard Home，改为显式 DNAT；解释 DHCP 租约与重装系统后 IP 变化的正常行为
-- **验证**：`npm ci` 重装依赖（Linux 同步来的 `node_modules` 符号链接在 Windows 下不可用）；`npm run build` 通过（36 页）；`npm run check` 0 错误/警告/hint；产物含「配置 UPnP」「DNS-Hijack-AGH」「最后更新于」
-- **提交**：`7b4b931`（2 个文件，+216 / −31）；SSH 推送时 host key 校验失败，按第六节坑 6 改用 HTTPS 地址推送成功
-
-### 36. 补全 zswap 双教程的回滚章节（2026-11-16）
-- **背景**：用户反馈《Debian 设置 zswap 教程》《Fedora 设置 zswap 教程》里「设置完怎么退回原始状态」写得不够完整——Debian 只有一张 3 行表格，Fedora 干脆没有回滚章节。
-- **修订** `debian-zswap-setup-guide.md`（`updatedDate: 2026-11-16`）：「6. 回滚」扩为「6. 回滚（恢复原始状态）」
-  - 开头写明原始状态：swap 只有 `/dev/sda2`（1.86 GiB）、zswap 未启用、内核命令行无 `zswap.*`
-  - 6.1 完整回滚步骤（6 步）：关闭 zswap 并确认 `Zswap`/`Zswapped` 为 0 → `swapoff /swapfile` → `diff` 后 `sed -i '\|^/swapfile[[:space:]]|d' /etc/fstab` + `daemon-reload` → `rm -f /swapfile` → 恢复 `/etc/default/grub.bak.*` + `update-grub` → 重启后 5 项验证
-  - 原 3 行表格改写为 6.2「分项回滚对照表」（临时关闭 / 永久关闭 / 只撤 swapfile / 全部回滚）
-  - 补充注意事项：`swapoff` 前先腾内存、删 fstab 行前先 `diff`、备份文件不要整份覆盖（会丢掉后来的挂载点/换源参数）
-- **修订** `fedora-zswap-setup-guide.md`（`updatedDate: 2026-11-05` → `2026-11-16`）：原文没有回滚内容，新增「2. 回滚（恢复 Fedora 默认状态）」
-  - 开头写明默认状态：zram（`/dev/zram0`）启用、zswap 关闭、无 `/swapfile`；顺序为「先停 swapfile 与 zswap → 撤内核参数 → 恢复 zram」
-  - 2.1 关闭 zswap；2.2 停用并删除 swapfile（`diff` + `sed` 删 fstab 行 + `rm`）；2.3 `grubby --update-kernel=ALL --remove-args="zswap.enabled zswap.compressor zswap.max_pool_percent"`；2.4 删除 `/etc/systemd/zram-generator.conf` → `daemon-reload` → `systemctl start systemd-zram-setup@zram0.service` 恢复 zram；2.5 重启后 6 项验证；2.6 分项回滚对照表（含「zram 与 zswap 不叠加，二者选一」）
-  - 注意：`/etc/fstab.bak.*`、`/etc/kernel/cmdline.bak.*`、`~/cmdline.*.txt` 为第 1.1 步备份，确认无误后可删
-- **验证**：`npm run build` 通过（**36 页**）；产物 Fedora 文章含 1 个 `<table>`、「2.6 分项回滚对照表」；Debian 文章含 2 个 `<table>`（参数表 + 对照表）；两篇均渲染「最后更新于 2026年11月16日」
-- **提交**：`61e20c1`（2 个文件，+149 / −5，仅含两篇 zswap 文章；工作区另有用户未提交的 `fedora-setup-guide.md` 改动，未纳入）
-- **推送**：先只 commit，随后由用户在 TortoiseGit 中推送成功（remote 为 `ssh://git@ssh.github.com:443/...`）
-
-### 37. Fedora 教程补 librime-lua + 候选词数量（2026-11-16）
-- **修订** `fedora-setup-guide.md`（用户改，Agent 收尾；`updatedDate: 2026-11-06` → `2026-11-16`）：第 4 节步骤 1 增加 `sudo dnf install librime-lua`（Rime 的 lua 插件依赖），两个 `default.custom.yaml` 示例的 `menu/page_size` 由 `6` 改为 `9`
-- **格式修复**：用户原稿笔误 `sudo dinf` → `sudo dnf`；步骤 1 标题由「安装 `ibus-rime`：」改为「安装 `ibus-rime` 与 `librime-lua`（后者给 Rime 的 lua 插件用）：」，与代码块内容对应
-- **背景**：该改动是用户在 2026-11-15 自行编辑后一直留在工作区未提交，第 36 项提交时按要求未纳入
-- **验证**：`npm run build` 通过（**36 页**）；产物含 `librime-lua` 与两处 `page_size: 9`
-- **提交**：`a713385`（1 个文件，+5 / −4）
-
-### 38. 全站视觉精修（2026-11-19）
-
-- **背景**：用户要求"美化博客"。经 3 轮设计树问答定案：范围=视觉层全站精修（不动 DOM/文案/逻辑）、风格=极简精修、暗色=只跟随系统、验收=本地目检 + `npm run verify` + 前后对照。
-- **设计 token（`src/styles/global.css`）**：`--bg` / `--surface` / `--on-accent` 三个新变量；`--black`、`--gray`、`--gray-light`、`--gray-dark` 由原冷蓝灰系替换为中性灰阶（值仍为 RGB 三元组，调用点无需改动）；`--accent` 由高饱和 `#2337ff` 改为深靛蓝 `#1f4e8c`；`--box-shadow` 淡化为两层。
-- **暗色模式（初版）**：`@media (prefers-color-scheme: dark)` 覆盖全部颜色变量 + `color-scheme: light dark`；暗色下 `img` 加 `filter: brightness(0.92)` 缓解浅色截图刺眼，阴影换为 1px 边框。**无手动切换、无 FOUC、零 JS**。
-- **代码块**：`astro.config.mjs` 加 `markdown.shikiConfig.themes`（`github-light` / `github-dark`），`global.css` 用 `pre.astro-code` 的 `--shiki-dark*` 变量在暗色下覆盖；`pre` 加边框、10px 圆角、`overflow-x: auto`；行内 `code` 改为 `--surface` 底 + 1px 边框。
-- **表格**（此前只有 `width:100%`）：补边框、`th` 底色与加粗、偶数行斑马纹、`vertical-align: top`；≤720px 改 `display:block` + `overflow-x:auto`，避免 `routeros-setup-guide.md` 的 33 行宽表挤压变形。
-- **组件**：`Header` 去掉硬编码 `white` 与实心阴影，改 `--bg` + 1px 下边框；导航改用 `--accent`，active 态加深加粗；`Footer` 去掉复用顶部渐变、改上边框 + 小字号；`PostList` 分隔线淡化、hover 时标题变色并右移 3px、整个条目标题联动（原 `.title:hover` 只是标题自身）；`BlogPost` 标签胶囊改描边样式并以 `--on-accent` 兜住暗色对比；`tags/index` 的 hover 由 `--accent-dark` 统一为 `--accent`。
-- **验证**：`npm run verify` 全绿（`astro check` 0 error / 0 warning，markdownlint 24 文件 0 issues，build **36 页**）；抽查 `dist` 产物确认 `<pre>` 同时含内联浅色值与 `--shiki-dark` 变量，且 CSS 产物含 `prefers-color-scheme` 规则。
-- **提交**：`7beaaf6`（token + Shiki 配置）、`3a0c445`（组件样式）；**未 push**。
-- **故意没做**：引入依赖 / Tailwind / 图标库 / View Transitions / 手动暗色切换按钮 / 代码复制按钮 / 行号 / 卡片化 / 双栏网格 / 换字体 / 中文标点挤压 / 新增断点。
-
-### 39. 手动主题切换按钮（2026-11-19）
-
-- **背景**：用户本地目检后要求加手动暗色切换；同时确认 SSH key 已配好、远程可达。
-- **token 重构**：全部颜色 token 改为 CSS `light-dark(浅色, 深色)`，**删掉原先重复的 `@media (prefers-color-scheme: dark)` 变量覆盖块**（改色只需改一处）。三元组写法随之取消，调用点从 `rgb(var(--x))` / `rgba(var(--x), α)` 收敛为 `var(--x)` / `color-mix(in srgb, var(--x) α%, transparent)`（共 35 处，纯机械替换）。
-- **主题状态**：三态循环「跟随系统 → 浅色 → 深色」。`<html data-theme="light|dark">` 表示强制，**无该属性即跟随系统**；`html[data-theme]` 上的 `color-scheme` 是 `light-dark()` 生效的开关，不能写进 `:root`。
-- **按钮**（`Header.astro`）：内联 SVG 三图标（半圆/太阳/月亮），零新依赖，`currentColor` 跟随主题；按 `data-theme` 显示对应图标；`aria-label` / `title` 用中文写明当前状态。窄屏（≤480px）与导航同排换行。
-- **持久化 + 防闪烁**：`localStorage.theme`（`auto`/`light`/`dark`）；`BaseHead.astro` 的 `<head>` 内用 `<script is:inline>` 同步读取并写 `data-theme`，早于首次绘制，避免深色用户白闪。两处 `localStorage` 访问都包了 try/catch，隐私模式退化但不报错。
-- **联动修正**：Shiki 深色着色与 `img` 压暗原先只挂在 `@media (prefers-color-scheme: dark)` 下，手动切深色时不生效；现改为 `html[data-theme='dark'] …` **加上** `@media (prefers-color-scheme: dark) { html:not([data-theme='light']) … }`，两种来源都覆盖。
-- **验证**：`npm run verify` 全绿（0 error / 0 warning，24 文件 0 issues，36 页）。在 `dist` 产物里核对：`light-dark()` 10 处未被构建移除；`<head>` 内联脚本存在；`html[data-theme=dark]` 的图片与 Shiki 规则、`html:not([data-theme=light])` 的 media 规则均正确输出。
-- **注意**：`light-dark()` 只接受颜色值，**不能包整段 `box-shadow` 列表**——阴影统一为浅色软阴影 + `--ring`（浅色为 transparent，深色为 1px 描边）。
-
-### 40. 移动端 theme-color（2026-11-19）
-
-- **背景**：第 39 项做完后发现移动端浏览器地址栏/状态栏配色不跟随主题，切换按钮在手机上只生效一半。
-- **实现**：`BaseHead.astro` 加 `<meta name="theme-color" content="#fdfdfc">` 默认值（必须在 `<head>` 内、且写在初始化脚本**之前**），由同一段 `is:inline` 脚本按实际主题改写为 `#16181d` / `#fdfdfc`；`Header.astro` 的 `applyMode()` 也调 `syncThemeColor()`，保证手动切换即时生效；另监听 `matchMedia('(prefers-color-scheme: dark)').addEventListener('change')`，仅在「自动」态下同步。
-- **验证**：`npm run verify` 全绿（0 error / 0 warning，24 文件 0 issues，36 页）；产物中 `theme-color` meta 仅出现 1 次且位于脚本前，inline 脚本未被压缩。
-- **纠正一条既有误判**：Markdown 正文图片**早已**由 Astro 自动加 `loading="lazy"` 与 `decoding="async"`（`<Image>` 组件与 Markdown 管线都做了），实测 8 张图片全部带该属性。此前"正文截图缺懒加载"的说法不成立，无需改动。
-
-### 41. 代码块复制按钮 + 404 页美化（2026-11-19）
-
-- **代码块复制**（`BlogPost.astro` 末尾 `<script>` + `global.css`）：遍历 `.prose pre.astro-code`，用 JS 包一层 `.code-frame` 再插入 `<button class="code-copy">`。**必须包一层**——`pre` 自带 `overflow-x: auto`，按钮直接放进去会跟着横向滚动跑掉。点击后文案变「已复制」/「复制失败」并保持 2 秒。
-  - 桌面端 hover 才淡入，`@media (hover: none)` 下常驻（触屏没有 hover，否则点不出来）。
-  - 只用 `navigator.clipboard`，**不做 `execCommand` 兜底**：站点在 GitHub Pages HTTPS 下运行，clipboard API 必然可用；`execCommand` 已弃用，留一段不可达的兜底只会让 `astro check` 出 hint 且增加维护面。失败仅可能是用户拒绝权限，如实提示即可。
-  - 脚本是 Astro 打包的共享模块，About 页（共用 `BlogPost` 布局但无代码块）也会加载它；选择器无匹配、遍历为空，直接跳过。
-  - 失败态颜色走 `--danger` token（`light-dark(#b02a2a, #ff8f8f)`），不硬编码。
-- **404 页**（`src/pages/404.astro`）：大号 404（`clamp(3.5rem, 12vw, 6rem)`，`--accent` 色）+ 标题 + 说明 + 两个按钮（返回首页 / 浏览标签），列表居中；主要按钮用 `--accent` + `--on-accent`，暗色下自动反色。链接均带 `base` 前缀（`/blog/`、`/blog/tags/`）。样式按页面 scoped 注入 `404.html` 的内联 `<style>`。
-- **验证**：`npm run verify` 全绿（0 error / 0 warning / 0 hint，24 文件 0 issues，36 页）。产物核对：`.code-copy` `.code-frame` `data-state` `hover:none` 规则均输出；404 页 scoped 样式与两个链接正确（`/blog/`、`/blog/tags/`）；首页不加载复制脚本。
-- **过程中修掉两个自己引入的问题**：`.code-frame > pre { margin: 0 }` 会抹掉 `pre` 默认外边距导致代码块紧贴上下文，已给 `.code-frame` 补 `margin: 1em 0`；失败态颜色原先硬编码 `#c04040`，已收敛为 `--danger`。
-
-### 42. 代码字体改为自托管等宽（2026-11-20）
-
-- **背景**：原 `code` / `pre` 没有 `font-family`，落到 UA 默认 `monospace`（Windows 上实际是 Consolas），与正文 Atkinson Hyperlegible 明显不是一套，用户反馈"代码字体和别的不一样"。目标是给代码一套**有意选择、跨设备一致**的自托管等宽字体，只作用于 `code` / `pre`，不动正文与标题排版。
-- **选型**：**Atkinson Hyperlegible Mono**（正文 Atkinson 的等宽同胞，同源设计、同许可）。latin 子集、仅 400 + 700 normal、**woff2**：`atkinson-mono-regular.woff2` 10,056 B、`atkinson-mono-bold.woff2` 10,040 B，合计约 20 KB；文件直接入库 `src/assets/fonts/`，**不新增 npm 依赖**。来源 `@fontsource/atkinson-hyperlegible-mono@5.3.0`（上游 `github.com/googlefonts/atkinson-hyperlegible-next-mono`），许可 **SIL OFL-1.1**，许可文本随仓库放 `src/assets/fonts/OFL-AtkinsonHyperlegibleMono.txt`。
-- **接入**（`astro.config.mjs`）：新增第二段 `fontProviders.local()` 配置，`name: 'Atkinson Mono'`、`cssVariable: '--font-mono'`，回退栈按「拉丁等宽 → 系统等宽（`ui-monospace, SFMono-Regular, Menlo, Consolas, DejaVu Sans Mono`）→ 中文栈（`PingFang SC, Hiragino Sans GB, Microsoft YaHei, Noto Sans CJK SC`）→ `monospace`」排列；Astro 会自动补一层 metrics 匹配的 fallback（本次落在 `Courier New`）。
-- **注入**：`BaseHead.astro` 在原有 `<Font cssVariable="--font-atkinson" preload />` 之后加 `<Font cssVariable="--font-mono" />`。**等宽字体不预加载**——只有含代码的页面才需要它，预加载会让所有页面白付一次请求；正文 Atkinson 的预加载保持不变。
-- **样式**（`global.css`）：`code` 与 `pre` 各加一行 `font-family: var(--font-mono)`；`pre > code { all: unset }` 依赖继承，故代码块内字体自动跟随 `pre`，无需再写一遍。
-- **尺寸调整**：Atkinson Mono 每字符宽 `0.632em`，比 Windows 上的 Consolas（`0.55em`）宽约 15%，同样 18px 下每行少放约 10 个字符，全站 1090 行代码里有 15 行新增横向溢出。故给 `pre` 补 `font-size: 0.9em`（16.2px），与行内代码原本的 `0.9em` 统一，溢出收敛到 3 行（均为本身超过 85 字符的极端长命令）。`pre.astro-code` 的内边距、边框、圆角、复制按钮均未改动。
-- **回退表现**：代码块中的中文注释回退到系统中文字体（全站 17 篇含中文注释）；唯一含框线字符的 `nginx-srs-live-streaming-guide.md` 树形图走系统等宽兜底，`├── │` 对齐未被破坏。Atkinson Mono latin 子集 219 字形，不含框线（U+2500–257F）与箭头（U+2190–21FF），这类字符一律依赖回退，属预期行为。
-- **验证**：`npm run verify` 全绿（`astro check` 0 error / 0 warning，markdownlint 25 文件 0 issues，build 36 页）。产物核对：`--font-mono` 变量与 `@font-face` 指向 `font-mono-400/700-normal-*.woff2`；`<link rel="preload">` 仍只有正文 Atkinson 两个字重；浅色 / 深色、行内代码、含中文注释的代码块均逐项目检正常，`immortalwrt` 那篇的 `physdiskwrite.exe` 长命令在 `0.9em` 下已完整放下。
-- **故意没做**：不改行内代码的 `0.9em` 与边框、不改 `docs/WRITING.md`、不加 italic 字重（内容里没有 `md` 代码块，Shiki 的 italic 只作用于极少数 scope，正文本身也是合成倾斜）、不给现有 Atkinson 补许可文件（模板遗留，不追改）。
-
-### 43. 全站视觉精修（内容优先）（2026-11-20）
-
-- **背景**：站点功能完备，但视觉停留在模板默认水平。目标是在**保留现有阅读型博客骨架**的前提下，把 token、层级、留白、微交互与动效提升一档；明确**不做** Awwwards 式超大字号、非对称网格、滚动叙事。
-- **约束**：不改 `docs/superpowers/specs/2026-10-28-article-typography-design.md` 已收敛的正文尺度（正文 18px / 行高 1.7 / H1 2em）；不新增 npm 依赖；不请求任何外部资源；保持 tab 缩进；GitHub Pages 子路径 `/blog`。
-- **新增 token**（`global.css`）：`--hairline`（1px 极浅分隔线）、`--ease: cubic-bezier(0.2, 0.7, 0.2, 1)`（全站统一过渡曲线）、`--header-height: 4.2rem`；`scroll-margin-top` 按 `--header-height` 适配新 sticky 头部。
-- **基础排版层**：`body` 去掉 `--gray-gradient` 顶部渐变（改为纯色底）、补 `font-kerning` / `text-rendering`；`::selection` 用 accent 混合色；标题加 `letter-spacing: -0.011em` 与 `text-wrap: balance`；链接的 `text-decoration-color` 半透明、hover 转实；`:focus-visible` 加 2px 圆角描边；`li::marker` 用 accent；新增 `kbd` 样式；`.prose p > img` 居中并加 1.6em 上下距；blockquote 改 2px 左侧细线 + 灰字（去灰底）；`hr` 用 `--hairline`。
-- **代码块**：`pre` 内边距 1.4em、圆角 12px、`tab-size: 4`、`scrollbar-width: thin`、`overscroll-behavior-x: contain`；`.code-copy` 描边改 `--hairline`，加 `backdrop-filter` 与 `:active` 缩放。
-- **首页**（`src/pages/index.astro`）：新增 masthead —— kicker「技术笔记 / NOTES」+ H1（`clamp(2rem, 5vw, 2.9rem)`）+ lead + 「23 篇文章 / 9 个标签」计数；下方「最近更新」段头（右侧「按标签浏览」入口），再接 `PostList`。
-- **列表条目**（`PostList.astro`）：整行 `<a>` 可点（原先是标题链接），hover 整行浅底色 + 标题 `→` 滑入；日期与「更新于」同一行；标签**单独一行**描边胶囊（和日期挤在一起会在行尾留下孤零零的分隔点）；`data-reveal` 挂在每个 `<li>` 上。
-- **文章页**（`BlogPost.astro` + `[...slug].astro`）：标题区留白加大（`margin-bottom: 2.2em`），H1 `2.1em`，日期小字等宽数字，`.title hr` 改 3em 居中短横线，标签改描边胶囊；hero 图下加 2.5em。**阅读时长已按用户要求移除**（原先按中文 350 字/分、西文 200 词/分、代码 10 行/分估算并显示「约 N 分钟」，同日回退，`readingTime` prop 与计算逻辑一并删除）。
-- **页头**（`Header.astro`）：sticky + `backdrop-filter: blur(12px) saturate(140%)`；导航灰色 hover 转黑；当前页用 2px 短横线（`::after` + `scaleX`）替代原 4px 底边——`HeaderLink.astro` 的 active 下划线已移除，交给 Header 统一控制；主题按钮改描边 pill；**≤480px 改静态定位并两行布局**（标题一行、导航一行）。
-- **标签页**（`tags/index.astro`、`tags/[tag].astro`）：索引页头部「N 个标签，按文章数排序」，列表行 hover 高亮 + 等宽计数胶囊；单标签页改面包屑「标签 /」+ H1 + 「N 篇文章」，列表复用 `PostList`。
-- **页脚**（`Footer.astro`）：两栏（版权 + 首页/标签/关于/RSS），`width: calc(var(--list-width) - 2em)` 与正文左缘对齐。
-- **进场动效**（`BaseLayout.astro`）：JS 只给**首屏之外**的 `[data-reveal]` 加 `.reveal-pending`，再由 IntersectionObserver 淡入；首屏不参与，**无 JS 也照常可见**；`prefers-reduced-motion` 下全关。
-- **表格**：改「只留横线」的轻量样式（去掉满格网格与斑马纹），移动端在自身盒子内横向滚动。
-- **过程中修掉一个自己引入的问题**：窄屏表格原本用 `width: max-content; min-width: 100%`，滚动容器自身就比视口宽，导致整页横向溢出（实测 `immortalwrt` 页 `docOverflow: 930`、`debian-zswap` 页 `596`）。改为 `width: 100%` + 自身 `overflow-x: auto` 后两页 `docOverflow: 0`。注意：代码块内部 `CODE`/`SPAN.line` 超出视口是 `pre` 自身横向滚动的预期行为，不算页面溢出；检测应看 `document.documentElement.scrollWidth - clientWidth`。
-- **验证**：`npm run verify` 全绿（`astro check` 24 文件 0 error / 0 warning / 0 hint，markdownlint 0 issues，build 36 页）。目检覆盖：首页浅色/深色、文章页浅色/深色、含表格文章、含列表文章、标签索引页/单标签页、About、404、移动端首页/文章页、列表 hover 态；另外脚本校验了 `[data-reveal]` 首屏不隐藏、滚动后全部可见、各页 `docOverflow: 0`。
-- **故意没做**：不改正文字号/行高与 `article-typography-design.md` 结论；不加自定义调色板（沿用原 accent）；不加动画库、不加字体、不加依赖；不做暗色下的额外配色微调；不重排文章内容。
-
----
-
-## 二、当前状态
+## 1. 当前状态
 
 | 项 | 值 |
-|----|----|
-| 本地路径 | `D:\Syncthing\blog` |
-| 分支 | `main`，工作区干净（`.stfolder/` 为 Syncthing 标记目录，已加入 `.gitignore`） |
-| 远程 | `https://github.com/furukawanagisadesi/blog.git` |
-| 线上地址 | https://furukawanagisadesi.github.io/blog/ |
-| 文章数 | 23 篇（2026/08 共 15 篇，Docker 系列在 `Docker/`、SQL 在 `SQL/` 子目录；2026/09 2 篇；2026/11 6 篇） |
-| 主页 | 纯文字文章列表（标题+描述+发布日期，有更新时附「更新于」） |
-| 标签页 | `/blog/tags/`（标签索引，9 个：`Docker` / `VMware` / `Linux` / `Network` / `SQL` / `RouterOS` / `ImmortalWrt` / `Browser` / `Rime`）+ `/blog/tags/<slug>/`（各标签文章列表）；导航加「标签」 |
-| About 页 | 个人简介 + 邮箱 |
-| 评论系统 | Twikoo（Vercel 云函数 + MongoDB Atlas），envId=`https://vercel-69q075mt0-furukawanagisadesi.vercel.app`，无登录留言，About 页不显示；**当前已关闭**（`src/consts.ts` 的 `COMMENTS_ENABLED = false`） |
-| 最新提交 | 手动主题切换（本次提交）+ 视觉改版 `3a0c445` / `7beaaf6` / `7f2750e`；内容提交 `a713385`（第 37 项）；本文档更新提交以 `git log -1` 为准 |
-| 视觉主题 | 极简精修（2026-11-20 全站视觉精修，见第 43 项）：浅色 `#fdfdfc` 底 / 深靛蓝 `#1f4e8c` 强调色；**主题三态**（跟随系统 / 浅色 / 深色），页头按钮切换并存入 `localStorage.theme`，`<head>` 内联脚本防白闪，移动端 `theme-color` 同步；首页 masthead + 「最近更新」列表（整行可点、标题箭头、标签胶囊）；页头 sticky 毛玻璃（≤480px 两行静态）；表格只留横线、≤720px 在自身盒子内横向滚动；代码块 Shiki 明暗双主题 + 悬停复制按钮；首屏外元素用 IntersectionObserver 淡入，`prefers-reduced-motion` 下全关 |
-| 本机环境变更（2026-11-03） | Linux 端 remote 改为 `ssh://git@ssh.github.com:443/...`（SSH key 认证，key 需 `ssh-add` 解锁后才可用；服务器地址为 `user.email=furukawanagisadesi@gmail.com`/`user.name=furukawanagisadesi` 的仓库级配置） |
+| --- | --- |
+| 仓库 | `D:\Syncthing\blog`（Linux 侧可能挂在 NTFS 上，见坑 4） |
+| 分支 / 远程 | `main` / `https://github.com/furukawanagisadesi/blog.git`（Linux 侧为 `ssh://git@ssh.github.com:443/...`） |
+| 线上 | https://furukawanagisadesi.github.io/blog/ （GitHub Pages，子路径 `/blog`） |
+| 技术栈 | Astro 7 + Markdown content collections，Node `>= 22.12` |
+| 评论 | Twikoo（Vercel + MongoDB Atlas），**当前关闭**，开关是 `src/consts.ts` 的 `COMMENTS_ENABLED` |
+| 主题 | 跟随系统 / 浅色 / 深色三态，存 `localStorage.theme` |
 
-### 文章目录结构
-```
-src/content/blog/2026/08/
-	├── immortalwrt-soft-router-guide.md  # ImmortalWrt 软路由安装配置指南
-	├── routeros-setup-guide.md           # RouterOS 配置流程
-	├── ie-slow-loading-troubleshoot-guide.md  # IE 网页加载缓慢异常查询与解决
-	├── vmware-ubuntu-setup-guide.md      # VMware Ubuntu 安装流程
-	├── vmware-ubuntu-virtual-audio-bug-fix.md   # VMware Ubuntu 虚拟音频设备离线解决方案
-	├── vmware-debian-setup-guide.md      # VMware Debian 安装后设置教程
-	├── vmware-dual-vm-isolation-guide.md # VMware 双虚拟机隔离上网教程
-	├── Docker/
-	│   ├── easytier-docker-guide.md
-	│   ├── nginx-srs-live-streaming-guide.md
-	│   ├── rustdesk-docker-guide.md
-	│   ├── srs-docker-guide.md
-	│   ├── syncclipboard-docker-guide.md
-	│   ├── syncthing-docker-guide.md
-	│   └── webdav-docker-guide.md
-	└── SQL/
-	    └── sql-in-vs-exists-guide.md    # SQL IN 与 EXISTS 的理解
+文章数、标签数、最新提交这类会变的值不在这里手抄，需要时看 `dist/` 或 `git log -1`。
 
-src/content/blog/2026/09/
-	├── vmware-download-guide.md              # VMware 下载流程
-	└── vmware-pipewire-audio-stutter-fix.md  # VMware Linux PipeWire 音频卡顿解决方案
+## 2. 目录结构与关键文件
 
-src/content/blog/2026/11/
-	├── debian-zswap-setup-guide.md      # Debian 设置 zswap 教程
-	├── debian-vscode-install-guide.md   # Debian 安装 VS Code 教程
-	├── debian-rime-caps-lock-fix.md     # Debian 13 GNOME 下 Rime Caps 无法输入大写字母的解决方法
-	├── fedora-zswap-setup-guide.md      # Fedora 设置 zswap 教程
-	├── fedora-setup-guide.md            # Fedora 安装后设置教程
-	└── rime-user-dictionary-lag-fix.md  # Rime 输入法词汇不跟手解决方案
+```text
+src/content/blog/YYYY/MM/<slug>.md   # 文章，YYYY/MM 取发布日期
+src/content/blog/YYYY/MM/Docker/     # 专题子目录，目录名首字母大写
+src/content/blog/YYYY/MM/SQL/
+docs/WRITING.md                      # 格式规范（唯一来源）
+docs/PUBLISH.md                      # 发布流程
+docs/DECISIONS.md                    # 设计取舍
 ```
 
-### 相关代码位置
-- 内容 schema：`src/content.config.ts`（强制 title/description/pubDate；`tags` 可选、默认空数组）
-- 公共外壳：`src/layouts/BaseLayout.astro`（`<html lang="zh-CN">` + BaseHead + Header + slot + Footer；接收 `title / description / image / ogType`）
-- 文章路由：`src/pages/[...slug].astro`（用 `post.id` 作 slug，含日期/子目录路径）
-- 主页列表：`src/pages/index.astro`（基于 BaseLayout，按最近活动日期降序，见第 22 项；文章标题用 `h3`；列表渲染抽到 `PostList`）
-- 文章列表组件：`src/components/PostList.astro`（标题 + 描述 + 日期，首页与标签页共用）
-- 标签：`src/lib/tags.ts`（`slugifyTag` / `getAllTags` / `getPostsByTag`）；`src/pages/tags/index.astro`（`/tags/`）、`src/pages/tags/[tag].astro`（`/tags/<slug>/`）；schema 的 `tags` 字段在 `src/content.config.ts`
-- 文章布局 + Twikoo：`src/layouts/BlogPost.astro`（基于 BaseLayout，`ogType="article"`；渲染 frontmatter title 为 H1；`pubDate`/`heroImage` 可选，缺省不渲染日期区与空封面；`showComments` prop 控制 Twikoo 显示，About 页传 false；Twikoo 容器/脚本用 `IntersectionObserver` 滚动懒加载；JS/CSS 自托管于 `public/vendor/twikoo/1.7.20/`；加载失败/超时由状态面板兜底，可重试）；`src/consts.ts` 的 `COMMENTS_ENABLED` 为评论总开关（当前 `false`）
-- 元信息：`src/components/BaseHead.astro`（`ogType` 控制 og:type；含 twitter:title/description/image；og:image 默认占位图）
-- 日期格式：`src/components/FormattedDate.astro`（`zh-CN`，显示如 `2026年9月17日`）
-- 字体：`astro.config.mjs`（Atkinson 本地字体 + `fallbacks` 中文栈 `PingFang SC / Hiragino Sans GB / Microsoft YaHei / Noto Sans CJK SC`）；`src/styles/global.css` 的 `body` 用 `var(--font-atkinson)`
-- 文章标题间距：`src/styles/global.css`（`.prose h2~h6` 有 `margin-top: 1.5em`，Header 的 `h2` 有独立样式不受影响）
-- 站点信息：`src/consts.ts`（SITE_TITLE=furukawanagisadesi 的博客）
-- 视觉主题（2026-11-19）：`src/styles/global.css` 的设计 token 集中在 `:root`——`--bg`、`--surface`、`--accent`/`--accent-dark`/`--on-accent`、`--black`/`--gray`/`--gray-light`/`--gray-dark`/`--ring`，**每个都写成 `light-dark(浅色, 深色)`**，调用点直接 `var(--x)`，半透明用 `color-mix(in srgb, var(--x) α%, transparent)`。生效哪组由 `html` 的 `color-scheme` 决定：无 `data-theme` 时跟随系统，`html[data-theme='light'/'dark']` 强制覆盖——**新增 light-dark 相关规则时记住这个开关在 `html` 上，写进 `:root` 会失效**。主题三态由 `Header.astro` 的按钮切换并写入 `localStorage.theme`，`BaseHead.astro` 的 `<head>` 内联脚本在首绘前恢复，防白闪。语法高亮用 Shiki 双主题（`astro.config.mjs` 的 `markdown.shikiConfig.themes`），深色着色规则同时挂在 `html[data-theme='dark']` 和 `@media (prefers-color-scheme: dark) { html:not([data-theme='light'])… }` 两处，新增类似规则要两处都补。**新增组件样式时不要硬编码颜色，一律用 token。**
-- About 页：`src/pages/about.astro`
+| 位置 | 作用 |
+| --- | --- |
+| `src/content.config.ts` | 内容 schema：必填 `title` / `description` / `pubDate`，`tags` 可选，校验 `updatedDate >= pubDate` |
+| `src/layouts/BaseLayout.astro` | 公共外壳：`<html lang="zh-CN">` + head + Header + Footer |
+| `src/layouts/BlogPost.astro` | 文章布局：标题、日期、标签、正文、代码块复制按钮、评论区 |
+| `src/pages/[...slug].astro` | 文章路由，slug 用 `post.id`（含日期与子目录） |
+| `src/components/PostList.astro` | 文章列表，首页与标签页共用 |
+| `src/lib/dates.ts` | 日期比较与排序键 |
+| `src/lib/posts.ts` | `sortByRecentActivity()`，首页 / 标签 / RSS 共用 |
+| `src/lib/tags.ts` | `slugifyTag` / `getAllTags` / `getPostsByTag` |
+| `src/pages/tags/` | `/tags/` 索引与 `/tags/<slug>/` 列表 |
+| `src/styles/global.css` | 设计 token（`light-dark()`）与全站排版 |
+| `astro.config.mjs` | 字体（正文 Atkinson + 等宽 Atkinson Mono + 中文回退栈）、Shiki 明暗双主题 |
+| `src/assets/fonts/` | 自托管字体与 OFL 许可 |
+| `src/consts.ts` | 站点标题、描述、`COMMENTS_ENABLED` |
+| `public/vendor/twikoo/1.7.20/` | 自托管 Twikoo 资源（当前未启用） |
+| `scripts/` | `new-post.mjs`（新建骨架）、`fmt-frontmatter.mjs` |
 
----
+### 主题与暗色
 
-## 三、待办事项（供后续 Agent）
+颜色 token 全在 `global.css` 的 `:root`，每个都写成 `light-dark(浅色, 深色)`。生效哪组由 `html` 的 `color-scheme` 决定：无 `data-theme` 跟随系统，`html[data-theme='light'/'dark']` 强制覆盖 —— **开关在 `html` 上，写进 `:root` 会失效**。Shiki 深色着色要同时挂在 `html[data-theme='dark']` 和 `@media (prefers-color-scheme: dark) { html:not([data-theme='light']) … }` 两处。组件样式一律用 token，不硬编码颜色。
 
-1. **新增文章规范**（完整步骤见第四节「文章检查流程」）：
-   - 放 `src/content/blog/YYYY/MM/` 对应日期目录（Docker 类放 `Docker/` 子目录）
-   - 文件名用英文 slug（如 `xxx-docker-guide.md`）
-   - **必须带 frontmatter**：`title` / `description` / `pubDate`；建议补 `tags`（英文标签，见第 19 项）
-   - 如需同日排序，pubDate 可加时间（`2026-08-08 14:30`）
-   - 构建验证 + git 提交推送
+## 3. 待办
 
-2. **markdown 格式规范**（新文章遵循，参见第五节）：代码块语言标记、行内代码、中英文空格、结构顺序；完整检查步骤见第四节
+1. 首页分页：文章更多时再考虑。
+2. 恢复评论：前提见 `docs/DECISIONS.md` 第 6 节。
+3. Header / Footer 社交链接：暂不做。
+4. 有新的设计取舍就写进 `docs/DECISIONS.md`。
 
-3. **图片资源**：`src/assets/` 目前只剩 `blog-placeholder-1.jpg`（`BaseHead` 默认 fallback 仍在用）与 9 张文章截图，已无需要清理的未引用图片（第 28 项已集中清理过）
+## 4. 踩坑（会真出事的）
 
-4. **图片管理**：文章内截图请放到 `src/assets/` 并命名有意义（如 `vmware-virtual-audio-offline.png`），文章中用相对路径 `../../../../assets/图片名` 引用（从 `src/content/blog/2026/08/` 出发是 4 层 `../`）。**不要把图片直接放 `src/content/blog/` 下**，也不要放文件名无意义的 `image.png`/`image-1.png`
+### 坑 1：删文章后构建报 `UnknownContentCollectionError`
 
-5. **未决项**：
-   - 首页分页：文章多以后可加分页（标签功能已完成，见第 19 项）
-   - `immortalwrt-soft-router-guide.md` 的 heroImage 已被注释掉（用户选择不用封面图）
-   - Header/Footer 暂无社交链接（用户暂不放）
+Astro 内容层在 `node_modules/.astro/data-store.json` 缓存了已删除的文章。先 `Remove-Item -Recurse node_modules/.astro` 再构建。
 
-6. **Twikoo 待办**：
-   - **恢复评论**：先把 `src/consts.ts` 的 `COMMENTS_ENABLED` 改回 `true`（第 27 项）；大陆直连 Vercel 仍可能超时
-   - 可选：绑定自定义域名（Vercel → Domains 添加 → Cloudflare 加 CNAME 开代理），然后把 `BlogPost.astro` 里的 envId 换成新域名
-   - 进入 Twikoo 管理面板（评论框右上角 ⚙️ 齿轮 + 管理密码）可改评论设置（如评论每页条数 `COMMENT_PAGE_SIZE`、开启反垃圾、验证码等）
-   - 若改 Vercel 部署配置，务必保持 Vercel Authentication = Disabled
+### 坑 2：中文文件名导致线上 URL 乱码
 
----
+文件名一律英文 kebab-case slug。线上 URL 出现乱码就是这个原因。
 
-## 四、文章检查流程（新增/修改文章照此执行）
+### 坑 3：缺 frontmatter 构建失败
 
-> 逐条过一遍；markdown 格式细节见 `docs/WRITING.md`。
+schema 强制 `title` / `description` / `pubDate`。新文章一律用 `npm run new` 生成骨架，不要手抄旧文。
 
-1. **文件名**：中文、空格一律改成英文 slug（如 `vmware-pipewire-audio-stutter-fix.md`）；同类文章前缀统一（如 VMware 系列 `vmware-*-guide.md`、`vmware-*-fix.md`）
-2. **目录**：放 `src/content/blog/YYYY/MM/` 对应日期目录，Docker 类放 `Docker/` 子目录
-3. **frontmatter**：`title` / `description` / `pubDate` 三项齐全；修改已发布文章时补 `updatedDate`（填实际修改日期，同日小改可省略）；`description` 不要照抄 `title`
-4. **正文**：不要重复 H1（页面自动渲染标题）；标题层级连续不错乱
-5. **代码块**：全部带语言标记；命令用 `bash`，配置内容与 GUI 步骤用 `text`（白名单见 `docs/WRITING.md` 第 4 节）
-6. **行内代码**：路径、命令、端口、IP、软件名、配置项全部加反引号
-7. **排版**：中英文之间加空格；`**加粗**` 内部无空格；补全句号；文件末尾留一个换行
-8. **图片**：截图放 `src/assets/` 并取有意义的名字，正文用相对路径 `![描述](../../../../assets/图片名)` 引用；不要放 `image.png` 这类无意义名
-9. **敏感信息**：服务器地址 `your_ip`、账号 `your_username`、密码 `your_password`
-10. **构建验证**：`npm run build` 通过，确认新路由已生成（Astro 缓存问题见第六节坑 1）
-11. **提交推送**：`git add -A && git commit && git push`（远程为 SSH over 443，需 key 已解锁；否则改用 HTTPS 地址，见第六节坑 6）
-12. **线上核对 + 更新本文档**：部署后访问线上页面；回填「当前状态」的文章数、目录结构、最新提交
+### 坑 4：NTFS 的 `ads` 挂载让构建和 dev 全挂（仅 Linux 侧）
 
----
+仓库放在 NTFS 分区（如 `/mnt/软件/Syncthing/blog`）时，ntfs3 的 `ads` 选项把 `astro:content` 这类虚拟模块 id 的冒号当成「文件:数据流」分隔符，报 `MISSING_EXPORT "loadDevToolbarApps"` 或 `createAstroServerApp is not a function`。Windows 侧不受影响。
 
-## 五、约定：博客 markdown 统一规范 → 见 `docs/WRITING.md`
+- 判断：`mount | grep 软件` 看是否含 `ads`；`ls -d node_modules/astro:content` 存在即命中。
+- 处理：`sudo mount -o remount,ads=0 /mnt/软件`，再把 `,ads=0` 写进 `/etc/fstab` 对应行并 `systemctl daemon-reload`（`noads` 写法不支持，写了会挂载失败）。
 
-写作规范已独立成文，**唯一来源是 [`docs/WRITING.md`](docs/WRITING.md)**（front matter、标题、代码块、排版、标签词表、文章骨架、检查命令全在里面）。本节不再重复，避免两处漂移。
+### 坑 5：Twikoo「评论失败：0」
 
-从新建文章到线上可见的完整操作步骤见 [`docs/PUBLISH.md`](docs/PUBLISH.md)。
+Vercel 的 Deployment Protection 没关时，OPTIONS 预检被重定向到登录页，被 CORS 拦下，HTTP 状态 0。恢复评论前先把它设为 **Disabled** 并 Redeploy。
 
-配套工具（已并入仓库）：
+## 5. 日常速查
 
 ```bash
-npm run new -- <slug> "<标题>"   # 新建符合规范的骨架
-npm run lint:md                  # 检查
-npm run fix:md                   # 自动修可修复项
-npm run fmt:frontmatter          # 统一 front matter 引号/键序/标签排序
-npm run verify                   # check + lint:md + build
+npm run dev                              # http://localhost:4321/blog/
+npm run new -- <slug> "<标题>"            # 新建符合规范的骨架
+npm run verify                           # astro check + markdownlint + build
+git add -A && git commit && git push      # push 即触发部署
 ```
 
-`simple-git-hooks` 已接管 pre-commit，对改动的 md 自动跑 `markdownlint-cli2 --fix`；CI 会跑全量 lint 兜底。
-
----
-
-## 六、踩坑记录
-
-### 坑 1: Astro 内容缓存
-- Astro v7 内容层在 `node_modules/.astro/data-store.json` 持久化缓存已删除的文章
-- 删除示例文章后直接 build 仍渲染旧路由，引发 `UnknownContentCollectionError`
-- **修复**：`Remove-Item -Recurse node_modules/.astro` 后再构建
-
-### 坑 2: dev server 缓存
-- `npm run dev` 若显示旧版页面，重启 dev server 或浏览器强刷（Ctrl+Shift+R）即可，代码本身一致
-
-### 坑 3: 中文文件名 → URL 乱码
-- 中文文件名生成的 slug 会乱码（如 `immortalwrt-软路由安装配置指�?`）
-- **修复**：统一英文 slug 文件名
-
-### 坑 4: 缺 frontmatter 导致构建失败
-- content schema 强制 `title`/`description`/`pubDate`，新文章不加会 build 报错
-
-### 坑 5: 主页错位（已解决）
-- 原布局第一篇为通栏 featured 卡片需 hero 图；无图则错位
-- 已改为纯文字列表，彻底解决
-
-### 坑 6: 网络/代理
-- GitHub 推送依赖代理，地址写在 `~/.gitconfig` 的 `http.proxy` / `https.proxy`（当前为 `http://192.168.211.130:17897`），代理未启动时 push 失败
-- 直连也被墙；需先启动代理再 `git push`
-- 远程是 `ssh://git@ssh.github.com:443/...`；Windows 上 SSH key 未加入 agent 时会报 `Permission denied (publickey)`，可改用 HTTPS 地址推送：`git push https://github.com/furukawanagisadesi/blog.git main`（凭据已存于 `~/.git-credentials`）
-
-### 坑 7: Twikoo「评论失败：0」（CORS preflight 被重定向）
-- 现象：提交评论报「评论失败：0」，Console 显示 `Redirect is not allowed for a preflight request`
-- 原因：Vercel 的 **Deployment Protection（Vercel Authentication）未关闭**，导致对 OPTIONS 预检请求重定向到 `vercel.com/login`，被浏览器 CORS 拦截；HTTP 状态 0 表示请求根本没到达业务函数
-- **修复**：Vercel → 项目 → Settings → Deployment Protection → **Vercel Authentication = Disabled** → Save → Redeploy
-- 注意：读取能通但提交失败，就是此原因（读走 GET、提交走 POST+新头触发 preflight）
-
-### 坑 8: zswap `compressor=zstd` 静默回退 lzo
-- 现象：内核命令行写了 `zswap.compressor=zstd`，开机后 `/sys/module/zswap/parameters/compressor` 仍是 `lzo`，且**没有任何报错**
-- 原因：`zswap` 是内建（`CONFIG_ZSWAP=y`），初始化在 `subsys_initcall` 阶段，**早于**根文件系统挂载与用户态 `modprobe`，此时 `/lib/modules` 不可用，`crypto/zstd.ko.xz` 加载不到，内核回退到内建的默认算法 `lzo`。把 `zstd` 放进 initramfs 也无效，模块加载仍晚于 zswap 初始化
-- 处理：用内建 `lzo`（推荐，开机即用不会回退）；或开机后 `modprobe zstd` → `enabled=0` → `compressor=zstd` → `enabled=1`（需池为空）；彻底方案是编译内核时把 zstd 设为默认算法（个人机器不划算）
-- 排查命令：`for f in /sys/module/zswap/parameters/*; do echo "$(basename $f)=$(cat $f)"; done`、`grep -E "zstd" /proc/crypto`（无输出即未加载）
-
-### 坑 9: NTFS 盘的 `ads` 挂载选项让 astro 构建和预览全部失败（仅 Linux 侧）
-- 现象：仓库放在 NTFS 分区（如 `/mnt/软件/Syncthing/blog`）时，`npm run build` 报 `MISSING_EXPORT "loadDevToolbarApps" is not exported by "node_modules/astro:toolbar:internal/dist/index.js"`，`astro check` 同样失败；`npm run dev` 启动即退出，`.astro/dev.log` 里写的是 `createAstroServerApp is not a function`
-- 原因：ntfs3 挂载默认带 `ads` 选项，冒号被当作「文件 : 数据流」分隔符。astro 的虚拟模块 id（`astro:toolbar:internal`、`astro:content`、`astro:server-app`）因此被解析成 `node_modules/astro` 加子路径，加载到了错误的文件。同一份代码、同一个 lockfile 在 ext4 上构建完全正常，说明与依赖版本无关
-- 判断方法：`mount | grep 软件` 看挂载参数是否含 `ads`；`ls -d node_modules/astro:content` 若存在即命中（正常系统上该路径不存在）
-- 解决方案（任选其一）：
-  1. 关闭 ADS 访问：`sudo mount -o remount,ads=0 /mnt/软件` 热生效（不用 umount，`/proc/mounts` 里 `ads` 立即消失、其余选项保留），再把 `,ads=0` 追加到 `/etc/fstab` 的 `/mnt/软件` 那一行的选项列，然后 `sudo systemctl daemon-reload`（注意：ntfs3 **不支持** `noads` 写法，写了会报 `unknown option` 并挂载失败）。**本机已于 2026-11-24 按此完成，`/mnt/影视` 未改动；重启后由 fstab 生效**
-  2. 不在 NTFS 上构建：把仓库复制到 ext4 路径（如 `~/workspace/blog`）再 `npm run verify`
-  3. 只依赖 CI：push 后由 GitHub Actions 构建部署（runner 是 ext4，不受影响）
-- 影响范围：只在 Linux 侧；Windows 编辑、Windows 上构建都不受影响。`ads=0` 只关掉 Linux 用 `文件:流名` 读 NTFS 数据流的能力，不会删除已有数据
-- 验证：修好后 `npm run verify` 应全绿。2026-11-23 在 ext4 副本上验证通过；2026-11-24 在 **NTFS 原路径** `/mnt/软件/Syncthing/blog` 上完成 `ads=0` 热改 + fstab 持久化后验证通过：`astro check` 0 errors / 0 warnings / 0 hints、`markdownlint` 0 issues、`astro build` 37 页（本段此前记 36 页，差异未核实）。`ls -d node_modules/astro:content` 现在返回 `没有那个文件或目录`
-
----
-
-## 七、日常操作速查
-
-```bash
-# 本地开发
-cd "D:\Syncthing\blog" && npm run dev   # 默认 http://localhost:4321/blog/
-# Linux 侧若仓库在 NTFS 盘（/mnt/软件），dev/build 会因 ads 挂载选项失败，处理见「坑 9」
-
-# 构建验证
-npm run build
-
-# 发布（需代理在线）
-git add -A && git commit -m "..." && git push origin main
-
-# 新增文章后必做
-# 1. 放对日期目录 + 英文 slug + 完整 frontmatter
-# 2. npm run build 验证
-# 3. git add -A && git commit && git push
-# 4. 等待 1-2 分钟 Actions 部署后访问线上验证
-
-# Twikoo 管理后台
-# 1. 打开任一文章页底部评论区
-# 2. 点评论框右上角 ⚙️ 齿轮图标，输入管理密码
-# 3. 可改评论每页条数 / 反垃圾 / 验证码等设置
-```
-
----
-
-*本文档由 Agent 生成，供后续 Agent 接力使用。*
+完整发布流程与常见报错对照见 [`docs/PUBLISH.md`](docs/PUBLISH.md)。

@@ -26,9 +26,6 @@ pnpm-debug.log*
 # Syncthing folder marker
 .stfolder/
 
-# brainstorming visual companion
-.superpowers/
-
 # Syncthing version history & local Claude symlink (do not commit)
 .stversions/
 CLAUDE.md
